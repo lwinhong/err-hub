@@ -1,0 +1,213 @@
+from datetime import datetime, timezone
+
+from flask import Blueprint, request, jsonify, current_app
+
+from app.extensions import db
+from app.models.error import Error
+from app.models.project import Project
+from app.utils.fingerprint import generate_fingerprint
+from app.utils.decorators import jwt_required
+
+bp = Blueprint('errors_v1', __name__, url_prefix='/api/v1')
+
+
+@bp.route('/errors', methods=['POST'])
+def create_error():
+    token = request.headers.get('X-API-Token')
+    if not token:
+        return jsonify({'error': 'API token is required'}), 401
+    project = Project.query.filter_by(api_token=token).first()
+    if not project:
+        return jsonify({'error': 'Invalid API token'}), 401
+
+    rate_limit_key = f'rate_limit:{project.id}'
+    current = current_app.redis.incr(rate_limit_key)
+    if current == 1:
+        current_app.redis.expire(rate_limit_key, 60)
+    if current > 60:
+        return jsonify({'error': 'Rate limit exceeded'}), 429
+
+    data = request.get_json()
+    if not data or not data.get('exception_type') or not data.get('message'):
+        return jsonify({'error': 'exception_type and message are required'}), 400
+
+    fingerprint = generate_fingerprint(
+        data['exception_type'],
+        data.get('stack_trace', ''),
+        data.get('message', '')
+    )
+
+    existing = Error.query.filter_by(
+        project_id=project.id,
+        fingerprint=fingerprint
+    ).first()
+
+    if existing:
+        existing.count += 1
+        existing.last_seen_at = datetime.now(timezone.utc)
+        if existing.status == 'resolved':
+            existing.status = 'unresolved'
+        db.session.commit()
+        return jsonify({
+            'id': str(existing.id),
+            'fingerprint': existing.fingerprint,
+            'count': existing.count,
+            'status': existing.status,
+        }), 201
+
+    error = Error(
+        project_id=project.id,
+        fingerprint=fingerprint,
+        exception_type=data['exception_type'],
+        message=data['message'],
+        stack_trace=data.get('stack_trace'),
+        severity=data.get('severity', 'error'),
+        environment=data.get('environment', 'unknown'),
+        context=data.get('context'),
+    )
+    db.session.add(error)
+    db.session.commit()
+    return jsonify({
+        'id': str(error.id),
+        'fingerprint': error.fingerprint,
+        'count': error.count,
+        'status': error.status,
+    }), 201
+
+
+@bp.route('/projects/<project_id>/errors', methods=['GET'])
+@jwt_required
+def list_errors(project_id, **kwargs):
+    project = Project.query.get(project_id)
+    if not project:
+        return jsonify({'error': 'Project not found'}), 404
+
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 20, type=int)
+    per_page = min(per_page, 100)
+
+    query = Error.query.filter_by(project_id=project_id)
+
+    severity = request.args.get('severity')
+    if severity:
+        query = query.filter(Error.severity == severity)
+
+    environment = request.args.get('environment')
+    if environment:
+        query = query.filter(Error.environment == environment)
+
+    status = request.args.get('status')
+    if status:
+        query = query.filter(Error.status == status)
+
+    search = request.args.get('search')
+    if search:
+        query = query.filter(
+            db.or_(
+                Error.exception_type.ilike(f'%{search}%'),
+                Error.message.ilike(f'%{search}%'),
+            )
+        )
+
+    sort = request.args.get('sort', 'last_seen_at')
+    if sort == 'count':
+        query = query.order_by(Error.count.desc())
+    elif sort == 'first_seen_at':
+        query = query.order_by(Error.first_seen_at.desc())
+    else:
+        query = query.order_by(Error.last_seen_at.desc())
+
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+
+    return jsonify({
+        'items': [
+            {
+                'id': str(e.id),
+                'exception_type': e.exception_type,
+                'message': e.message,
+                'severity': e.severity,
+                'environment': e.environment,
+                'count': e.count,
+                'status': e.status,
+                'first_seen_at': e.first_seen_at.isoformat(),
+                'last_seen_at': e.last_seen_at.isoformat(),
+            }
+            for e in pagination.items
+        ],
+        'total': pagination.total,
+        'page': pagination.page,
+        'per_page': pagination.per_page,
+        'pages': pagination.pages,
+    })
+
+
+@bp.route('/errors/<error_id>', methods=['GET'])
+@jwt_required
+def get_error(error_id, **kwargs):
+    error = Error.query.get(error_id)
+    if not error:
+        return jsonify({'error': 'Error not found'}), 404
+    return jsonify({
+        'id': str(error.id),
+        'project_id': str(error.project_id),
+        'fingerprint': error.fingerprint,
+        'exception_type': error.exception_type,
+        'message': error.message,
+        'stack_trace': error.stack_trace,
+        'severity': error.severity,
+        'environment': error.environment,
+        'context': error.context,
+        'count': error.count,
+        'status': error.status,
+        'first_seen_at': error.first_seen_at.isoformat(),
+        'last_seen_at': error.last_seen_at.isoformat(),
+    })
+
+
+@bp.route('/errors/<error_id>', methods=['PUT'])
+@jwt_required
+def update_error(error_id, **kwargs):
+    error = Error.query.get(error_id)
+    if not error:
+        return jsonify({'error': 'Error not found'}), 404
+    data = request.get_json()
+    if not data or 'status' not in data:
+        return jsonify({'error': 'Status field is required'}), 400
+    if data['status'] not in ('unresolved', 'resolved', 'ignored'):
+        return jsonify({'error': 'Invalid status value'}), 400
+    error.status = data['status']
+    db.session.commit()
+    return jsonify({
+        'id': str(error.id),
+        'status': error.status,
+    })
+
+
+@bp.route('/projects/<project_id>/errors/stats', methods=['GET'])
+@jwt_required
+def error_stats(project_id, **kwargs):
+    project = Project.query.get(project_id)
+    if not project:
+        return jsonify({'error': 'Project not found'}), 404
+
+    severity_stats = (
+        db.session.query(Error.severity, db.func.count(Error.id))
+        .filter(Error.project_id == project_id)
+        .group_by(Error.severity)
+        .all()
+    )
+
+    status_stats = (
+        db.session.query(Error.status, db.func.count(Error.id))
+        .filter(Error.project_id == project_id)
+        .group_by(Error.status)
+        .all()
+    )
+
+    total = Error.query.filter_by(project_id=project_id).count()
+
+    return jsonify({
+        'total': total,
+        'by_severity': {s: c for s, c in severity_stats},
+        'by_status': {s: c for s, c in status_stats},
+    })
