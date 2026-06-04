@@ -8,7 +8,7 @@ from app.utils.decorators import jwt_required, admin_required
 bp = Blueprint('projects_v1', __name__, url_prefix='/api/v1/projects')
 
 
-@bp.route('/', methods=['GET'])
+@bp.route('', methods=['GET'])
 @jwt_required
 def list_projects(**kwargs):
     page = request.args.get('page', 1, type=int)
@@ -36,7 +36,7 @@ def list_projects(**kwargs):
     })
 
 
-@bp.route('/', methods=['POST'])
+@bp.route('', methods=['POST'])
 @jwt_required
 def create_project(**kwargs):
     data = request.get_json()
