@@ -8,7 +8,7 @@
         class="app-menu"
         router
       >
-        <el-menu-item index="/" class="logo-item">
+        <el-menu-item  class="logo-item">
           <span class="logo-text">ErrHub</span>
         </el-menu-item>
         <el-menu-item index="/">
