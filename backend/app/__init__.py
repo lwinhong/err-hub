@@ -1,7 +1,7 @@
 import os
 
 import redis
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_cors import CORS
 
 from app.config import DevelopmentConfig, ProductionConfig
@@ -9,7 +9,7 @@ from app.extensions import db, migrate
 
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='static')
 
     env = os.environ.get('FLASK_ENV', 'development')
     if env == 'production':
@@ -22,6 +22,15 @@ def create_app():
     CORS(app)
 
     app.redis = redis.from_url(app.config['REDIS_URL'])
+
+    # ---- SDK 静态文件路由 ----
+    @app.route('/sdk/<path:filename>')
+    def serve_sdk(filename):
+        return send_from_directory(
+            app.static_folder, filename,
+            mimetype='application/javascript',
+            max_age=3600,
+        )
 
     from app.api.v1 import bp as api_v1_bp
     from app.api.v1.auth import bp as auth_bp

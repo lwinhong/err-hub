@@ -108,6 +108,21 @@
             <pre class="code-block">{{ jsExample }}</pre>
           </div>
         </el-tab-pane>
+        <el-tab-pane label="Web SDK">
+          <el-alert
+            title="引入 SDK 后自动捕获未处理异常，并可通过 window.ErrHub 手动上报。无需额外安装任何依赖。"
+            type="success"
+            :closable="false"
+            show-icon
+            style="margin-bottom: 12px"
+          />
+          <div class="code-block-wrapper">
+            <el-button class="copy-btn" link type="primary" @click="copyCode(sdkExample)">
+              <el-icon><CopyDocument /></el-icon> 复制
+            </el-button>
+            <pre class="code-block">{{ sdkExample }}</pre>
+          </div>
+        </el-tab-pane>
       </el-tabs>
 
       <el-divider content-position="left">字段说明</el-divider>
@@ -289,6 +304,80 @@ const result2 = await reportError(
   }
 );
 console.log(result2);`
+})
+
+const sdkExample = computed(() => {
+  const token = exampleProjectToken.value
+  const sdkUrl = `${window.location.origin}/sdk/error-feedback.js`
+  const sc = '</' + 'script>'
+  return `<!-- 1. 引入 SDK，自动捕获未处理异常 -->
+<script src="${sdkUrl}"
+        data-api-token="${token}"
+        data-auto-capture="true"
+        data-environment="production"
+        data-before-send="onBeforeErrorSend">
+${sc}
+
+<!-- 2. 手动上报（可在任意 JS 中调用） -->
+<script>
+  // 最简调用：只填必填字段
+  ErrHub.report('TypeError', '按钮点击失败');
+
+  // 完整调用：含堆栈、级别、上下文
+  ErrHub.report('ConnectionError', '数据库连接超时', {
+    severity: 'critical',
+    stackTrace: new Error().stack,
+    context: { db_host: 'pg-master', db_port: 5432 }
+  });
+
+  // 捕获 Error 对象（推荐在 try/catch 中使用）
+  try {
+    riskyOperation();
+  } catch (e) {
+    ErrHub.captureException(e, { severity: 'error' });
+  }
+${sc}
+
+<!-- 3. 上报前回调：对 payload 二次加工或拦截取消 -->
+<script>
+  // data-before-send 指定的函数必须挂在 window 上
+  window.onBeforeErrorSend = function (payload) {
+    // 追加自定义字段
+    payload.context = payload.context || {};
+    payload.context.user_id = currentUser?.id;
+    payload.context.app_version = '2.1.0';
+
+    // 返回修改后的 payload 继续上报
+    return payload;
+
+    // 不返回（无 return）也会继续上报（使用原始 payload）
+
+    // 只有显式返回 false 才会取消本次上报：
+    // if (payload.severity === 'debug') return false;
+  };
+${sc}
+
+<!-- ============================================ -->
+<!-- script 标签属性说明：                         -->
+<!--   data-api-token    必填，项目的 API Token    -->
+<!--   data-auto-capture 可选，默认 true，自动捕获 -->
+<!--                     全局未处理异常和          -->
+<!--                     Promise rejection         -->
+<!--   data-environment  可选，默认 production     -->
+<!--   data-before-send  可选，指定 window 上的    -->
+<!--                     回调函数名，上报前触发    -->
+<!--                                             -->
+<!-- window.ErrHub 方法：                          -->
+<!--   .report(type, msg, opts)  手动上报          -->
+<!--   .captureException(e)      上报 Error 对象   -->
+<!--   .flush()  立即发送队列中所有待上报的错误     -->
+<!--                                             -->
+<!-- beforeSend 回调规则：                         -->
+<!--   返回 payload（可修改后）→ 继续上报          -->
+<!--   不返回（无 return）  → 继续上报原始 payload  -->
+<!--   返回 false          → 取消本次上报          -->
+<!--   抛出异常             → 仍发送原始 payload  -->
+<!-- ============================================ -->`
 })
 
 const maskToken = (token) => {

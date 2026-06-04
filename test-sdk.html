@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ErrHub SDK 测试页面</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; background: #f5f5f5; }
+        h1 { font-size: 22px; }
+        button { padding: 10px 20px; margin: 6px 4px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; color: #fff; }
+        .btn-error { background: #e74c3c; }
+        .btn-warn { background: #f39c12; }
+        .btn-crash { background: #8e44ad; }
+        .btn-promise { background: #2980b9; }
+        .btn-flush { background: #27ae60; }
+        #log { background: #1e1e1e; color: #d4d4d4; padding: 16px; border-radius: 8px; font-family: monospace; font-size: 13px; line-height: 1.8; min-height: 200px; max-height: 400px; overflow-y: auto; margin-top: 20px; }
+        .log-info { color: #6cf; }
+        .log-ok { color: #6f6; }
+        .log-err { color: #f66; }
+        .status { padding: 8px 14px; border-radius: 6px; font-size: 13px; margin-bottom: 16px; }
+        .status-ok { background: #d4edda; color: #155724; }
+        .status-fail { background: #f8d7da; color: #721c24; }
+        .status-loading { background: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+    <h1>ErrHub SDK 测试页面</h1>
+
+    <div id="sdkStatus" class="status status-loading">正在加载 SDK...</div>
+
+    <div>
+        <button class="btn-error" onclick="testReport()">手动上报 (report)</button>
+        <button class="btn-warn" onclick="testWarning()">警告上报</button>
+        <button class="btn-crash" onclick="testCrash()">触发未捕获异常</button>
+        <button class="btn-promise" onclick="testPromise()">触发 Promise 异常</button>
+        <button class="btn-flush" onclick="testFlush()">立即刷新队列</button>
+    </div>
+
+    <div id="log"></div>
+
+    <!-- 引入 SDK -->
+    <script src="http://10.1.32.139:8888/sdk/error-feedback.js"
+            data-api-token="dc09ee4b2060f40fa11e9e8c68bde6cbb58017108c2fe6517d3482c1349c1722"
+            data-auto-capture="true"
+            data-environment="development"
+            data-before-send="onBeforeErrorSend">
+    </script>
+
+    <script>
+        // beforeSend 回调：上报前对 payload 二次加工
+        window.onBeforeErrorSend = function (payload) {
+            payload.context = payload.context || {};
+            payload.context.injected_by = 'test-sdk-callback';
+            payload.context.timestamp = new Date().toISOString();
+            log('[beforeSend] payload 已加工: ' + payload.exception_type + ' - ' + payload.message, 'info');
+            return payload; // 继续上报
+            // return false; // 取消本次上报
+        };
+    </script>
+
+    <script>
+        var logEl = document.getElementById('log');
+        var statusEl = document.getElementById('sdkStatus');
+
+        function log(msg, type) {
+            var cls = type === 'ok' ? 'log-ok' : type === 'err' ? 'log-err' : 'log-info';
+            var time = new Date().toLocaleTimeString();
+            logEl.innerHTML += '<div class="' + cls + '">[' + time + '] ' + msg + '</div>';
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        // 检测 SDK 是否加载成功
+        if (window.ErrHub) {
+            statusEl.className = 'status status-ok';
+            statusEl.textContent = 'SDK 加载成功 (v' + window.ErrHub.version + ')';
+            log('SDK 加载成功，版本: ' + window.ErrHub.version, 'ok');
+            log('API 方法: ErrHub.report() / ErrHub.captureException() / ErrHub.flush()', 'info');
+        } else {
+            statusEl.className = 'status status-fail';
+            statusEl.textContent = 'SDK 加载失败！请检查网络和地址。';
+            log('SDK 加载失败，window.ErrHub 不存在', 'err');
+        }
+
+        function testReport() {
+            if (!window.ErrHub) return log('SDK 未加载', 'err');
+            window.ErrHub.report('TestError', '这是一条手动上报的测试错误', {
+                severity: 'error',
+                context: { source: 'test-page', action: 'click-button' },
+                immediate: true
+            });
+            log('已发送: ErrHub.report("TestError", "这是一条手动上报的测试错误")', 'ok');
+        }
+
+        function testWarning() {
+            if (!window.ErrHub) return log('SDK 未加载', 'err');
+            window.ErrHub.report('MemoryWarning', '内存使用率超过 90%', {
+                severity: 'warning',
+                immediate: true
+            });
+            log('已发送: 警告级别上报', 'ok');
+        }
+
+        function testCrash() {
+            log('即将触发未捕获异常（SDK 自动捕获）...', 'info');
+            setTimeout(function() {
+                throw new Error('这是一个未捕获的测试异常');
+            }, 50);
+        }
+
+        function testPromise() {
+            log('即将触发未处理的 Promise rejection（SDK 自动捕获）...', 'info');
+            new Promise(function(resolve, reject) {
+                reject(new Error('这是一个未处理的 Promise 异常'));
+            });
+        }
+
+        function testFlush() {
+            if (!window.ErrHub) return log('SDK 未加载', 'err');
+            window.ErrHub.flush();
+            log('已调用 ErrHub.flush()，队列已刷新', 'ok');
+        }
+    </script>
+</body>
+</html>
