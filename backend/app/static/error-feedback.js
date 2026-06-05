@@ -171,7 +171,7 @@
       stack_trace: options.stackTrace || undefined,
       severity: options.severity || 'error',
       environment: options.environment || environment,
-      context: options.context || _getPageContext(),
+      context: { ..._getPageContext(), ...options.context },
     };
 
     if (options.immediate) {
