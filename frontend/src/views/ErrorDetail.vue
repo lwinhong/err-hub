@@ -27,6 +27,11 @@
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="环境">{{ error.environment }}</el-descriptions-item>
+        <el-descriptions-item label="来源">
+          <el-tag :type="error.source === 'frontend' ? 'warning' : 'primary'" size="small" effect="plain">
+            {{ sourceLabel(error.source) }}
+          </el-tag>
+        </el-descriptions-item>
         <el-descriptions-item label="状态">
           <el-tag :type="statusType(error.status)" size="small">{{ statusLabel(error.status) }}</el-tag>
         </el-descriptions-item>
@@ -71,6 +76,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getError, updateError } from '../api/errors'
+import { formatTime } from '../utils/format'
 
 const route = useRoute()
 const router = useRouter()
@@ -93,10 +99,11 @@ const statusLabel = (status) => {
   return map[status] || status
 }
 
-const formatTime = (t) => {
-  if (!t) return '-'
-  return new Date(t).toLocaleString('zh-CN')
+const sourceLabel = (source) => {
+  const map = { frontend: '前端', backend: '后端' }
+  return map[source] || source
 }
+
 
 const formatContext = (ctx) => {
   if (!ctx) return '无上下文信息'

@@ -171,6 +171,7 @@
       stack_trace: options.stackTrace || undefined,
       severity: options.severity || 'error',
       environment: options.environment || environment,
+      source: 'frontend',
       context: { ..._getPageContext(), ...options.context },
     };
 

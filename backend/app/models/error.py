@@ -17,6 +17,7 @@ class Error(db.Model):
     stack_trace = db.Column(db.Text, nullable=True)
     severity = db.Column(db.String(20), default='error')
     environment = db.Column(db.String(50), default='unknown')
+    source = db.Column(db.String(20), default='backend')
     context = db.Column(JSONB, nullable=True)
     count = db.Column(db.Integer, default=1)
     status = db.Column(db.String(20), default='unresolved')

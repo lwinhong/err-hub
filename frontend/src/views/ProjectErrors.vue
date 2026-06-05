@@ -6,7 +6,7 @@
 
     <el-card shadow="hover" class="filter-card">
       <el-row :gutter="16" align="middle">
-        <el-col :span="4">
+        <el-col :span="3">
           <el-select v-model="filters.severity" placeholder="级别" clearable @change="fetchErrors">
             <el-option label="Debug" value="debug" />
             <el-option label="Warning" value="warning" />
@@ -14,14 +14,20 @@
             <el-option label="Critical" value="critical" />
           </el-select>
         </el-col>
-        <el-col :span="4">
+        <el-col :span="3">
           <el-select v-model="filters.environment" placeholder="环境" clearable @change="fetchErrors">
             <el-option label="Production" value="production" />
             <el-option label="Staging" value="staging" />
             <el-option label="Development" value="development" />
           </el-select>
         </el-col>
-        <el-col :span="4">
+        <el-col :span="3">
+          <el-select v-model="filters.source" placeholder="来源" clearable @change="fetchErrors">
+            <el-option label="前端" value="frontend" />
+            <el-option label="后端" value="backend" />
+          </el-select>
+        </el-col>
+        <el-col :span="3">
           <el-select v-model="filters.status" placeholder="状态" clearable @change="fetchErrors">
             <el-option label="未解决" value="unresolved" />
             <el-option label="已解决" value="resolved" />
@@ -57,7 +63,14 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="environment" label="环境" width="120" />
+        <el-table-column prop="source" label="来源" width="90">
+          <template #default="{ row }">
+            <el-tag :type="row.source === 'frontend' ? 'warning' : 'primary'" size="small" effect="plain">
+              {{ sourceLabel(row.source) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="environment" label="环境" width="110" />
         <el-table-column prop="count" label="出现次数" width="100" />
         <el-table-column prop="status" label="状态" width="100">
           <template #default="{ row }">
@@ -67,9 +80,10 @@
         <el-table-column prop="last_seen_at" label="最近出现" width="180">
           <template #default="{ row }">{{ formatTime(row.last_seen_at) }}</template>
         </el-table-column>
-        <el-table-column label="操作" width="80" fixed="right">
+        <el-table-column label="操作" width="120" fixed="right">
           <template #default="{ row }">
             <el-button link type="primary" @click.stop="goToError(row)">详情</el-button>
+            <el-button link type="danger" @click.stop="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -91,8 +105,10 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getProjectErrors } from '../api/errors'
+import { getProjectErrors, deleteError } from '../api/errors'
 import { getProject } from '../api/projects'
+import { formatTime } from '../utils/format'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const route = useRoute()
 const router = useRouter()
@@ -108,6 +124,7 @@ const total = ref(0)
 const filters = reactive({
   severity: '',
   environment: '',
+  source: '',
   status: '',
   search: '',
   sort: 'last_seen_at'
@@ -128,13 +145,27 @@ const statusLabel = (status) => {
   return map[status] || status
 }
 
-const formatTime = (t) => {
-  if (!t) return '-'
-  return new Date(t).toLocaleString('zh-CN')
+const sourceLabel = (source) => {
+  const map = { frontend: '前端', backend: '后端' }
+  return map[source] || source
 }
+
 
 const goToError = (row) => {
   router.push(`/errors/${row.id}`)
+}
+
+const handleDelete = async (row) => {
+  try {
+    await ElMessageBox.confirm(
+      `确定要删除异常「${row.exception_type}: ${row.message}」吗？`,
+      '删除确认',
+      { confirmButtonText: '删除', cancelButtonText: '取消', type: 'warning' }
+    )
+    await deleteError(row.id)
+    ElMessage.success('删除成功')
+    fetchErrors()
+  } catch {}
 }
 
 const fetchErrors = async () => {
@@ -146,6 +177,7 @@ const fetchErrors = async () => {
     }
     if (filters.severity) params.severity = filters.severity
     if (filters.environment) params.environment = filters.environment
+    if (filters.source) params.source = filters.source
     if (filters.status) params.status = filters.status
     if (filters.search) params.search = filters.search
     if (filters.sort) params.sort = filters.sort

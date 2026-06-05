@@ -43,14 +43,13 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to) => {
   const token = localStorage.getItem('token')
   if (to.meta.requiresAuth && !token) {
-    next({ name: 'Login' })
-  } else if (to.name === 'Login' && token) {
-    next({ name: 'Dashboard' })
-  } else {
-    next()
+    return { name: 'Login' }
+  }
+  if (to.name === 'Login' && token) {
+    return { name: 'Dashboard' }
   }
 })
 

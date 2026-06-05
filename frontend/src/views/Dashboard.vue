@@ -57,6 +57,13 @@
         <el-table-column prop="exception_type" label="异常类型" min-width="150" />
         <el-table-column prop="message" label="消息" min-width="200" show-overflow-tooltip />
         <el-table-column prop="project_name" label="项目" width="150" />
+        <el-table-column prop="source" label="来源" width="90">
+          <template #default="{ row }">
+            <el-tag :type="row.source === 'frontend' ? 'warning' : 'primary'" size="small" effect="plain">
+              {{ sourceLabel(row.source) }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column prop="severity" label="级别" width="100">
           <template #default="{ row }">
             <el-tag :type="severityType(row.severity)" size="small">{{ row.severity }}</el-tag>
@@ -81,6 +88,7 @@ import { LineChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import { getOverview } from '../api/dashboard'
+import { formatTime } from '../utils/format'
 
 use([LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer])
 
@@ -93,7 +101,8 @@ const trendOption = computed(() => {
   const trend = overview.value.trend || []
   const dates = trend.map(t => {
     if (!t.date) return ''
-    const d = new Date(t.date)
+    const dateStr = t.date.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(t.date) ? t.date : t.date + 'Z'
+    const d = new Date(dateStr)
     return `${d.getMonth() + 1}/${d.getDate()}`
   })
   const counts = trend.map(t => t.count)
@@ -128,10 +137,11 @@ const severityType = (severity) => {
   return map[severity] || 'info'
 }
 
-const formatTime = (t) => {
-  if (!t) return '-'
-  return new Date(t).toLocaleString('zh-CN')
+const sourceLabel = (source) => {
+  const map = { frontend: '前端', backend: '后端' }
+  return map[source] || source
 }
+
 
 const goToError = (row) => {
   router.push(`/errors/${row.id}`)

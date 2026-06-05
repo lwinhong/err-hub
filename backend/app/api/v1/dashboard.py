@@ -58,6 +58,7 @@ def overview(**kwargs):
             'message': e.message,
             'severity': e.severity,
             'status': e.status,
+            'source': e.source,
             'project_name': project.name if project else 'Unknown',
             'last_seen_at': e.last_seen_at.isoformat(),
         })

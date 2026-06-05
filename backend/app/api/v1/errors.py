@@ -34,7 +34,8 @@ def create_error():
     fingerprint = generate_fingerprint(
         data['exception_type'],
         data.get('stack_trace', ''),
-        data.get('message', '')
+        data.get('message', ''),
+        data.get('source', 'backend'),
     )
 
     existing = Error.query.filter_by(
@@ -63,6 +64,7 @@ def create_error():
         stack_trace=data.get('stack_trace'),
         severity=data.get('severity', 'error'),
         environment=data.get('environment', 'unknown'),
+        source=data.get('source', 'backend'),
         context=data.get('context'),
     )
     db.session.add(error)
@@ -96,6 +98,10 @@ def list_errors(project_id, **kwargs):
     if environment:
         query = query.filter(Error.environment == environment)
 
+    source = request.args.get('source')
+    if source:
+        query = query.filter(Error.source == source)
+
     status = request.args.get('status')
     if status:
         query = query.filter(Error.status == status)
@@ -127,6 +133,7 @@ def list_errors(project_id, **kwargs):
                 'message': e.message,
                 'severity': e.severity,
                 'environment': e.environment,
+                'source': e.source,
                 'count': e.count,
                 'status': e.status,
                 'first_seen_at': e.first_seen_at.isoformat(),
@@ -156,6 +163,7 @@ def get_error(error_id, **kwargs):
         'stack_trace': error.stack_trace,
         'severity': error.severity,
         'environment': error.environment,
+        'source': error.source,
         'context': error.context,
         'count': error.count,
         'status': error.status,
@@ -181,6 +189,17 @@ def update_error(error_id, **kwargs):
         'id': str(error.id),
         'status': error.status,
     })
+
+
+@bp.route('/errors/<error_id>', methods=['DELETE'])
+@jwt_required
+def delete_error(error_id, **kwargs):
+    error = Error.query.get(error_id)
+    if not error:
+        return jsonify({'error': 'Error not found'}), 404
+    db.session.delete(error)
+    db.session.commit()
+    return '', 204
 
 
 @bp.route('/projects/<project_id>/errors/stats', methods=['GET'])

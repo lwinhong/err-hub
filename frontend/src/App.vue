@@ -8,7 +8,7 @@
         class="app-menu"
         router
       >
-        <el-menu-item  class="logo-item">
+        <el-menu-item index="logo" disabled class="logo-item">
           <span class="logo-text">ErrHub</span>
         </el-menu-item>
         <el-menu-item index="/">
@@ -20,7 +20,7 @@
           <span>Projects</span>
         </el-menu-item>
         <div class="menu-spacer" />
-        <el-menu-item @click="handleLogout">
+        <el-menu-item index="logout" @click="handleLogout">
           <el-icon><SwitchButton /></el-icon>
           <span>退出登录</span>
         </el-menu-item>
@@ -81,6 +81,11 @@ html, body, #app {
 
 .logo-item {
   pointer-events: none;
+}
+
+.logo-item.el-menu-item.is-disabled {
+  opacity: 1;
+  color: inherit;
 }
 
 .logo-text {
