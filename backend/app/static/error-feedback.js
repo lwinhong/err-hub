@@ -62,7 +62,7 @@
     var fn = window[beforeSendFn];
     if (typeof fn !== 'function') return payload;
     try {
-      var result = fn(payload);
+      var result = fn(payload, payload.context);
       if (result === false) return null; // 显式返回 false 取消上报
       return result || payload;          // 未返回或返回 falsy 则用原始 payload
     } catch (e) {
