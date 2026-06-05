@@ -202,6 +202,23 @@ def delete_error(error_id, **kwargs):
     return '', 204
 
 
+@bp.route('/errors/batch', methods=['DELETE'])
+@jwt_required
+def batch_delete_errors(**kwargs):
+    data = request.get_json()
+    if not data or 'ids' not in data or not isinstance(data['ids'], list):
+        return jsonify({'error': 'ids array is required'}), 400
+    ids = data['ids']
+    if not ids:
+        return jsonify({'deleted': 0}), 200
+    errors = Error.query.filter(Error.id.in_(ids)).all()
+    count = len(errors)
+    for error in errors:
+        db.session.delete(error)
+    db.session.commit()
+    return jsonify({'deleted': count}), 200
+
+
 @bp.route('/projects/<project_id>/errors/stats', methods=['GET'])
 @jwt_required
 def error_stats(project_id, **kwargs):

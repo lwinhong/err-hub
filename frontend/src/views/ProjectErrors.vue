@@ -49,11 +49,21 @@
         <el-col :span="2">
           <el-button type="primary" @click="fetchErrors">筛选</el-button>
         </el-col>
+        <el-col :span="4">
+          <el-button
+            v-if="selectedIds.length > 0"
+            type="danger"
+            @click="handleBatchDelete"
+          >
+            批量删除 ({{ selectedIds.length }})
+          </el-button>
+        </el-col>
       </el-row>
     </el-card>
 
     <el-card shadow="hover">
-      <el-table :data="errors" stripe v-loading="loading" @row-click="goToError">
+      <el-table :data="errors" stripe v-loading="loading" @row-click="goToError" @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="45" @click.stop />
         <el-table-column prop="exception_type" label="异常类型" min-width="160" show-overflow-tooltip />
         <el-table-column prop="message" label="消息" min-width="200" show-overflow-tooltip />
         <el-table-column prop="severity" label="级别" width="100">
@@ -105,7 +115,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getProjectErrors, deleteError } from '../api/errors'
+import { getProjectErrors, deleteError, batchDeleteErrors } from '../api/errors'
 import { getProject } from '../api/projects'
 import { formatTime } from '../utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -117,6 +127,7 @@ const projectId = route.params.id
 const projectName = ref('')
 const loading = ref(false)
 const errors = ref([])
+const selectedIds = ref([])
 const page = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
@@ -164,6 +175,24 @@ const handleDelete = async (row) => {
     )
     await deleteError(row.id)
     ElMessage.success('删除成功')
+    fetchErrors()
+  } catch {}
+}
+
+const handleSelectionChange = (selection) => {
+  selectedIds.value = selection.map(item => item.id)
+}
+
+const handleBatchDelete = async () => {
+  try {
+    await ElMessageBox.confirm(
+      `确定要删除选中的 ${selectedIds.value.length} 条异常吗？`,
+      '批量删除确认',
+      { confirmButtonText: '删除', cancelButtonText: '取消', type: 'warning' }
+    )
+    const res = await batchDeleteErrors(selectedIds.value)
+    ElMessage.success(`成功删除 ${res.data.deleted} 条异常`)
+    selectedIds.value = []
     fetchErrors()
   } catch {}
 }

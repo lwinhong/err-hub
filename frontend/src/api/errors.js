@@ -16,6 +16,10 @@ export function deleteError(id) {
   return request.delete(`/api/v1/errors/${id}`)
 }
 
+export function batchDeleteErrors(ids) {
+  return request.delete('/api/v1/errors/batch', { data: { ids } })
+}
+
 export function getErrorStats(projectId) {
   return request.get(`/api/v1/projects/${projectId}/errors/stats`)
 }
