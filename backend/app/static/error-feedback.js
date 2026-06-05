@@ -120,6 +120,45 @@
   }
 
   /**
+   * 将对象转为有意义的消息字符串
+   * 避免 [object Response]、[object Object] 等无意义输出
+   */
+  function _toMessage(value) {
+    if (!value) return 'Unknown error';
+    if (typeof value === 'string') return value;
+
+    // fetch API 的 Response 对象
+    if (typeof Response !== 'undefined' && value instanceof Response) {
+      var parts = [];
+      try {
+        var url = value.url;
+        var method = 'GET';
+        // Response 本身没有 method，但可以从 request 推断
+        parts.push((method || '') + ' ' + url);
+      } catch (_) { /* ignore */ }
+      parts.push(value.status + ' ' + (value.statusText || ''));
+      parts.push('(' + value.type + ')');
+      var msg = parts.filter(Boolean).join(' ');
+      return msg || 'HTTP Response Error';
+    }
+
+    // 有自定义 toString 的对象（非 Object.prototype.toString）
+    if (value.toString && typeof value.toString === 'function' &&
+        value.toString !== Object.prototype.toString) {
+      var str = value.toString();
+      if (str) return str;
+    }
+
+    // 普通对象，尝试 JSON 序列化
+    try {
+      var json = JSON.stringify(value);
+      if (json && json !== '{}') return json;
+    } catch (_) { /* ignore */ }
+
+    return String(value);
+  }
+
+  /**
    * 格式化 Error 对象的堆栈
    */
   function _formatStack(error) {
@@ -201,7 +240,7 @@
       stackTrace = _formatStack(error);
     } else if (error instanceof ErrorEvent) {
       exceptionType = (error.error && error.error.name) || 'Error';
-      message = error.message || (error.error && error.error.message) || 'Unknown error';
+      message = _toMessage(error.message) || _toMessage(error.error && error.error.message) || 'Unknown error';
       stackTrace = _formatStack(error.error);
     } else if (error && typeof error === 'object') {
       // PromiseRejectionEvent
@@ -212,7 +251,7 @@
           stackTrace = _formatStack(error.reason);
         } else {
           exceptionType = 'UnhandledRejection';
-          message = String(error.reason);
+          message = _toMessage(error.reason);
         }
       } else {
         exceptionType = 'UnhandledRejection';

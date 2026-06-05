@@ -18,9 +18,11 @@
       </template>
       <el-descriptions :column="2" border>
         <el-descriptions-item label="异常类型" :span="2">
-          <span class="exception-type">{{ error.exception_type }}</span>
+          <code class="code-text">{{ error.exception_type }}</code>
         </el-descriptions-item>
-        <el-descriptions-item label="消息" :span="2">{{ error.message }}</el-descriptions-item>
+        <el-descriptions-item label="消息" :span="2">
+          <span class="message-text" :class="{ 'message-code': isCodeLike(error.message) }">{{ error.message }}</span>
+        </el-descriptions-item>
         <el-descriptions-item label="级别">
           <el-tag :type="severityType(error.severity)" :effect="error.severity === 'critical' ? 'dark' : 'light'" size="small">
             {{ error.severity }}
@@ -104,6 +106,12 @@ const sourceLabel = (source) => {
   return map[source] || source
 }
 
+const isCodeLike = (text) => {
+  if (!text) return false
+  // 包含技术特征的内容视为代码风格
+  return /[{}\[\]<>]/.test(text) || /\b(http|Error|TypeError|undefined|null)\b/i.test(text) || text.length > 80
+}
+
 
 const formatContext = (ctx) => {
   if (!ctx) return '无上下文信息'
@@ -168,10 +176,27 @@ onMounted(() => {
   font-weight: 600;
 }
 
-.exception-type {
+.exception-type,
+.code-text {
   font-family: 'Courier New', Courier, monospace;
   font-weight: 600;
   color: #303133;
+  background-color: #f5f7fa;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.message-text {
+  word-break: break-all;
+  line-height: 1.6;
+}
+
+.message-code {
+  font-family: 'Courier New', Courier, monospace;
+  background-color: #fef0f0;
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: #f56c6c;
 }
 
 .action-bar {
