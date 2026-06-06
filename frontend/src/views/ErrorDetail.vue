@@ -42,7 +42,7 @@
         <el-descriptions-item label="最近出现">{{ formatTime(error.last_seen_at) }}</el-descriptions-item>
       </el-descriptions>
 
-      <div class="action-bar">
+      <div v-if="authStore.isAdmin" class="action-bar">
         <el-button-group>
           <el-button :type="error.status === 'unresolved' ? 'danger' : ''" @click="changeStatus('unresolved')">
             标记为未解决
@@ -79,9 +79,11 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getError, updateError } from '../api/errors'
 import { formatTime } from '../utils/format'
+import { useAuthStore } from '../stores/auth'
 
 const route = useRoute()
 const router = useRouter()
+const authStore = useAuthStore()
 const errorId = route.params.id
 
 const error = ref({})
@@ -180,8 +182,8 @@ onMounted(() => {
 .code-text {
   font-family: 'Courier New', Courier, monospace;
   font-weight: 600;
-  color: #303133;
-  background-color: #f5f7fa;
+  color: var(--el-text-color-primary);
+  background-color: var(--el-fill-color-light);
   padding: 2px 6px;
   border-radius: 3px;
 }
@@ -193,10 +195,10 @@ onMounted(() => {
 
 .message-code {
   font-family: 'Courier New', Courier, monospace;
-  background-color: #fef0f0;
+  background-color: var(--el-color-danger-light-9);
   padding: 2px 6px;
   border-radius: 3px;
-  color: #f56c6c;
+  color: var(--el-color-danger);
 }
 
 .action-bar {
@@ -216,7 +218,7 @@ onMounted(() => {
 }
 
 .stack-trace {
-  background-color: #1e1e1e;
+  background-color: var(--el-fill-color-darker, #1e1e1e);
   color: #d4d4d4;
   padding: 16px;
   border-radius: 6px;
@@ -230,7 +232,7 @@ onMounted(() => {
 }
 
 .context-data {
-  background-color: #f5f7fa;
+  background-color: var(--el-fill-color-light);
   padding: 16px;
   border-radius: 6px;
   font-family: 'Courier New', Courier, monospace;
@@ -240,6 +242,6 @@ onMounted(() => {
   white-space: pre-wrap;
   word-break: break-all;
   margin: 0;
-  color: #303133;
+  color: var(--el-text-color-primary);
 }
 </style>

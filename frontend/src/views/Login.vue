@@ -94,13 +94,13 @@ const handleLogin = async () => {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f0f2f5;
+  background-color: var(--el-bg-color-page);
 }
 
 .login-card {
   width: 400px;
   padding: 40px;
-  background: #fff;
+  background: var(--el-bg-color-overlay);
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
@@ -113,13 +113,13 @@ const handleLogin = async () => {
 .login-title {
   font-size: 28px;
   font-weight: 700;
-  color: #409eff;
+  color: var(--el-color-primary);
   margin: 0 0 8px 0;
 }
 
 .login-subtitle {
   font-size: 14px;
-  color: #909399;
+  color: var(--el-text-color-secondary);
   margin: 0;
 }
 

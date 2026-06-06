@@ -8,7 +8,8 @@ export const useAuthStore = defineStore('auth', {
     user: null
   }),
   getters: {
-    isAuthenticated: (state) => !!state.token
+    isAuthenticated: (state) => !!state.token,
+    isAdmin: (state) => state.user?.is_admin === true
   },
   actions: {
     async login(username, password) {
@@ -17,6 +18,7 @@ export const useAuthStore = defineStore('auth', {
       this.refreshToken = res.data.refresh_token
       localStorage.setItem('token', this.token)
       localStorage.setItem('refreshToken', this.refreshToken)
+      await this.fetchUser()
     },
     logout() {
       this.token = ''

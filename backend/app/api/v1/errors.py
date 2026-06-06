@@ -6,13 +6,19 @@ from app.extensions import db
 from app.models.error import Error
 from app.models.project import Project
 from app.utils.fingerprint import generate_fingerprint
-from app.utils.decorators import jwt_required
+from app.utils.decorators import jwt_required, admin_required
 
 bp = Blueprint('errors_v1', __name__, url_prefix='/api/v1')
 
 
 @bp.route('/errors', methods=['POST'])
 def create_error():
+    # 请求体大小检查
+    content_length = request.content_length or 0
+    max_size = current_app.config.get('MAX_ERROR_PAYLOAD_SIZE', 65536)
+    if content_length > max_size:
+        return jsonify({'error': 'Payload too large'}), 413
+
     token = request.headers.get('X-API-Token')
     if not token:
         return jsonify({'error': 'API token is required'}), 401
@@ -20,12 +26,41 @@ def create_error():
     if not project:
         return jsonify({'error': 'Invalid API token'}), 401
 
+    # Token 封禁检查
+    if project.is_disabled:
+        return jsonify({'error': 'This project API token has been disabled'}), 403
+
+    redis = current_app.redis
+
+    # Project 维度限速
     rate_limit_key = f'rate_limit:{project.id}'
-    current = current_app.redis.incr(rate_limit_key)
+    current = redis.incr(rate_limit_key)
     if current == 1:
-        current_app.redis.expire(rate_limit_key, 60)
-    if current > 60:
-        return jsonify({'error': 'Rate limit exceeded'}), 429
+        redis.expire(rate_limit_key, 60)
+    project_limit = current_app.config.get('RATE_LIMIT_PER_PROJECT', 60)
+    if current > project_limit:
+        return jsonify({'error': 'Rate limit exceeded (project)'}), 429
+
+    # IP 维度限速
+    client_ip = request.headers.get('X-Forwarded-For', request.remote_addr) or 'unknown'
+    client_ip = client_ip.split(',')[0].strip()
+    ip_rate_key = f'rate_limit:ip:{client_ip}'
+    ip_current = redis.incr(ip_rate_key)
+    if ip_current == 1:
+        redis.expire(ip_rate_key, 60)
+    ip_limit = current_app.config.get('RATE_LIMIT_PER_IP', 120)
+    if ip_current > ip_limit:
+        return jsonify({'error': 'Rate limit exceeded (ip)', 'retry_after': 60}), 429
+
+    # 日限额
+    today = datetime.now(timezone.utc).strftime('%Y%m%d')
+    daily_key = f'rate_limit:daily:{project.id}:{today}'
+    daily_current = redis.incr(daily_key)
+    if daily_current == 1:
+        redis.expire(daily_key, 86400)
+    daily_limit = current_app.config.get('DAILY_ERROR_LIMIT', 10000)
+    if daily_current > daily_limit:
+        return jsonify({'error': 'Daily error limit exceeded', 'retry_after': 86400}), 429
 
     data = request.get_json()
     if not data or not data.get('exception_type') or not data.get('message'):
@@ -173,7 +208,7 @@ def get_error(error_id, **kwargs):
 
 
 @bp.route('/errors/<error_id>', methods=['PUT'])
-@jwt_required
+@admin_required
 def update_error(error_id, **kwargs):
     error = Error.query.get(error_id)
     if not error:
@@ -192,7 +227,7 @@ def update_error(error_id, **kwargs):
 
 
 @bp.route('/errors/<error_id>', methods=['DELETE'])
-@jwt_required
+@admin_required
 def delete_error(error_id, **kwargs):
     error = Error.query.get(error_id)
     if not error:
@@ -203,7 +238,7 @@ def delete_error(error_id, **kwargs):
 
 
 @bp.route('/errors/batch', methods=['DELETE'])
-@jwt_required
+@admin_required
 def batch_delete_errors(**kwargs):
     data = request.get_json()
     if not data or 'ids' not in data or not isinstance(data['ids'], list):

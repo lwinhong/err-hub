@@ -1,0 +1,31 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flask: run.py (F5 直接启动)",
+      "type": "debugpy",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/backend",
+      "program": "${workspaceFolder}/backend/run.py",
+      "console": "internalConsole",
+      "justMyCode": false,
+      "env": {
+        "FLASK_ENV": "development",
+        "DATABASE_URL": "postgresql://errhub:errhub@localhost:5454/errhub",
+        "REDIS_URL": "redis://localhost:6363/0",
+        "SECRET_KEY": "sk-QXULMLThZ3kd4fmGr0Xm0gAPaqH7lekWgDEI7yLYaVulDUJ4RTN7k/Gj",
+        "JWT_SECRET_KEY": "sk-QXULMLThZ3kd4fmGr0Xm0gAPaqH7lekWgDEI7yLYaVulDUJ4RTN7k/Gj"
+      }
+    },
+    {
+      "name": "Flask: Attach to running (先运行 run_debug.py)",
+      "type": "debugpy",
+      "request": "attach",
+      "connect": {
+        "host": "localhost",
+        "port": 5678
+      },
+      "justMyCode": false
+    }
+  ]
+}

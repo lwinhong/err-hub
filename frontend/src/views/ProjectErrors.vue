@@ -51,7 +51,7 @@
         </el-col>
         <el-col :span="4">
           <el-button
-            v-if="selectedIds.length > 0"
+            v-if="authStore.isAdmin && selectedIds.length > 0"
             type="danger"
             @click="handleBatchDelete"
           >
@@ -63,7 +63,7 @@
 
     <el-card shadow="hover">
       <el-table :data="errors" stripe v-loading="loading" @row-click="goToError" @selection-change="handleSelectionChange">
-        <el-table-column type="selection" width="45" @click.stop />
+        <el-table-column v-if="authStore.isAdmin" type="selection" width="45" @click.stop />
         <el-table-column prop="exception_type" label="异常类型" min-width="160" show-overflow-tooltip />
         <el-table-column prop="message" label="消息" min-width="200" show-overflow-tooltip />
         <el-table-column prop="severity" label="级别" width="100">
@@ -90,10 +90,10 @@
         <el-table-column prop="last_seen_at" label="最近出现" width="180">
           <template #default="{ row }">{{ formatTime(row.last_seen_at) }}</template>
         </el-table-column>
-        <el-table-column label="操作" width="120" fixed="right">
+        <el-table-column label="操作" :width="authStore.isAdmin ? 120 : 60" fixed="right">
           <template #default="{ row }">
             <el-button link type="primary" @click.stop="goToError(row)">详情</el-button>
-            <el-button link type="danger" @click.stop="handleDelete(row)">删除</el-button>
+            <el-button v-if="authStore.isAdmin" link type="danger" @click.stop="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -119,9 +119,11 @@ import { getProjectErrors, deleteError, batchDeleteErrors } from '../api/errors'
 import { getProject } from '../api/projects'
 import { formatTime } from '../utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useAuthStore } from '../stores/auth'
 
 const route = useRoute()
 const router = useRouter()
+const authStore = useAuthStore()
 const projectId = route.params.id
 
 const projectName = ref('')
@@ -243,7 +245,7 @@ onMounted(() => {
 .page-header h2 {
   margin: 0;
   font-size: 20px;
-  color: #303133;
+  color: var(--el-text-color-primary);
 }
 
 .filter-card {

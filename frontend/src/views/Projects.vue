@@ -2,7 +2,7 @@
   <div class="projects">
     <div class="page-header">
       <h2>项目管理</h2>
-      <el-button type="primary" @click="openDialog()">
+      <el-button v-if="authStore.isAdmin" type="primary" @click="openDialog()">
         <el-icon><Plus /></el-icon>
         新建项目
       </el-button>
@@ -14,25 +14,28 @@
         <el-table-column prop="project_key" label="Project Key" width="150" />
         <el-table-column label="API Token" width="200">
           <template #default="{ row }">
-            <div class="token-cell">
+            <div v-if="authStore.isAdmin" class="token-cell">
               <span class="token-text">{{ maskToken(row.api_token) }}</span>
               <el-button link type="primary" @click="copyToken(row.api_token)">
                 <el-icon><CopyDocument /></el-icon>
               </el-button>
             </div>
+            <span v-else class="token-text">***</span>
           </template>
         </el-table-column>
         <el-table-column prop="description" label="描述" min-width="200" show-overflow-tooltip />
         <el-table-column prop="created_at" label="创建时间" width="180">
           <template #default="{ row }">{{ formatTime(row.created_at) }}</template>
         </el-table-column>
-        <el-table-column label="操作" width="320" fixed="right">
+        <el-table-column label="操作" :width="authStore.isAdmin ? 320 : 160" fixed="right">
           <template #default="{ row }">
             <el-button link type="primary" @click="goToErrors(row)">查看异常</el-button>
             <el-button link type="success" @click="openExampleDialog(row)">使用示例</el-button>
-            <el-button link type="primary" @click="openDialog(row)">编辑</el-button>
-            <el-button link type="warning" @click="handleRegenerate(row)">重新生成Token</el-button>
-            <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+            <template v-if="authStore.isAdmin">
+              <el-button link type="primary" @click="openDialog(row)">编辑</el-button>
+              <el-button link type="warning" @click="handleRegenerate(row)">重新生成Token</el-button>
+              <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+            </template>
           </template>
         </el-table-column>
       </el-table>
@@ -145,8 +148,10 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getProjects, createProject, updateProject, deleteProject, regenerateToken } from '../api/projects'
+import { useAuthStore } from '../stores/auth'
 
 const router = useRouter()
+const authStore = useAuthStore()
 
 const loading = ref(false)
 const projects = ref([])
@@ -512,7 +517,7 @@ onMounted(() => {
 .page-header h2 {
   margin: 0;
   font-size: 20px;
-  color: #303133;
+  color: var(--el-text-color-primary);
 }
 
 .token-cell {
@@ -524,7 +529,7 @@ onMounted(() => {
 .token-text {
   font-family: 'Courier New', Courier, monospace;
   font-size: 13px;
-  color: #606266;
+  color: var(--el-text-color-regular);
 }
 
 .pagination-wrapper {
@@ -545,7 +550,7 @@ onMounted(() => {
 }
 
 .code-block {
-  background-color: #1e1e1e;
+  background-color: var(--el-fill-color-darker, #1e1e1e);
   color: #d4d4d4;
   padding: 16px;
   border-radius: 6px;

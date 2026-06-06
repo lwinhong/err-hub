@@ -37,12 +37,14 @@ def create_app():
     from app.api.v1.projects import bp as projects_bp
     from app.api.v1.errors import bp as errors_bp
     from app.api.v1.dashboard import bp as dashboard_bp
+    from app.api.v1.users import bp as users_bp
 
     app.register_blueprint(api_v1_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(projects_bp)
     app.register_blueprint(errors_bp)
     app.register_blueprint(dashboard_bp)
+    app.register_blueprint(users_bp)
 
     from app.cli import register_cli
     register_cli(app)

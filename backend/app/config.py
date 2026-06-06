@@ -16,6 +16,11 @@ class DevelopmentConfig:
     DATA_RETENTION_DAYS = int(os.environ.get('DATA_RETENTION_DAYS', 90))
     SUPERADMIN_USERNAME = os.environ.get('SUPERADMIN_USERNAME', 'admin')
     SUPERADMIN_PASSWORD = os.environ.get('SUPERADMIN_PASSWORD', 'admin123')
+    # API 滥用防护
+    RATE_LIMIT_PER_PROJECT = int(os.environ.get('RATE_LIMIT_PER_PROJECT', 60))
+    RATE_LIMIT_PER_IP = int(os.environ.get('RATE_LIMIT_PER_IP', 120))
+    DAILY_ERROR_LIMIT = int(os.environ.get('DAILY_ERROR_LIMIT', 10000))
+    MAX_ERROR_PAYLOAD_SIZE = int(os.environ.get('MAX_ERROR_PAYLOAD_SIZE', 65536))
 
 
 class ProductionConfig:
@@ -32,3 +37,8 @@ class ProductionConfig:
     DATA_RETENTION_DAYS = int(os.environ.get('DATA_RETENTION_DAYS', 90))
     SUPERADMIN_USERNAME = os.environ.get('SUPERADMIN_USERNAME', 'admin')
     SUPERADMIN_PASSWORD = os.environ.get('SUPERADMIN_PASSWORD', 'admin123')
+    # API 滥用防护
+    RATE_LIMIT_PER_PROJECT = int(os.environ.get('RATE_LIMIT_PER_PROJECT', 60))
+    RATE_LIMIT_PER_IP = int(os.environ.get('RATE_LIMIT_PER_IP', 120))
+    DAILY_ERROR_LIMIT = int(os.environ.get('DAILY_ERROR_LIMIT', 10000))
+    MAX_ERROR_PAYLOAD_SIZE = int(os.environ.get('MAX_ERROR_PAYLOAD_SIZE', 65536))
