@@ -4,3 +4,4 @@ __pycache__
 node_modules
 .git
 docker/volumes/
+frontend/dist
