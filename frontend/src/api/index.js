@@ -2,7 +2,7 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 
 const instance = axios.create({
-  baseURL: '',
+  baseURL: 'api/v1',
   timeout: 15000
 })
 
@@ -51,7 +51,7 @@ instance.interceptors.response.use(
 
       return new Promise((resolve) => {
         axios
-          .post('/api/v1/auth/refresh', { refresh_token: refreshTokenValue })
+          .post('api/v1/auth/refresh', { refresh_token: refreshTokenValue })
           .then((res) => {
             const newToken = res.data.access_token
             localStorage.setItem('token', newToken)
