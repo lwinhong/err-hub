@@ -4,7 +4,7 @@ FROM node:lts-alpine AS build
 WORKDIR /app
 
 COPY package*.json pnpm-lock.yaml ./
-RUN npm install pnpm@10.33.4 -global
+RUN npm install pnpm -global
 RUN pnpm install --no-frozen-lockfile
 
 COPY . .
