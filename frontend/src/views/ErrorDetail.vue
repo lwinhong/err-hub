@@ -16,7 +16,7 @@
           </el-button>
         </div>
       </template>
-      <el-descriptions :column="2" border>
+      <el-descriptions :column="isMobile ? 1 : 2" border>
         <el-descriptions-item label="异常类型" :span="2">
           <code class="code-text">{{ error.exception_type }}</code>
         </el-descriptions-item>
@@ -74,7 +74,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getError, updateError } from '../api/errors'
@@ -87,6 +87,13 @@ const authStore = useAuthStore()
 const errorId = route.params.id
 
 const error = ref({})
+
+const windowWidth = ref(window.innerWidth)
+const isMobile = computed(() => windowWidth.value < 768)
+
+const onResize = () => { windowWidth.value = window.innerWidth }
+onMounted(() => { window.addEventListener('resize', onResize); fetchError() })
+onUnmounted(() => { window.removeEventListener('resize', onResize) })
 
 const severityType = (severity) => {
   const map = { debug: 'info', warning: 'warning', error: 'danger', critical: 'danger' }
@@ -152,10 +159,6 @@ const fetchError = async () => {
     error.value = res.data
   } catch {}
 }
-
-onMounted(() => {
-  fetchError()
-})
 </script>
 
 <style scoped>
@@ -171,6 +174,8 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .card-title {
@@ -243,5 +248,32 @@ onMounted(() => {
   word-break: break-all;
   margin: 0;
   color: var(--el-text-color-primary);
+}
+
+@media (max-width: 768px) {
+  .error-detail {
+    padding: 12px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .action-bar :deep(.el-button-group) {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .action-bar :deep(.el-button-group .el-button) {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .stack-trace,
+  .context-data {
+    font-size: 12px;
+    padding: 12px;
+  }
 }
 </style>

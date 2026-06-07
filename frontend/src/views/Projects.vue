@@ -9,36 +9,38 @@
     </div>
 
     <el-card shadow="hover">
-      <el-table :data="projects" stripe v-loading="loading">
-        <el-table-column prop="name" label="项目名称" min-width="150" />
-        <el-table-column prop="project_key" label="Project Key" width="150" />
-        <el-table-column label="API Token" width="200">
-          <template #default="{ row }">
-            <div v-if="authStore.isAdmin" class="token-cell">
-              <span class="token-text">{{ maskToken(row.api_token) }}</span>
-              <el-button link type="primary" @click="copyToken(row.api_token)">
-                <el-icon><CopyDocument /></el-icon>
-              </el-button>
-            </div>
-            <span v-else class="token-text">***</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="description" label="描述" min-width="200" show-overflow-tooltip />
-        <el-table-column prop="created_at" label="创建时间" width="180">
-          <template #default="{ row }">{{ formatTime(row.created_at) }}</template>
-        </el-table-column>
-        <el-table-column label="操作" :width="authStore.isAdmin ? 320 : 160" fixed="right">
-          <template #default="{ row }">
-            <el-button link type="primary" @click="goToErrors(row)">查看异常</el-button>
-            <el-button link type="success" @click="openExampleDialog(row)">使用示例</el-button>
-            <template v-if="authStore.isAdmin">
-              <el-button link type="primary" @click="openDialog(row)">编辑</el-button>
-              <el-button link type="warning" @click="handleRegenerate(row)">重新生成Token</el-button>
-              <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+      <div class="table-scroll">
+        <el-table :data="projects" stripe v-loading="loading">
+          <el-table-column prop="name" label="项目名称" min-width="150" />
+          <el-table-column prop="project_key" label="Project Key" width="150" />
+          <el-table-column label="API Token" width="200">
+            <template #default="{ row }">
+              <div v-if="authStore.isAdmin" class="token-cell">
+                <span class="token-text">{{ maskToken(row.api_token) }}</span>
+                <el-button link type="primary" @click="copyToken(row.api_token)">
+                  <el-icon><CopyDocument /></el-icon>
+                </el-button>
+              </div>
+              <span v-else class="token-text">***</span>
             </template>
-          </template>
-        </el-table-column>
-      </el-table>
+          </el-table-column>
+          <el-table-column prop="description" label="描述" min-width="200" show-overflow-tooltip />
+          <el-table-column prop="created_at" label="创建时间" width="180">
+            <template #default="{ row }">{{ formatTime(row.created_at) }}</template>
+          </el-table-column>
+          <el-table-column label="操作" :width="authStore.isAdmin ? 320 : 160" fixed="right">
+            <template #default="{ row }">
+              <el-button link type="primary" @click="goToErrors(row)">查看异常</el-button>
+              <el-button link type="success" @click="openExampleDialog(row)">使用示例</el-button>
+              <template v-if="authStore.isAdmin">
+                <el-button link type="primary" @click="openDialog(row)">编辑</el-button>
+                <el-button link type="warning" @click="handleRegenerate(row)">重新生成Token</el-button>
+                <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+              </template>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
       <div class="pagination-wrapper">
         <el-pagination
           v-model:current-page="page"
@@ -520,6 +522,10 @@ onMounted(() => {
   color: var(--el-text-color-primary);
 }
 
+.table-scroll {
+  overflow-x: auto;
+}
+
 .token-cell {
   display: flex;
   align-items: center;
@@ -563,5 +569,26 @@ onMounted(() => {
   margin: 0;
   max-height: 500px;
   overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .projects {
+    padding: 12px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .pagination-wrapper {
+    justify-content: center;
+  }
+
+  .pagination-wrapper :deep(.el-pagination) {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }
 </style>

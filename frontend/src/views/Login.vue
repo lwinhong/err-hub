@@ -95,10 +95,12 @@ const handleLogin = async () => {
   align-items: center;
   min-height: 100vh;
   background-color: var(--el-bg-color-page);
+  padding: 20px;
 }
 
 .login-card {
   width: 400px;
+  max-width: 100%;
   padding: 40px;
   background: var(--el-bg-color-overlay);
   border-radius: 8px;
@@ -125,5 +127,23 @@ const handleLogin = async () => {
 
 .login-btn {
   width: 100%;
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 24px 20px;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .login-wrapper {
+    padding: 0;
+    align-items: flex-start;
+    padding-top: 15vh;
+  }
+
+  .login-title {
+    font-size: 24px;
+  }
 }
 </style>

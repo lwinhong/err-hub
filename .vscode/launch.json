@@ -8,14 +8,21 @@
       "cwd": "${workspaceFolder}/backend",
       "program": "${workspaceFolder}/backend/run.py",
       "console": "internalConsole",
-      "justMyCode": false,
+      "justMyCode": true,
       "env": {
         "FLASK_ENV": "development",
         "DATABASE_URL": "postgresql://errhub:errhub@localhost:5454/errhub",
         "REDIS_URL": "redis://localhost:6363/0",
         "SECRET_KEY": "sk-QXULMLThZ3kd4fmGr0Xm0gAPaqH7lekWgDEI7yLYaVulDUJ4RTN7k/Gj",
-        "JWT_SECRET_KEY": "sk-QXULMLThZ3kd4fmGr0Xm0gAPaqH7lekWgDEI7yLYaVulDUJ4RTN7k/Gj"
-      }
+        "JWT_SECRET_KEY": "sk-QXULMLThZ3kd4fmGr0Xm0gAPaqH7lekWgDEI7yLYaVulDUJ4RTN7k/Gj",
+        // "FLASK_APP": "run.py",
+        // "FLASK_DEBUG": "0",
+      },
+      "args": [
+        "run",
+        "--host=0.0.0.0",
+        "--port=5001",
+      ]
     },
     {
       "name": "Flask: Attach to running (先运行 run_debug.py)",

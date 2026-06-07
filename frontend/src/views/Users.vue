@@ -9,7 +9,8 @@
     </div>
 
     <el-card shadow="hover">
-      <el-table :data="users" stripe v-loading="loading">
+      <div class="table-scroll">
+        <el-table :data="users" stripe v-loading="loading">
         <el-table-column prop="username" label="用户名" min-width="150" />
         <el-table-column label="角色" width="120">
           <template #default="{ row }">
@@ -43,6 +44,7 @@
           </template>
         </el-table-column>
       </el-table>
+      </div>
       <div class="pagination-wrapper">
         <el-pagination
           v-model:current-page="page"
@@ -273,9 +275,34 @@ onMounted(() => {
   color: var(--el-text-color-primary);
 }
 
+.table-scroll {
+  overflow-x: auto;
+}
+
 .pagination-wrapper {
   display: flex;
   justify-content: flex-end;
   margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+  .users {
+    padding: 12px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .pagination-wrapper {
+    justify-content: center;
+  }
+
+  .pagination-wrapper :deep(.el-pagination) {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }
 </style>

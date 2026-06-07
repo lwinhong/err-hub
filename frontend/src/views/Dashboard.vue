@@ -10,7 +10,7 @@
 
     <!-- 统计卡片 Row 1 -->
     <el-row :gutter="16" class="stat-row">
-      <el-col :span="4" v-for="card in statCards" :key="card.key">
+      <el-col :xs="12" :sm="8" :md="6" :lg="4" v-for="card in statCards" :key="card.key">
         <el-card shadow="hover" class="stat-card">
           <div class="stat-content">
             <div class="stat-info">
@@ -18,7 +18,7 @@
               <div class="stat-value">{{ card.value }}</div>
             </div>
             <div class="stat-icon" :style="{ backgroundColor: card.bg, color: card.color }">
-              <el-icon :size="32"><component :is="card.icon" /></el-icon>
+              <el-icon :size="28"><component :is="card.icon" /></el-icon>
             </div>
           </div>
         </el-card>
@@ -42,19 +42,19 @@
 
     <!-- 分布图 Row -->
     <el-row :gutter="16" class="chart-row">
-      <el-col :span="8">
+      <el-col :xs="24" :sm="8">
         <el-card shadow="hover">
           <template #header><span class="card-title">严重级别分布</span></template>
           <v-chart :option="severityOption" style="height: 260px" autoresize />
         </el-card>
       </el-col>
-      <el-col :span="8">
+      <el-col :xs="24" :sm="8">
         <el-card shadow="hover">
           <template #header><span class="card-title">来源分布</span></template>
           <v-chart :option="sourceOption" style="height: 260px" autoresize />
         </el-card>
       </el-col>
-      <el-col :span="8">
+      <el-col :xs="24" :sm="8">
         <el-card shadow="hover">
           <template #header><span class="card-title">状态分布</span></template>
           <v-chart :option="statusOption" style="height: 260px" autoresize />
@@ -64,13 +64,13 @@
 
     <!-- 排名 Row -->
     <el-row :gutter="16" class="chart-row">
-      <el-col :span="12">
+      <el-col :xs="24" :sm="12">
         <el-card shadow="hover">
           <template #header><span class="card-title">Top 5 异常类型</span></template>
           <v-chart :option="topErrorsOption" style="height: 280px" autoresize />
         </el-card>
       </el-col>
-      <el-col :span="12">
+      <el-col :xs="24" :sm="12">
         <el-card shadow="hover">
           <template #header><span class="card-title">项目异常排名</span></template>
           <v-chart :option="projectRankOption" style="height: 280px" autoresize />
@@ -351,8 +351,45 @@ onMounted(() => {
   margin-bottom: 16px;
 }
 
+.stat-row :deep(.el-col) {
+  margin-bottom: 12px;
+}
+
 .stat-card {
   height: 100%;
+}
+
+.stat-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: var(--el-text-color-secondary);
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--el-text-color-primary);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .chart-card {
@@ -363,10 +400,16 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .chart-row {
   margin-bottom: 16px;
+}
+
+.chart-row :deep(.el-col) {
+  margin-bottom: 12px;
 }
 
 .table-card {
@@ -380,5 +423,41 @@ onMounted(() => {
 
 :deep(.el-table__row) {
   cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 12px;
+  }
+
+  .filter-bar {
+    justify-content: stretch;
+  }
+
+  .filter-bar .el-select {
+    width: 100% !important;
+  }
+
+  .stat-value {
+    font-size: 20px;
+  }
+
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  :deep(.el-table) {
+    font-size: 13px;
+  }
+
+  :deep(.el-table .el-table__cell) {
+    padding: 8px 4px;
+  }
 }
 </style>
