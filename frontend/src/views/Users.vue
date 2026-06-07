@@ -1,46 +1,46 @@
 <template>
   <div class="users">
     <div class="page-header">
-      <h2>用户管理</h2>
+      <h2>{{ t('users.title') }}</h2>
       <el-button type="primary" @click="openDialog()">
         <el-icon><Plus /></el-icon>
-        新建用户
+        {{ t('users.createUser') }}
       </el-button>
     </div>
 
     <el-card shadow="hover">
       <div class="table-scroll">
         <el-table :data="users" stripe v-loading="loading">
-        <el-table-column prop="username" label="用户名" min-width="150" />
-        <el-table-column label="角色" width="120">
+        <el-table-column prop="username" :label="t('users.username')" min-width="150" />
+        <el-table-column :label="t('users.role')" width="120">
           <template #default="{ row }">
             <el-tag :type="row.is_admin ? 'danger' : 'info'" size="small">
-              {{ row.is_admin ? '管理员' : '普通用户' }}
+              {{ row.is_admin ? t('users.admin') : t('users.normalUser') }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="状态" width="100">
+        <el-table-column :label="t('users.status')" width="100">
           <template #default="{ row }">
             <el-tag :type="row.is_active ? 'success' : 'warning'" size="small">
-              {{ row.is_active ? '启用' : '停用' }}
+              {{ row.is_active ? t('users.active') : t('users.inactive') }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="created_at" label="创建时间" width="180">
+        <el-table-column prop="created_at" :label="t('users.createdAt')" width="180">
           <template #default="{ row }">{{ formatTime(row.created_at) }}</template>
         </el-table-column>
-        <el-table-column label="操作" width="280" fixed="right">
+        <el-table-column :label="t('users.actions')" width="280" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="openDialog(row)">编辑</el-button>
-            <el-button link type="warning" @click="handleResetPassword(row)">重置密码</el-button>
+            <el-button link type="primary" @click="openDialog(row)">{{ t('users.edit') }}</el-button>
+            <el-button link type="warning" @click="handleResetPassword(row)">{{ t('users.resetPassword') }}</el-button>
             <el-button
               link
               :type="row.is_active ? 'warning' : 'success'"
               @click="handleToggleActive(row)"
             >
-              {{ row.is_active ? '停用' : '启用' }}
+              {{ row.is_active ? t('users.disable') : t('users.enable') }}
             </el-button>
-            <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+            <el-button link type="danger" @click="handleDelete(row)">{{ t('users.deleteUser') }}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -60,45 +60,45 @@
 
     <el-dialog
       v-model="dialogVisible"
-      :title="editingUser ? '编辑用户' : '新建用户'"
+      :title="editingUser ? t('users.editUser') : t('users.createUserTitle')"
       width="500px"
       destroy-on-close
     >
       <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="form.username" :disabled="!!editingUser" placeholder="请输入用户名" />
+        <el-form-item :label="t('users.usernameLabel')" prop="username">
+          <el-input v-model="form.username" :disabled="!!editingUser" :placeholder="t('users.usernamePlaceholder')" />
         </el-form-item>
-        <el-form-item v-if="!editingUser" label="密码" prop="password">
-          <el-input v-model="form.password" type="password" show-password placeholder="请输入密码" />
+        <el-form-item v-if="!editingUser" :label="t('users.passwordLabel')" prop="password">
+          <el-input v-model="form.password" type="password" show-password :placeholder="t('users.passwordPlaceholder')" />
         </el-form-item>
-        <el-form-item label="角色">
+        <el-form-item :label="t('users.role')">
           <el-switch
             v-model="form.is_admin"
-            active-text="管理员"
-            inactive-text="普通用户"
+            :active-text="t('users.admin')"
+            :inactive-text="t('users.normalUser')"
           />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="submitting" @click="handleSubmit">确定</el-button>
+        <el-button @click="dialogVisible = false">{{ t('users.cancel') }}</el-button>
+        <el-button type="primary" :loading="submitting" @click="handleSubmit">{{ t('users.confirm') }}</el-button>
       </template>
     </el-dialog>
 
     <el-dialog
       v-model="resetPwdDialogVisible"
-      title="重置密码"
+      :title="t('users.resetPwdTitle')"
       width="420px"
       destroy-on-close
     >
       <el-form ref="resetPwdFormRef" :model="resetPwdForm" :rules="resetPwdRules" label-width="80px">
-        <el-form-item label="新密码" prop="password">
-          <el-input v-model="resetPwdForm.password" type="password" show-password placeholder="请输入新密码" />
+        <el-form-item :label="t('users.newPassword')" prop="password">
+          <el-input v-model="resetPwdForm.password" type="password" show-password :placeholder="t('users.newPasswordPlaceholder')" />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="resetPwdDialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="resetPwdSubmitting" @click="handleResetPasswordSubmit">确定</el-button>
+        <el-button @click="resetPwdDialogVisible = false">{{ t('users.cancel') }}</el-button>
+        <el-button type="primary" :loading="resetPwdSubmitting" @click="handleResetPasswordSubmit">{{ t('users.confirm') }}</el-button>
       </template>
     </el-dialog>
   </div>
@@ -106,8 +106,11 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getUsers, createUser, updateUser, resetUserPassword, deleteUser } from '../api/users'
+
+const { t } = useI18n()
 
 const loading = ref(false)
 const users = ref([])
@@ -136,17 +139,17 @@ const resetPwdForm = reactive({
 })
 
 const rules = {
-  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+  username: [{ required: true, message: t('users.usernameRequired'), trigger: 'blur' }],
+  password: [{ required: true, message: t('users.passwordRequired'), trigger: 'blur' }]
 }
 
 const resetPwdRules = {
-  password: [{ required: true, message: '请输入新密码', trigger: 'blur' }]
+  password: [{ required: true, message: t('users.newPasswordRequired'), trigger: 'blur' }]
 }
 
 const formatTime = (t) => {
   if (!t) return '-'
-  return new Date(t).toLocaleString('zh-CN')
+  return new Date(t).toLocaleString(localStorage.getItem('locale') === 'en' ? 'en-US' : 'zh-CN')
 }
 
 const openDialog = (user = null) => {
@@ -165,19 +168,19 @@ const handleSubmit = async () => {
     try {
       if (editingUser.value) {
         await updateUser(editingUser.value.id, { is_admin: form.is_admin })
-        ElMessage.success('用户已更新')
+        ElMessage.success(t('users.userUpdated'))
       } else {
         await createUser({
           username: form.username,
           password: form.password,
           is_admin: form.is_admin
         })
-        ElMessage.success('用户已创建')
+        ElMessage.success(t('users.userCreated'))
       }
       dialogVisible.value = false
       fetchUsers()
     } catch (err) {
-      ElMessage.error(err.response?.data?.error || '操作失败')
+      ElMessage.error(err.response?.data?.error || t('users.operationFailed'))
     } finally {
       submitting.value = false
     }
@@ -185,19 +188,19 @@ const handleSubmit = async () => {
 }
 
 const handleToggleActive = async (row) => {
-  const action = row.is_active ? '停用' : '启用'
+  const action = row.is_active ? t('users.disable') : t('users.enable')
   try {
-    await ElMessageBox.confirm(`确定要${action}用户 "${row.username}" 吗？`, `${action}确认`, {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('users.toggleConfirm', { action, username: row.username }), t('users.toggleTitle', { action }), {
+      confirmButtonText: t('users.confirm'),
+      cancelButtonText: t('users.cancel'),
       type: 'warning'
     })
     await updateUser(row.id, { is_active: !row.is_active })
-    ElMessage.success(`用户已${action}`)
+    ElMessage.success(t('users.userToggled', { action }))
     fetchUsers()
   } catch (err) {
     if (err !== 'cancel') {
-      ElMessage.error(err.response?.data?.error || '操作失败')
+      ElMessage.error(err.response?.data?.error || t('users.operationFailed'))
     }
   }
 }
@@ -215,10 +218,10 @@ const handleResetPasswordSubmit = async () => {
     resetPwdSubmitting.value = true
     try {
       await resetUserPassword(resetPwdUserId.value, resetPwdForm.password)
-      ElMessage.success('密码已重置')
+      ElMessage.success(t('users.passwordReset'))
       resetPwdDialogVisible.value = false
     } catch (err) {
-      ElMessage.error(err.response?.data?.error || '重置失败')
+      ElMessage.error(err.response?.data?.error || t('users.resetFailed'))
     } finally {
       resetPwdSubmitting.value = false
     }
@@ -226,17 +229,17 @@ const handleResetPasswordSubmit = async () => {
 }
 
 const handleDelete = (row) => {
-  ElMessageBox.confirm(`确定要删除用户 "${row.username}" 吗？`, '删除确认', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  ElMessageBox.confirm(t('users.deleteConfirm', { username: row.username }), t('users.deleteTitle'), {
+    confirmButtonText: t('users.confirm'),
+    cancelButtonText: t('users.cancel'),
     type: 'warning'
   }).then(async () => {
     try {
       await deleteUser(row.id)
-      ElMessage.success('用户已删除')
+      ElMessage.success(t('users.userDeleted'))
       fetchUsers()
     } catch (err) {
-      ElMessage.error(err.response?.data?.error || '删除失败')
+      ElMessage.error(err.response?.data?.error || t('users.deleteFailed'))
     }
   }).catch(() => {})
 }

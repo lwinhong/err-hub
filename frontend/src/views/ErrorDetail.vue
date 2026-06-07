@@ -1,57 +1,57 @@
 <template>
   <div class="error-detail">
     <el-breadcrumb separator="/" class="breadcrumb">
-      <el-breadcrumb-item :to="{ path: '/projects' }">项目列表</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path: `/projects/${error.project_id}/errors` }">异常列表</el-breadcrumb-item>
-      <el-breadcrumb-item>异常详情</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/projects' }">{{ t('errorDetail.projectList') }}</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: `/projects/${error.project_id}/errors` }">{{ t('errorDetail.errorList') }}</el-breadcrumb-item>
+      <el-breadcrumb-item>{{ t('errorDetail.errorDetail') }}</el-breadcrumb-item>
     </el-breadcrumb>
 
     <el-card shadow="hover" class="info-card">
       <template #header>
         <div class="card-header">
-          <span class="card-title">异常信息</span>
+          <span class="card-title">{{ t('errorDetail.errorInfo') }}</span>
           <el-button @click="goBack">
             <el-icon><ArrowLeft /></el-icon>
-            返回
+            {{ t('errorDetail.back') }}
           </el-button>
         </div>
       </template>
       <el-descriptions :column="isMobile ? 1 : 2" border>
-        <el-descriptions-item label="异常类型" :span="2">
+        <el-descriptions-item :label="t('errorDetail.exceptionType')" :span="2">
           <code class="code-text">{{ error.exception_type }}</code>
         </el-descriptions-item>
-        <el-descriptions-item label="消息" :span="2">
+        <el-descriptions-item :label="t('errorDetail.message')" :span="2">
           <span class="message-text" :class="{ 'message-code': isCodeLike(error.message) }">{{ error.message }}</span>
         </el-descriptions-item>
-        <el-descriptions-item label="级别">
+        <el-descriptions-item :label="t('errorDetail.severity')">
           <el-tag :type="severityType(error.severity)" :effect="error.severity === 'critical' ? 'dark' : 'light'" size="small">
             {{ error.severity }}
           </el-tag>
         </el-descriptions-item>
-        <el-descriptions-item label="环境">{{ error.environment }}</el-descriptions-item>
-        <el-descriptions-item label="来源">
+        <el-descriptions-item :label="t('errorDetail.environment')">{{ error.environment }}</el-descriptions-item>
+        <el-descriptions-item :label="t('errorDetail.source')">
           <el-tag :type="error.source === 'frontend' ? 'warning' : 'primary'" size="small" effect="plain">
             {{ sourceLabel(error.source) }}
           </el-tag>
         </el-descriptions-item>
-        <el-descriptions-item label="状态">
+        <el-descriptions-item :label="t('errorDetail.status')">
           <el-tag :type="statusType(error.status)" size="small">{{ statusLabel(error.status) }}</el-tag>
         </el-descriptions-item>
-        <el-descriptions-item label="出现次数">{{ error.count }}</el-descriptions-item>
-        <el-descriptions-item label="首次出现">{{ formatTime(error.first_seen_at) }}</el-descriptions-item>
-        <el-descriptions-item label="最近出现">{{ formatTime(error.last_seen_at) }}</el-descriptions-item>
+        <el-descriptions-item :label="t('errorDetail.count')">{{ error.count }}</el-descriptions-item>
+        <el-descriptions-item :label="t('errorDetail.firstSeen')">{{ formatTime(error.first_seen_at) }}</el-descriptions-item>
+        <el-descriptions-item :label="t('errorDetail.lastSeen')">{{ formatTime(error.last_seen_at) }}</el-descriptions-item>
       </el-descriptions>
 
       <div v-if="authStore.isAdmin" class="action-bar">
         <el-button-group>
           <el-button :type="error.status === 'unresolved' ? 'danger' : ''" @click="changeStatus('unresolved')">
-            标记为未解决
+            {{ t('errorDetail.markUnresolved') }}
           </el-button>
           <el-button :type="error.status === 'resolved' ? 'success' : ''" @click="changeStatus('resolved')">
-            标记为已解决
+            {{ t('errorDetail.markResolved') }}
           </el-button>
           <el-button :type="error.status === 'ignored' ? 'info' : ''" @click="changeStatus('ignored')">
-            标记为忽略
+            {{ t('errorDetail.markIgnored') }}
           </el-button>
         </el-button-group>
       </div>
@@ -59,14 +59,14 @@
 
     <el-card shadow="hover" class="stack-card">
       <template #header>
-        <span class="card-title">堆栈信息</span>
+        <span class="card-title">{{ t('errorDetail.stackTrace') }}</span>
       </template>
-      <pre class="stack-trace">{{ error.stack_trace || '无堆栈信息' }}</pre>
+      <pre class="stack-trace">{{ error.stack_trace || t('errorDetail.noStackTrace') }}</pre>
     </el-card>
 
     <el-card shadow="hover" class="context-card">
       <template #header>
-        <span class="card-title">上下文信息</span>
+        <span class="card-title">{{ t('errorDetail.context') }}</span>
       </template>
       <pre class="context-data">{{ formatContext(error.context) }}</pre>
     </el-card>
@@ -76,6 +76,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import { getError, updateError } from '../api/errors'
 import { formatTime } from '../utils/format'
@@ -83,6 +84,7 @@ import { useAuthStore } from '../stores/auth'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const authStore = useAuthStore()
 const errorId = route.params.id
 
@@ -106,12 +108,12 @@ const statusType = (status) => {
 }
 
 const statusLabel = (status) => {
-  const map = { unresolved: '未解决', resolved: '已解决', ignored: '已忽略' }
+  const map = { unresolved: t('errorDetail.unresolved'), resolved: t('errorDetail.resolved'), ignored: t('errorDetail.ignored') }
   return map[status] || status
 }
 
 const sourceLabel = (source) => {
-  const map = { frontend: '前端', backend: '后端' }
+  const map = { frontend: t('errorDetail.frontend'), backend: t('errorDetail.backend') }
   return map[source] || source
 }
 
@@ -123,7 +125,7 @@ const isCodeLike = (text) => {
 
 
 const formatContext = (ctx) => {
-  if (!ctx) return '无上下文信息'
+  if (!ctx) return t('errorDetail.noContext')
   try {
     if (typeof ctx === 'string') {
       const parsed = JSON.parse(ctx)
@@ -139,9 +141,9 @@ const changeStatus = async (status) => {
   try {
     await updateError(errorId, { status })
     error.value.status = status
-    ElMessage.success('状态已更新')
+    ElMessage.success(t('errorDetail.statusUpdated'))
   } catch (err) {
-    ElMessage.error(err.response?.data?.error || '更新失败')
+    ElMessage.error(err.response?.data?.error || t('errorDetail.updateFailed'))
   }
 }
 
@@ -223,7 +225,7 @@ const fetchError = async () => {
 }
 
 .stack-trace {
-  background-color: var(--el-fill-color-darker, #1e1e1e);
+  background-color: #1e1e1e;
   color: #d4d4d4;
   padding: 16px;
   border-radius: 6px;

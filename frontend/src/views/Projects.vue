@@ -1,19 +1,19 @@
 <template>
   <div class="projects">
     <div class="page-header">
-      <h2>项目管理</h2>
+      <h2>{{ t('projects.title') }}</h2>
       <el-button v-if="authStore.isAdmin" type="primary" @click="openDialog()">
         <el-icon><Plus /></el-icon>
-        新建项目
+        {{ t('projects.create') }}
       </el-button>
     </div>
 
     <el-card shadow="hover">
       <div class="table-scroll">
         <el-table :data="projects" stripe v-loading="loading">
-          <el-table-column prop="name" label="项目名称" min-width="150" />
-          <el-table-column prop="project_key" label="Project Key" width="150" />
-          <el-table-column label="API Token" width="200">
+          <el-table-column prop="name" :label="t('projects.name')" min-width="150" />
+          <el-table-column prop="project_key" :label="t('projects.projectKey')" width="150" />
+          <el-table-column :label="t('projects.apiToken')" width="200">
             <template #default="{ row }">
               <div v-if="authStore.isAdmin" class="token-cell">
                 <span class="token-text">{{ maskToken(row.api_token) }}</span>
@@ -24,18 +24,18 @@
               <span v-else class="token-text">***</span>
             </template>
           </el-table-column>
-          <el-table-column prop="description" label="描述" min-width="200" show-overflow-tooltip />
-          <el-table-column prop="created_at" label="创建时间" width="180">
+          <el-table-column prop="description" :label="t('projects.description')" min-width="200" show-overflow-tooltip />
+          <el-table-column prop="created_at" :label="t('projects.createdAt')" width="180">
             <template #default="{ row }">{{ formatTime(row.created_at) }}</template>
           </el-table-column>
-          <el-table-column label="操作" :width="authStore.isAdmin ? 320 : 160" fixed="right">
+          <el-table-column :label="t('projects.actions')" :width="authStore.isAdmin ? 320 : 160" fixed="right">
             <template #default="{ row }">
-              <el-button link type="primary" @click="goToErrors(row)">查看异常</el-button>
-              <el-button link type="success" @click="openExampleDialog(row)">使用示例</el-button>
+              <el-button link type="primary" @click="goToErrors(row)">{{ t('projects.viewErrors') }}</el-button>
+              <el-button link type="success" @click="openExampleDialog(row)">{{ t('projects.usageExample') }}</el-button>
               <template v-if="authStore.isAdmin">
-                <el-button link type="primary" @click="openDialog(row)">编辑</el-button>
-                <el-button link type="warning" @click="handleRegenerate(row)">重新生成Token</el-button>
-                <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+                <el-button link type="primary" @click="openDialog(row)">{{ t('projects.edit') }}</el-button>
+                <el-button link type="warning" @click="handleRegenerate(row)">{{ t('projects.regenerateToken') }}</el-button>
+                <el-button link type="danger" @click="handleDelete(row)">{{ t('projects.delete') }}</el-button>
               </template>
             </template>
           </el-table-column>
@@ -56,32 +56,32 @@
 
     <el-dialog
       v-model="dialogVisible"
-      :title="editingProject ? '编辑项目' : '新建项目'"
+      :title="editingProject ? t('projects.editProject') : t('projects.createProject')"
       width="500px"
       destroy-on-close
     >
       <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
-        <el-form-item label="项目名称" prop="name">
-          <el-input v-model="form.name" placeholder="请输入项目名称" />
+        <el-form-item :label="t('projects.projectName')" prop="name">
+          <el-input v-model="form.name" :placeholder="t('projects.projectNamePlaceholder')" />
         </el-form-item>
-        <el-form-item label="项目描述" prop="description">
-          <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入项目描述" />
+        <el-form-item :label="t('projects.projectDesc')" prop="description">
+          <el-input v-model="form.description" type="textarea" :rows="3" :placeholder="t('projects.projectDescPlaceholder')" />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="submitting" @click="handleSubmit">确定</el-button>
+        <el-button @click="dialogVisible = false">{{ t('projects.cancel') }}</el-button>
+        <el-button type="primary" :loading="submitting" @click="handleSubmit">{{ t('projects.confirm') }}</el-button>
       </template>
     </el-dialog>
 
     <el-dialog
       v-model="exampleDialogVisible"
-      :title="`使用示例 - ${exampleProjectName}`"
-      width="720px"
+      :title="t('projects.exampleTitle', { name: exampleProjectName })"
+      width="920px"
       destroy-on-close
     >
       <el-alert
-        title="以下示例中的 API Token 和地址已自动填充为当前项目的实际值，可直接复制使用。"
+        :title="t('projects.exampleAlert')"
         type="info"
         :closable="false"
         show-icon
@@ -92,7 +92,7 @@
         <el-tab-pane label="cURL">
           <div class="code-block-wrapper">
             <el-button class="copy-btn" link type="primary" @click="copyCode(curlExample)">
-              <el-icon><CopyDocument /></el-icon> 复制
+              <el-icon><CopyDocument /></el-icon> {{ t('projects.copy') }}
             </el-button>
             <pre class="code-block">{{ curlExample }}</pre>
           </div>
@@ -100,7 +100,7 @@
         <el-tab-pane label="Python">
           <div class="code-block-wrapper">
             <el-button class="copy-btn" link type="primary" @click="copyCode(pythonExample)">
-              <el-icon><CopyDocument /></el-icon> 复制
+              <el-icon><CopyDocument /></el-icon> {{ t('projects.copy') }}
             </el-button>
             <pre class="code-block">{{ pythonExample }}</pre>
           </div>
@@ -108,14 +108,14 @@
         <el-tab-pane label="JavaScript">
           <div class="code-block-wrapper">
             <el-button class="copy-btn" link type="primary" @click="copyCode(jsExample)">
-              <el-icon><CopyDocument /></el-icon> 复制
+              <el-icon><CopyDocument /></el-icon> {{ t('projects.copy') }}
             </el-button>
             <pre class="code-block">{{ jsExample }}</pre>
           </div>
         </el-tab-pane>
         <el-tab-pane label="Web SDK">
           <el-alert
-            title="引入 SDK 后自动捕获未处理异常，并可通过 window.ErrHub 手动上报。无需额外安装任何依赖。"
+            :title="t('projects.sdkAlert')"
             type="success"
             :closable="false"
             show-icon
@@ -123,23 +123,23 @@
           />
           <div class="code-block-wrapper">
             <el-button class="copy-btn" link type="primary" @click="copyCode(sdkExample)">
-              <el-icon><CopyDocument /></el-icon> 复制
+              <el-icon><CopyDocument /></el-icon> {{ t('projects.copy') }}
             </el-button>
             <pre class="code-block">{{ sdkExample }}</pre>
           </div>
         </el-tab-pane>
       </el-tabs>
 
-      <el-divider content-position="left">字段说明</el-divider>
+      <el-divider content-position="left">{{ t('projects.fieldDescription') }}</el-divider>
       <el-table :data="fieldDocs" size="small" border>
-        <el-table-column prop="field" label="字段" width="140" />
-        <el-table-column prop="required" label="必填" width="60" align="center">
+        <el-table-column prop="field" :label="t('projects.field')" width="140" />
+        <el-table-column prop="required" :label="t('projects.required')" width="60" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.required ? 'danger' : 'info'" size="small">{{ row.required ? '是' : '否' }}</el-tag>
+            <el-tag :type="row.required ? 'danger' : 'info'" size="small">{{ row.required ? t('projects.yes') : t('projects.no') }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="default" label="默认值" width="100" />
-        <el-table-column prop="desc" label="说明" />
+        <el-table-column prop="default" :label="t('projects.defaultValue')" width="100" />
+        <el-table-column prop="desc" :label="t('projects.explain')" />
       </el-table>
     </el-dialog>
   </div>
@@ -148,11 +148,13 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getProjects, createProject, updateProject, deleteProject, regenerateToken } from '../api/projects'
 import { useAuthStore } from '../stores/auth'
 
 const router = useRouter()
+const { t } = useI18n()
 const authStore = useAuthStore()
 
 const loading = ref(false)
@@ -176,16 +178,16 @@ const form = reactive({
 })
 
 const rules = {
-  name: [{ required: true, message: '请输入项目名称', trigger: 'blur' }]
+  name: [{ required: true, message: t('projects.nameRequired'), trigger: 'blur' }]
 }
 
 const fieldDocs = [
-  { field: 'exception_type', required: true, default: '-', desc: '异常类型，如 ValueError、KeyError' },
-  { field: 'message', required: true, default: '-', desc: '异常消息' },
-  { field: 'stack_trace', required: false, default: '-', desc: '完整堆栈信息' },
-  { field: 'severity', required: false, default: 'error', desc: 'debug / info / warning / error / critical' },
-  { field: 'environment', required: false, default: 'unknown', desc: 'development / staging / production' },
-  { field: 'context', required: false, default: '-', desc: '自定义 JSON 对象，如 {"user_id": "123"}' },
+  { field: 'exception_type', required: true, default: '-', desc: t('projects.fieldDocs.exceptionType') },
+  { field: 'message', required: true, default: '-', desc: t('projects.fieldDocs.exceptionMessage') },
+  { field: 'stack_trace', required: false, default: '-', desc: t('projects.fieldDocs.stackTrace') },
+  { field: 'severity', required: false, default: 'error', desc: t('projects.fieldDocs.severity') },
+  { field: 'environment', required: false, default: 'unknown', desc: t('projects.fieldDocs.environment') },
+  { field: 'context', required: false, default: '-', desc: t('projects.fieldDocs.context') },
 ]
 
 const baseUrl = `${window.location.origin}/api/v1`
@@ -396,24 +398,24 @@ const maskToken = (token) => {
 const copyToken = async (token) => {
   try {
     await navigator.clipboard.writeText(token)
-    ElMessage.success('Token 已复制到剪贴板')
+    ElMessage.success(t('projects.tokenCopied'))
   } catch {
-    ElMessage.error('复制失败')
+    ElMessage.error(t('projects.copyFailed'))
   }
 }
 
 const copyCode = async (code) => {
   try {
     await navigator.clipboard.writeText(code)
-    ElMessage.success('代码已复制到剪贴板')
+    ElMessage.success(t('projects.codeCopied'))
   } catch {
-    ElMessage.error('复制失败')
+    ElMessage.error(t('projects.copyFailed'))
   }
 }
 
 const formatTime = (t) => {
   if (!t) return '-'
-  return new Date(t).toLocaleString('zh-CN')
+  return new Date(t).toLocaleString(localStorage.getItem('locale') === 'en' ? 'en-US' : 'zh-CN')
 }
 
 const goToErrors = (row) => {
@@ -441,15 +443,15 @@ const handleSubmit = async () => {
     try {
       if (editingProject.value) {
         await updateProject(editingProject.value.id, form)
-        ElMessage.success('项目已更新')
+        ElMessage.success(t('projects.projectUpdated'))
       } else {
         await createProject(form)
-        ElMessage.success('项目已创建')
+        ElMessage.success(t('projects.projectCreated'))
       }
       dialogVisible.value = false
       fetchProjects()
     } catch (err) {
-      ElMessage.error(err.response?.data?.error || '操作失败')
+      ElMessage.error(err.response?.data?.error || t('projects.operationFailed'))
     } finally {
       submitting.value = false
     }
@@ -457,33 +459,33 @@ const handleSubmit = async () => {
 }
 
 const handleDelete = (row) => {
-  ElMessageBox.confirm(`确定要删除项目 "${row.name}" 吗？`, '删除确认', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  ElMessageBox.confirm(t('projects.deleteConfirm', { name: row.name }), t('projects.deleteTitle'), {
+    confirmButtonText: t('projects.confirm'),
+    cancelButtonText: t('projects.cancel'),
     type: 'warning'
   }).then(async () => {
     try {
       await deleteProject(row.id)
-      ElMessage.success('项目已删除')
+      ElMessage.success(t('projects.projectDeleted'))
       fetchProjects()
     } catch (err) {
-      ElMessage.error(err.response?.data?.error || '删除失败')
+      ElMessage.error(err.response?.data?.error || t('projects.deleteFailed'))
     }
   }).catch(() => {})
 }
 
 const handleRegenerate = (row) => {
-  ElMessageBox.confirm('重新生成 Token 后，旧 Token 将立即失效。确定继续？', '重新生成 Token', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  ElMessageBox.confirm(t('projects.regenerateConfirm'), t('projects.regenerateTitle'), {
+    confirmButtonText: t('projects.confirm'),
+    cancelButtonText: t('projects.cancel'),
     type: 'warning'
   }).then(async () => {
     try {
       await regenerateToken(row.id)
-      ElMessage.success('Token 已重新生成')
+      ElMessage.success(t('projects.tokenRegenerated'))
       fetchProjects()
     } catch (err) {
-      ElMessage.error(err.response?.data?.error || '操作失败')
+      ElMessage.error(err.response?.data?.error || t('projects.operationFailed'))
     }
   }).catch(() => {})
 }
@@ -556,7 +558,7 @@ onMounted(() => {
 }
 
 .code-block {
-  background-color: var(--el-fill-color-darker, #1e1e1e);
+  background-color: #1e1e1e;
   color: #d4d4d4;
   padding: 16px;
   border-radius: 6px;

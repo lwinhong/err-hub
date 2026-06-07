@@ -1,81 +1,111 @@
 <template>
-  <el-container v-if="authStore.isAuthenticated" class="app-container">
-    <el-header class="app-header" :class="{ 'mobile-menu-open': mobileMenuOpen }">
-      <!-- 桌面端：单行菜单 -->
-      <el-menu
-        mode="horizontal"
-        :default-active="activeMenu"
-        :ellipsis="false"
-        class="desktop-menu"
-        router
-      >
-        <el-menu-item index="logo" disabled class="logo-item">
+  <el-config-provider :locale="elementLocale">
+    <el-container v-if="authStore.isAuthenticated" class="app-container">
+      <el-header class="app-header" :class="{ 'mobile-menu-open': mobileMenuOpen }">
+        <!-- 桌面端：菜单 + 控件 -->
+        <div class="desktop-header">
+          <el-menu
+            mode="horizontal"
+            :default-active="activeMenu"
+            :ellipsis="false"
+            class="desktop-menu"
+            router
+          >
+            <el-menu-item index="logo" disabled class="logo-item">
+              <span class="logo-text">ErrHub</span>
+            </el-menu-item>
+            <el-menu-item index="/">
+              <el-icon><DataAnalysis /></el-icon>
+              <span>{{ t('app.dashboard') }}</span>
+            </el-menu-item>
+            <el-menu-item index="/projects">
+              <el-icon><FolderOpened /></el-icon>
+              <span>{{ t('app.projects') }}</span>
+            </el-menu-item>
+            <el-menu-item v-if="authStore.isAdmin" index="/users">
+              <el-icon><User /></el-icon>
+              <span>{{ t('app.users') }}</span>
+            </el-menu-item>
+          </el-menu>
+          <div class="header-actions">
+            <el-dropdown @command="handleLangChange">
+              <span class="lang-switch-trigger">
+                <el-icon><CollectionTag /></el-icon>
+                <span>{{ currentLangLabel }}</span>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item v-for="lang in languages" :key="lang.code" :command="lang.code">{{ lang.label }}</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+            <div class="theme-toggle" @click="handleToggleDark()">
+              <el-icon><component :is="isDark ? 'Sunny' : 'Moon'" /></el-icon>
+              <span>{{ isDark ? t('app.light') : t('app.dark') }}</span>
+            </div>
+            <div class="header-action-btn" @click="handleLogout">
+              <el-icon><SwitchButton /></el-icon>
+              <span>{{ t('app.logout') }}</span>
+            </div>
+          </div>
+        </div>
+        <!-- 移动端：Logo + 汉堡按钮 -->
+        <div class="mobile-header">
           <span class="logo-text">ErrHub</span>
-        </el-menu-item>
-        <el-menu-item index="/">
-          <el-icon><DataAnalysis /></el-icon>
-          <span>仪表盘</span>
-        </el-menu-item>
-        <el-menu-item index="/projects">
-          <el-icon><FolderOpened /></el-icon>
-          <span>项目列表</span>
-        </el-menu-item>
-        <el-menu-item v-if="authStore.isAdmin" index="/users">
-          <el-icon><User /></el-icon>
-          <span>用户管理</span>
-        </el-menu-item>
-        <div class="menu-spacer" />
-        <div class="theme-toggle" @click="handleToggleDark()">
-          <el-icon><component :is="isDark ? 'Sunny' : 'Moon'" /></el-icon>
-          <span>{{ isDark ? '亮色' : '暗色' }}</span>
-        </div>
-        <el-menu-item index="logout" @click="handleLogout">
-          <el-icon><SwitchButton /></el-icon>
-          <span>退出登录</span>
-        </el-menu-item>
-      </el-menu>
-      <!-- 移动端：Logo + 汉堡按钮 -->
-      <div class="mobile-header">
-        <span class="logo-text">ErrHub</span>
-        <div class="mobile-header-right">
-          <div class="theme-toggle" @click="handleToggleDark()">
-            <el-icon><component :is="isDark ? 'Sunny' : 'Moon'" /></el-icon>
-          </div>
-          <div class="hamburger" @click="mobileMenuOpen = !mobileMenuOpen">
-            <el-icon :size="22"><component :is="mobileMenuOpen ? 'Close' : 'Expand'" /></el-icon>
+          <div class="mobile-header-right">
+            <el-dropdown @command="handleLangChange">
+              <span class="lang-switch-trigger-mobile">
+                {{ currentLangLabel }}
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item v-for="lang in languages" :key="lang.code" :command="lang.code">{{ lang.label }}</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+            <div class="theme-toggle" @click="handleToggleDark()">
+              <el-icon><component :is="isDark ? 'Sunny' : 'Moon'" /></el-icon>
+            </div>
+            <div class="hamburger" @click="mobileMenuOpen = !mobileMenuOpen">
+              <el-icon :size="22"><component :is="mobileMenuOpen ? 'Close' : 'Expand'" /></el-icon>
+            </div>
           </div>
         </div>
-      </div>
-      <!-- 移动端下拉菜单 -->
-      <transition name="slide-down">
-        <div v-if="mobileMenuOpen" class="mobile-menu">
-          <div class="mobile-menu-item" @click="navigateTo('/')">
-            <el-icon><DataAnalysis /></el-icon><span>仪表盘</span>
+        <!-- 移动端下拉菜单 -->
+        <transition name="slide-down">
+          <div v-if="mobileMenuOpen" class="mobile-menu">
+            <div class="mobile-menu-item" @click="navigateTo('/')">
+              <el-icon><DataAnalysis /></el-icon><span>{{ t('app.dashboard') }}</span>
+            </div>
+            <div class="mobile-menu-item" @click="navigateTo('/projects')">
+              <el-icon><FolderOpened /></el-icon><span>{{ t('app.projects') }}</span>
+            </div>
+            <div v-if="authStore.isAdmin" class="mobile-menu-item" @click="navigateTo('/users')">
+              <el-icon><User /></el-icon><span>{{ t('app.users') }}</span>
+            </div>
+            <div class="mobile-menu-item" @click="handleLogout">
+              <el-icon><SwitchButton /></el-icon><span>{{ t('app.logout') }}</span>
+            </div>
           </div>
-          <div class="mobile-menu-item" @click="navigateTo('/projects')">
-            <el-icon><FolderOpened /></el-icon><span>项目列表</span>
-          </div>
-          <div v-if="authStore.isAdmin" class="mobile-menu-item" @click="navigateTo('/users')">
-            <el-icon><User /></el-icon><span>用户管理</span>
-          </div>
-          <div class="mobile-menu-item" @click="handleLogout">
-            <el-icon><SwitchButton /></el-icon><span>退出登录</span>
-          </div>
-        </div>
-      </transition>
-    </el-header>
-    <el-main class="app-main">
-      <router-view />
-    </el-main>
-  </el-container>
-  <router-view v-else />
+        </transition>
+      </el-header>
+      <el-main class="app-main">
+        <router-view />
+      </el-main>
+    </el-container>
+    <router-view v-else />
+  </el-config-provider>
 </template>
 
 <script setup>
 import { computed, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useDark, useToggle } from '@vueuse/core'
+import { useI18n } from 'vue-i18n'
+import zhCn from 'element-plus/es/locale/lang/zh-cn'
+import en from 'element-plus/es/locale/lang/en'
 import { useAuthStore } from './stores/auth'
+import { STORAGE_KEY, languages } from './i18n'
 
 const route = useRoute()
 const router = useRouter()
@@ -83,6 +113,18 @@ const authStore = useAuthStore()
 const isDark = useDark()
 const toggleDark = useToggle(isDark)
 const mobileMenuOpen = ref(false)
+const { t, locale } = useI18n()
+
+const elementLocale = computed(() => locale.value === 'zh-CN' ? zhCn : en)
+
+const currentLangLabel = computed(() => {
+  return languages.find(l => l.code === locale.value)?.label || locale.value
+})
+
+const handleLangChange = (lang) => {
+  locale.value = lang
+  localStorage.setItem(STORAGE_KEY, lang)
+}
 
 const handleToggleDark = () => {
   const root = document.documentElement
@@ -161,12 +203,18 @@ html.theme-transition *::after {
   height: auto !important;
 }
 
-/* ── 桌面端菜单 ── */
-.desktop-menu {
-  height: 60px;
+/* ── 桌面端 ── */
+.desktop-header {
   display: flex;
   align-items: center;
+  height: 60px;
   padding: 0 20px;
+}
+
+.desktop-menu {
+  flex: 1;
+  height: 60px;
+  border-bottom: none !important;
 }
 
 .logo-item {
@@ -185,8 +233,36 @@ html.theme-transition *::after {
   letter-spacing: 1px;
 }
 
-.menu-spacer {
-  flex: 1;
+.header-actions {
+  display: flex;
+  align-items: center;
+  height: 60px;
+  flex-shrink: 0;
+}
+
+.lang-switch-trigger {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--el-text-color-regular);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 10px;
+  height: 60px;
+}
+
+.lang-switch-trigger:hover {
+  color: var(--el-color-primary);
+}
+
+.lang-switch-trigger-mobile {
+  font-size: 13px;
+  color: var(--el-text-color-regular);
+  cursor: pointer;
+  padding: 0 8px;
+  height: 36px;
+  display: flex;
+  align-items: center;
 }
 
 .theme-toggle {
@@ -201,6 +277,22 @@ html.theme-transition *::after {
 }
 
 .theme-toggle:hover {
+  color: var(--el-color-primary);
+}
+
+.header-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 20px;
+  height: 60px;
+  cursor: pointer;
+  color: var(--el-text-color-regular);
+  transition: color 0.2s;
+  font-size: 14px;
+}
+
+.header-action-btn:hover {
   color: var(--el-color-primary);
 }
 
@@ -287,7 +379,7 @@ html.theme-transition *::after {
 
 /* ── 移动端适配 ── */
 @media (max-width: 768px) {
-  .desktop-menu {
+  .desktop-header {
     display: none !important;
   }
 

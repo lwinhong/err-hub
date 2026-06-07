@@ -1,47 +1,47 @@
 <template>
   <div class="project-errors">
     <div class="page-header">
-      <h2>{{ projectName }} - 异常列表</h2>
+      <h2>{{ t('projectErrors.title', { name: projectName }) }}</h2>
     </div>
 
     <el-card shadow="hover" class="filter-card">
       <div class="filter-grid">
-        <el-select v-model="filters.severity" placeholder="级别" clearable @change="fetchErrors" class="filter-item">
+        <el-select v-model="filters.severity" :placeholder="t('projectErrors.severity')" clearable @change="fetchErrors" class="filter-item">
           <el-option label="Debug" value="debug" />
           <el-option label="Warning" value="warning" />
           <el-option label="Error" value="error" />
           <el-option label="Critical" value="critical" />
         </el-select>
-        <el-select v-model="filters.environment" placeholder="环境" clearable @change="fetchErrors" class="filter-item">
+        <el-select v-model="filters.environment" :placeholder="t('projectErrors.environment')" clearable @change="fetchErrors" class="filter-item">
           <el-option label="Production" value="production" />
           <el-option label="Staging" value="staging" />
           <el-option label="Development" value="development" />
         </el-select>
-        <el-select v-model="filters.source" placeholder="来源" clearable @change="fetchErrors" class="filter-item">
-          <el-option label="前端" value="frontend" />
-          <el-option label="后端" value="backend" />
+        <el-select v-model="filters.source" :placeholder="t('projectErrors.source')" clearable @change="fetchErrors" class="filter-item">
+          <el-option :label="t('projectErrors.frontend')" value="frontend" />
+          <el-option :label="t('projectErrors.backend')" value="backend" />
         </el-select>
-        <el-select v-model="filters.status" placeholder="状态" clearable @change="fetchErrors" class="filter-item">
-          <el-option label="未解决" value="unresolved" />
-          <el-option label="已解决" value="resolved" />
-          <el-option label="已忽略" value="ignored" />
+        <el-select v-model="filters.status" :placeholder="t('projectErrors.status')" clearable @change="fetchErrors" class="filter-item">
+          <el-option :label="t('projectErrors.unresolved')" value="unresolved" />
+          <el-option :label="t('projectErrors.resolved')" value="resolved" />
+          <el-option :label="t('projectErrors.ignored')" value="ignored" />
         </el-select>
-        <el-input v-model="filters.search" placeholder="搜索异常类型或消息" clearable @clear="fetchErrors" @keyup.enter="fetchErrors" class="filter-item filter-search">
+        <el-input v-model="filters.search" :placeholder="t('projectErrors.searchPlaceholder')" clearable @clear="fetchErrors" @keyup.enter="fetchErrors" class="filter-item filter-search">
           <template #prefix><el-icon><Search /></el-icon></template>
         </el-input>
-        <el-select v-model="filters.sort" placeholder="排序" @change="fetchErrors" class="filter-item">
-          <el-option label="最近出现" value="last_seen_at" />
-          <el-option label="出现次数" value="count" />
-          <el-option label="首次出现" value="first_seen_at" />
+        <el-select v-model="filters.sort" :placeholder="t('projectErrors.sort')" @change="fetchErrors" class="filter-item">
+          <el-option :label="t('projectErrors.lastSeen')" value="last_seen_at" />
+          <el-option :label="t('projectErrors.count')" value="count" />
+          <el-option :label="t('projectErrors.firstSeen')" value="first_seen_at" />
         </el-select>
         <div class="filter-actions">
-          <el-button type="primary" @click="fetchErrors">筛选</el-button>
+          <el-button type="primary" @click="fetchErrors">{{ t('projectErrors.filter') }}</el-button>
           <el-button
             v-if="authStore.isAdmin && selectedIds.length > 0"
             type="danger"
             @click="handleBatchDelete"
           >
-            批量删除 ({{ selectedIds.length }})
+            {{ t('projectErrors.batchDelete', { count: selectedIds.length }) }}
           </el-button>
         </div>
       </div>
@@ -51,36 +51,36 @@
       <div class="table-scroll">
         <el-table :data="errors" stripe v-loading="loading" @row-click="goToError" @selection-change="handleSelectionChange">
         <el-table-column v-if="authStore.isAdmin" type="selection" width="45" @click.stop />
-        <el-table-column prop="exception_type" label="异常类型" min-width="160" show-overflow-tooltip />
-        <el-table-column prop="message" label="消息" min-width="200" show-overflow-tooltip />
-        <el-table-column prop="severity" label="级别" width="100">
+        <el-table-column prop="exception_type" :label="t('projectErrors.exceptionType')" min-width="160" show-overflow-tooltip />
+        <el-table-column prop="message" :label="t('projectErrors.message')" min-width="200" show-overflow-tooltip />
+        <el-table-column prop="severity" :label="t('projectErrors.severity')" width="100">
           <template #default="{ row }">
             <el-tag :type="severityType(row.severity)" size="small" :effect="row.severity === 'critical' ? 'dark' : 'light'">
               {{ row.severity }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="source" label="来源" width="90">
+        <el-table-column prop="source" :label="t('projectErrors.source')" width="90">
           <template #default="{ row }">
             <el-tag :type="row.source === 'frontend' ? 'warning' : 'primary'" size="small" effect="plain">
               {{ sourceLabel(row.source) }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="environment" label="环境" width="110" />
-        <el-table-column prop="count" label="出现次数" width="100" />
-        <el-table-column prop="status" label="状态" width="100">
+        <el-table-column prop="environment" :label="t('projectErrors.environment')" width="110" />
+        <el-table-column prop="count" :label="t('projectErrors.count')" width="100" />
+        <el-table-column prop="status" :label="t('projectErrors.status')" width="100">
           <template #default="{ row }">
             <el-tag :type="statusType(row.status)" size="small">{{ statusLabel(row.status) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="last_seen_at" label="最近出现" width="180">
+        <el-table-column prop="last_seen_at" :label="t('projectErrors.lastSeen')" width="180">
           <template #default="{ row }">{{ formatTime(row.last_seen_at) }}</template>
         </el-table-column>
-        <el-table-column label="操作" :width="authStore.isAdmin ? 120 : 60" fixed="right">
+        <el-table-column :label="t('projectErrors.actions')" :width="authStore.isAdmin ? 120 : 60" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click.stop="goToError(row)">详情</el-button>
-            <el-button v-if="authStore.isAdmin" link type="danger" @click.stop="handleDelete(row)">删除</el-button>
+            <el-button link type="primary" @click.stop="goToError(row)">{{ t('projectErrors.detail') }}</el-button>
+            <el-button v-if="authStore.isAdmin" link type="danger" @click.stop="handleDelete(row)">{{ t('projectErrors.delete') }}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -102,6 +102,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { getProjectErrors, deleteError, batchDeleteErrors } from '../api/errors'
 import { getProject } from '../api/projects'
@@ -111,6 +112,7 @@ import { useAuthStore } from '../stores/auth'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const authStore = useAuthStore()
 const projectId = route.params.id
 
@@ -142,12 +144,12 @@ const statusType = (status) => {
 }
 
 const statusLabel = (status) => {
-  const map = { unresolved: '未解决', resolved: '已解决', ignored: '已忽略' }
+  const map = { unresolved: t('projectErrors.unresolved'), resolved: t('projectErrors.resolved'), ignored: t('projectErrors.ignored') }
   return map[status] || status
 }
 
 const sourceLabel = (source) => {
-  const map = { frontend: '前端', backend: '后端' }
+  const map = { frontend: t('projectErrors.frontend'), backend: t('projectErrors.backend') }
   return map[source] || source
 }
 
@@ -159,12 +161,12 @@ const goToError = (row) => {
 const handleDelete = async (row) => {
   try {
     await ElMessageBox.confirm(
-      `确定要删除异常「${row.exception_type}: ${row.message}」吗？`,
-      '删除确认',
-      { confirmButtonText: '删除', cancelButtonText: '取消', type: 'warning' }
+      t('projectErrors.deleteConfirm', { type: row.exception_type, message: row.message }),
+      t('projectErrors.deleteTitle'),
+      { confirmButtonText: t('projectErrors.deleteBtn'), cancelButtonText: t('projectErrors.cancel'), type: 'warning' }
     )
     await deleteError(row.id)
-    ElMessage.success('删除成功')
+    ElMessage.success(t('projectErrors.deleteSuccess'))
     fetchErrors()
   } catch {}
 }
@@ -176,12 +178,12 @@ const handleSelectionChange = (selection) => {
 const handleBatchDelete = async () => {
   try {
     await ElMessageBox.confirm(
-      `确定要删除选中的 ${selectedIds.value.length} 条异常吗？`,
-      '批量删除确认',
-      { confirmButtonText: '删除', cancelButtonText: '取消', type: 'warning' }
+      t('projectErrors.batchDeleteConfirm', { count: selectedIds.value.length }),
+      t('projectErrors.batchDeleteTitle'),
+      { confirmButtonText: t('projectErrors.deleteBtn'), cancelButtonText: t('projectErrors.cancel'), type: 'warning' }
     )
     const res = await batchDeleteErrors(selectedIds.value)
-    ElMessage.success(`成功删除 ${res.data.deleted} 条异常`)
+    ElMessage.success(t('projectErrors.batchDeleteSuccess', { count: res.data.deleted }))
     selectedIds.value = []
     fetchErrors()
   } catch {}

@@ -2,8 +2,8 @@
   <div class="dashboard">
     <!-- 项目筛选 -->
     <div class="filter-bar">
-      <el-select v-model="selectedProjectId" placeholder="全部项目" clearable @change="refreshData" style="width: 220px">
-        <el-option label="全部项目" value="" />
+      <el-select v-model="selectedProjectId" :placeholder="t('dashboard.allProjects')" clearable @change="refreshData" style="width: 220px">
+        <el-option :label="t('dashboard.allProjects')" value="" />
         <el-option v-for="p in projectList" :key="p.id" :label="p.name" :value="p.id" />
       </el-select>
     </div>
@@ -29,11 +29,11 @@
     <el-card shadow="hover" class="chart-card">
       <template #header>
         <div class="chart-header">
-          <span class="card-title">异常趋势</span>
+          <span class="card-title">{{ t('dashboard.errorTrend') }}</span>
           <el-radio-group v-model="trendDays" size="small" @change="refreshData">
-            <el-radio-button :value="7">7天</el-radio-button>
-            <el-radio-button :value="14">14天</el-radio-button>
-            <el-radio-button :value="30">30天</el-radio-button>
+            <el-radio-button :value="7">{{ t('dashboard.days7') }}</el-radio-button>
+            <el-radio-button :value="14">{{ t('dashboard.days14') }}</el-radio-button>
+            <el-radio-button :value="30">{{ t('dashboard.days30') }}</el-radio-button>
           </el-radio-group>
         </div>
       </template>
@@ -44,19 +44,19 @@
     <el-row :gutter="16" class="chart-row">
       <el-col :xs="24" :sm="8">
         <el-card shadow="hover">
-          <template #header><span class="card-title">严重级别分布</span></template>
+          <template #header><span class="card-title">{{ t('dashboard.severityDistribution') }}</span></template>
           <v-chart :option="severityOption" style="height: 260px" autoresize />
         </el-card>
       </el-col>
       <el-col :xs="24" :sm="8">
         <el-card shadow="hover">
-          <template #header><span class="card-title">来源分布</span></template>
+          <template #header><span class="card-title">{{ t('dashboard.sourceDistribution') }}</span></template>
           <v-chart :option="sourceOption" style="height: 260px" autoresize />
         </el-card>
       </el-col>
       <el-col :xs="24" :sm="8">
         <el-card shadow="hover">
-          <template #header><span class="card-title">状态分布</span></template>
+          <template #header><span class="card-title">{{ t('dashboard.statusDistribution') }}</span></template>
           <v-chart :option="statusOption" style="height: 260px" autoresize />
         </el-card>
       </el-col>
@@ -66,13 +66,13 @@
     <el-row :gutter="16" class="chart-row">
       <el-col :xs="24" :sm="12">
         <el-card shadow="hover">
-          <template #header><span class="card-title">Top 5 异常类型</span></template>
+          <template #header><span class="card-title">{{ t('dashboard.topErrors') }}</span></template>
           <v-chart :option="topErrorsOption" style="height: 280px" autoresize />
         </el-card>
       </el-col>
       <el-col :xs="24" :sm="12">
         <el-card shadow="hover">
-          <template #header><span class="card-title">项目异常排名</span></template>
+          <template #header><span class="card-title">{{ t('dashboard.projectRanking') }}</span></template>
           <v-chart :option="projectRankOption" style="height: 280px" autoresize />
         </el-card>
       </el-col>
@@ -80,24 +80,24 @@
 
     <!-- 最近异常 -->
     <el-card shadow="hover" class="table-card">
-      <template #header><span class="card-title">最近异常</span></template>
+      <template #header><span class="card-title">{{ t('dashboard.recentErrors') }}</span></template>
       <el-table :data="recentErrors" stripe @row-click="goToError">
-        <el-table-column prop="exception_type" label="异常类型" min-width="150" />
-        <el-table-column prop="message" label="消息" min-width="200" show-overflow-tooltip />
-        <el-table-column prop="project_name" label="项目" width="150" />
-        <el-table-column prop="source" label="来源" width="90">
+        <el-table-column prop="exception_type" :label="t('dashboard.exceptionType')" min-width="150" />
+        <el-table-column prop="message" :label="t('dashboard.message')" min-width="200" show-overflow-tooltip />
+        <el-table-column prop="project_name" :label="t('dashboard.project')" width="150" />
+        <el-table-column prop="source" :label="t('dashboard.source')" width="90">
           <template #default="{ row }">
             <el-tag :type="row.source === 'frontend' ? 'warning' : 'primary'" size="small" effect="plain">
               {{ sourceLabel(row.source) }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="severity" label="级别" width="100">
+        <el-table-column prop="severity" :label="t('dashboard.severity')" width="100">
           <template #default="{ row }">
             <el-tag :type="severityType(row.severity)" size="small">{{ row.severity }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="last_seen_at" label="最近出现" width="180">
+        <el-table-column prop="last_seen_at" :label="t('dashboard.lastSeen')" width="180">
           <template #default="{ row }">{{ formatTime(row.last_seen_at) }}</template>
         </el-table-column>
       </el-table>
@@ -108,6 +108,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useDark } from '@vueuse/core'
 import VChart from 'vue-echarts'
 import { use } from 'echarts/core'
@@ -127,6 +128,7 @@ use([
 ])
 
 const router = useRouter()
+const { t } = useI18n()
 const isDark = useDark()
 
 const chartTextColor = computed(() => isDark.value ? '#CFD3DC' : '#606266')
@@ -151,12 +153,12 @@ const statCards = computed(() => {
     : '-'
 
   return [
-    { key: 'projects', label: '项目总数', value: o.project_count || 0, icon: 'FolderOpened', bg: 'rgba(64,158,255,0.1)', color: '#409eff' },
-    { key: 'total', label: '异常总数', value: totalErrors, icon: 'DataLine', bg: 'rgba(103,194,58,0.1)', color: '#67c23a' },
-    { key: 'unresolved', label: '未解决', value: unresolved, icon: 'WarningFilled', bg: 'rgba(245,108,108,0.1)', color: '#f56c6c' },
-    { key: 'critical', label: '严重异常', value: o.critical_count || 0, icon: 'CircleCloseFilled', bg: 'rgba(230,0,0,0.08)', color: '#e60000' },
-    { key: 'today', label: '今日新增', value: o.today_new_count || 0, icon: 'AlarmClock', bg: 'rgba(230,162,60,0.1)', color: '#e6a23c' },
-    { key: 'rate', label: '解决率', value: resolveRate, icon: 'TrendCharts', bg: 'rgba(144,147,153,0.1)', color: '#909399' },
+    { key: 'projects', label: t('dashboard.projectCount'), value: o.project_count || 0, icon: 'FolderOpened', bg: 'rgba(64,158,255,0.1)', color: '#409eff' },
+    { key: 'total', label: t('dashboard.totalErrors'), value: totalErrors, icon: 'DataLine', bg: 'rgba(103,194,58,0.1)', color: '#67c23a' },
+    { key: 'unresolved', label: t('dashboard.unresolved'), value: unresolved, icon: 'WarningFilled', bg: 'rgba(245,108,108,0.1)', color: '#f56c6c' },
+    { key: 'critical', label: t('dashboard.criticalErrors'), value: o.critical_count || 0, icon: 'CircleCloseFilled', bg: 'rgba(230,0,0,0.08)', color: '#e60000' },
+    { key: 'today', label: t('dashboard.todayNew'), value: o.today_new_count || 0, icon: 'AlarmClock', bg: 'rgba(230,162,60,0.1)', color: '#e6a23c' },
+    { key: 'rate', label: t('dashboard.resolveRate'), value: resolveRate, icon: 'TrendCharts', bg: 'rgba(144,147,153,0.1)', color: '#909399' },
   ]
 })
 
@@ -176,7 +178,7 @@ const trendOption = computed(() => {
     xAxis: { type: 'category', boundaryGap: false, data: dates, axisLine: { lineStyle: { color: chartAxisLineColor.value } }, axisLabel: { color: chartTextColor.value } },
     yAxis: { type: 'value', minInterval: 1, axisLine: { lineStyle: { color: chartAxisLineColor.value } }, axisLabel: { color: chartTextColor.value }, splitLine: { lineStyle: { color: chartSplitLineColor.value } } },
     series: [{
-      name: '异常数',
+      name: t('dashboard.errorCount'),
       type: 'line',
       smooth: true,
       data: counts,
@@ -214,7 +216,7 @@ const severityOption = computed(() => {
 const sourceOption = computed(() => {
   const data = distributions.value.by_source || {}
   const colorMap = { frontend: '#e6a23c', backend: '#409eff' }
-  const labelMap = { frontend: '前端', backend: '后端' }
+  const labelMap = { frontend: t('dashboard.frontend'), backend: t('dashboard.backend') }
   const pieData = Object.entries(data).map(([name, value]) => ({
     name: labelMap[name] || name,
     value,
@@ -238,7 +240,7 @@ const sourceOption = computed(() => {
 const statusOption = computed(() => {
   const data = distributions.value.by_status || {}
   const colorMap = { unresolved: '#f56c6c', resolved: '#67c23a', ignored: '#909399' }
-  const labelMap = { unresolved: '未解决', resolved: '已解决', ignored: '已忽略' }
+  const labelMap = { unresolved: t('dashboard.unresolved'), resolved: t('dashboard.resolved'), ignored: t('dashboard.ignored') }
   const pieData = Object.entries(data).map(([name, value]) => ({
     name: labelMap[name] || name,
     value,
@@ -302,7 +304,7 @@ const severityType = (severity) => {
   return map[severity] || 'info'
 }
 const sourceLabel = (source) => {
-  const map = { frontend: '前端', backend: '后端' }
+  const map = { frontend: t('dashboard.frontend'), backend: t('dashboard.backend') }
   return map[source] || source
 }
 const goToError = (row) => {

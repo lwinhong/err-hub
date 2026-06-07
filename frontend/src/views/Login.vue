@@ -3,7 +3,7 @@
     <div class="login-card">
       <div class="login-header">
         <h1 class="login-title">ErrHub</h1>
-        <p class="login-subtitle">异常信息收集管理平台</p>
+        <p class="login-subtitle">{{ t('login.subtitle') }}</p>
       </div>
       <el-form
         ref="formRef"
@@ -12,19 +12,19 @@
         label-position="top"
         @submit.prevent="handleLogin"
       >
-        <el-form-item label="用户名" prop="username">
+        <el-form-item :label="t('login.username')" prop="username">
           <el-input
             v-model="form.username"
-            placeholder="请输入用户名"
+            :placeholder="t('login.usernamePlaceholder')"
             :prefix-icon="User"
             size="large"
           />
         </el-form-item>
-        <el-form-item label="密码" prop="password">
+        <el-form-item :label="t('login.password')" prop="password">
           <el-input
             v-model="form.password"
             type="password"
-            placeholder="请输入密码"
+            :placeholder="t('login.passwordPlaceholder')"
             :prefix-icon="Lock"
             size="large"
             show-password
@@ -39,7 +39,7 @@
             class="login-btn"
             @click="handleLogin"
           >
-            登 录
+            {{ t('login.submit') }}
           </el-button>
         </el-form-item>
       </el-form>
@@ -50,11 +50,13 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { User, Lock } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { useAuthStore } from '../stores/auth'
 
 const router = useRouter()
+const { t } = useI18n()
 const authStore = useAuthStore()
 
 const formRef = ref(null)
@@ -66,8 +68,8 @@ const form = reactive({
 })
 
 const rules = {
-  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+  username: [{ required: true, message: t('login.usernameRequired'), trigger: 'blur' }],
+  password: [{ required: true, message: t('login.passwordRequired'), trigger: 'blur' }]
 }
 
 const handleLogin = async () => {
@@ -77,10 +79,10 @@ const handleLogin = async () => {
     loading.value = true
     try {
       await authStore.login(form.username, form.password)
-      ElMessage.success('登录成功')
+      ElMessage.success(t('login.success'))
       router.push('/')
     } catch (err) {
-      ElMessage.error(err.response?.data?.error || '登录失败')
+      ElMessage.error(err.response?.data?.error || t('login.failed'))
     } finally {
       loading.value = false
     }

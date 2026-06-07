@@ -5,10 +5,11 @@
  */
 export const formatTime = (t) => {
   if (!t) return '-'
+  const locale = localStorage.getItem('locale') === 'en' ? 'en-US' : 'zh-CN'
   // 如果已有时区信息（Z / +08:00），直接解析
   if (t.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(t)) {
-    return new Date(t).toLocaleString('zh-CN')
+    return new Date(t).toLocaleString(locale)
   }
   // 无时区信息，视为 UTC
-  return new Date(t + 'Z').toLocaleString('zh-CN')
+  return new Date(t + 'Z').toLocaleString(locale)
 }

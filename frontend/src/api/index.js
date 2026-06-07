@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import i18n from '../i18n'
 
 const instance = axios.create({
   baseURL: 'api/v1',
@@ -79,7 +80,7 @@ function clearAuth() {
   localStorage.removeItem('token')
   localStorage.removeItem('refreshToken')
   if (window.location.hash !== '#/login') {
-    ElMessage.error('登录已过期，请重新登录')
+    ElMessage.error(i18n.global.t('api.sessionExpired'))
     window.location.hash = '#/login'
   }
 }

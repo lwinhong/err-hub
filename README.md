@@ -11,7 +11,7 @@
 | 后端 API | Python 3.12 / Flask / SQLAlchemy / Gunicorn |
 | 数据库 | PostgreSQL 15 |
 | 缓存 | Redis 6 |
-| 前端 | Vue 3 / Element Plus / Vite |
+| 前端 | Vue 3 / Element Plus / Vite / vue-i18n |
 | 反向代理 | Nginx (Alpine) |
 | 包管理 | uv (后端) / pnpm (前端) |
 
@@ -30,6 +30,8 @@ err-hub/
 │   └── Dockerfile
 ├── frontend/         # Vue 3 管理后台
 │   ├── src/
+│   │   ├── i18n/     # 国际化配置与语言包
+│   │   └── ...
 │   └── Dockerfile
 └── docker/
     ├── docker-compose.yml
@@ -214,3 +216,45 @@ docker/volumes/
 **备份：** 直接打包 `docker/volumes/` 目录即可。
 
 **重置：** `make clean` 会删除 volumes，重新 `make up` 即可初始化空库。
+
+---
+
+## 国际化 (i18n)
+
+前端使用 [vue-i18n](https://vue-i18n.intlify.dev/) 实现多语言支持，当前支持 **中文 (zh-CN)** 和 **英文 (en)**。
+
+### 语言检测与切换
+
+- **首次访问**：自动检测浏览器 `navigator.language`，`zh` 开头使用中文，其他语言回退为英文
+- **手动切换**：点击顶部导航栏的语言切换下拉菜单即可切换
+- **偏好持久化**：用户选择的语言保存在 `localStorage` 的 `locale` 键中，下次访问优先使用
+
+### 目录结构
+
+```
+frontend/src/i18n/
+├── index.js              # i18n 初始化、语言检测逻辑
+└── locales/
+    ├── zh-CN.js           # 中文语言包
+    └── en.js              # 英文语言包
+```
+
+### 添加新语言
+
+1. 在 `frontend/src/i18n/locales/` 下新建语言文件（如 `ja.js`），参照现有语言包的 key 结构填写翻译
+2. 在 `frontend/src/i18n/index.js` 中：
+   - 导入新语言包，添加到 `messages` 对象
+   - 在 `languages` 数组中追加 `{ code: 'ja', label: '日本語' }`
+   - 在 `langMap` 中添加浏览器语言前缀映射（如 `ja: 'ja'`）
+3. 如需 Element Plus 组件库的联动，导入对应的 Element Plus locale（如 `element-plus/es/locale/lang/ja`）并在 `App.vue` 的 `elementLocale` computed 中添加判断
+
+**无需修改任何组件模板**，语言切换菜单会自动根据 `languages` 数组渲染。
+
+### 添加新的翻译 key
+
+1. 在 `zh-CN.js` 和 `en.js` 中同时添加相同的 key 路径
+2. 在组件中通过 `t('key.path')` 或模板中 `{{ t('key.path') }}` 使用
+
+**注意事项：**
+- vue-i18n 中 `{` 和 `}` 是插值语法的特殊字符，翻译文本中如需显示字面量花括号，需使用 `{'{'}` 和 `{'}'}` 转义
+- 例如要显示 `{"user_id": "123"}`，应写为：`"如 {'{'}\"user_id\": \"123\"{'}'}"`
