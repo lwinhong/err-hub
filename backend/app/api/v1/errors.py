@@ -100,6 +100,7 @@ def create_error():
         severity=data.get('severity', 'error'),
         environment=data.get('environment', 'unknown'),
         source=data.get('source', 'backend'),
+        ip_address=client_ip,
         context=data.get('context'),
     )
     db.session.add(error)
@@ -125,21 +126,21 @@ def list_errors(project_id, **kwargs):
 
     query = Error.query.filter_by(project_id=project_id)
 
-    severity = request.args.get('severity')
+    severity = [v.strip() for v in request.args.get('severity', '').split(',') if v.strip()]
     if severity:
-        query = query.filter(Error.severity == severity)
+        query = query.filter(Error.severity.in_(severity))
 
-    environment = request.args.get('environment')
+    environment = [v.strip() for v in request.args.get('environment', '').split(',') if v.strip()]
     if environment:
-        query = query.filter(Error.environment == environment)
+        query = query.filter(Error.environment.in_(environment))
 
-    source = request.args.get('source')
+    source = [v.strip() for v in request.args.get('source', '').split(',') if v.strip()]
     if source:
-        query = query.filter(Error.source == source)
+        query = query.filter(Error.source.in_(source))
 
-    status = request.args.get('status')
+    status = [v.strip() for v in request.args.get('status', '').split(',') if v.strip()]
     if status:
-        query = query.filter(Error.status == status)
+        query = query.filter(Error.status.in_(status))
 
     search = request.args.get('search')
     if search:
@@ -169,6 +170,7 @@ def list_errors(project_id, **kwargs):
                 'severity': e.severity,
                 'environment': e.environment,
                 'source': e.source,
+                'ip_address': e.ip_address,
                 'count': e.count,
                 'status': e.status,
                 'first_seen_at': e.first_seen_at.isoformat(),
@@ -199,6 +201,7 @@ def get_error(error_id, **kwargs):
         'severity': error.severity,
         'environment': error.environment,
         'source': error.source,
+        'ip_address': error.ip_address,
         'context': error.context,
         'count': error.count,
         'status': error.status,

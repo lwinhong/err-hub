@@ -37,6 +37,7 @@
         <el-descriptions-item :label="t('errorDetail.status')">
           <el-tag :type="statusType(error.status)" size="small">{{ statusLabel(error.status) }}</el-tag>
         </el-descriptions-item>
+        <el-descriptions-item :label="t('errorDetail.ipAddress')">{{ error.ip_address || '-' }}</el-descriptions-item>
         <el-descriptions-item :label="t('errorDetail.count')">{{ error.count }}</el-descriptions-item>
         <el-descriptions-item :label="t('errorDetail.firstSeen')">{{ formatTime(error.first_seen_at) }}</el-descriptions-item>
         <el-descriptions-item :label="t('errorDetail.lastSeen')">{{ formatTime(error.last_seen_at) }}</el-descriptions-item>

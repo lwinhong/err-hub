@@ -12,7 +12,7 @@
       <div class="table-scroll">
         <el-table :data="projects" stripe v-loading="loading">
           <el-table-column prop="name" :label="t('projects.name')" min-width="150" />
-          <el-table-column prop="project_key" :label="t('projects.projectKey')" width="150" />
+          <el-table-column prop="project_key" :label="t('projects.projectKey')" width="250" />
           <el-table-column :label="t('projects.apiToken')" width="200">
             <template #default="{ row }">
               <div v-if="authStore.isAdmin" class="token-cell">
@@ -28,7 +28,7 @@
           <el-table-column prop="created_at" :label="t('projects.createdAt')" width="180">
             <template #default="{ row }">{{ formatTime(row.created_at) }}</template>
           </el-table-column>
-          <el-table-column :label="t('projects.actions')" :width="authStore.isAdmin ? 320 : 160" fixed="right">
+          <el-table-column :label="t('projects.actions')" :width="authStore.isAdmin ? 390 : 160" fixed="right">
             <template #default="{ row }">
               <el-button link type="primary" @click="goToErrors(row)">{{ t('projects.viewErrors') }}</el-button>
               <el-button link type="success" @click="openExampleDialog(row)">{{ t('projects.usageExample') }}</el-button>

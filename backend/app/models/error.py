@@ -18,6 +18,7 @@ class Error(db.Model):
     severity = db.Column(db.String(20), default='error')
     environment = db.Column(db.String(50), default='unknown')
     source = db.Column(db.String(20), default='backend')
+    ip_address = db.Column(db.String(45), nullable=True)
     context = db.Column(JSONB, nullable=True)
     count = db.Column(db.Integer, default=1)
     status = db.Column(db.String(20), default='unresolved')

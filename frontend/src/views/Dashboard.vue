@@ -11,7 +11,7 @@
     <!-- 统计卡片 Row 1 -->
     <el-row :gutter="16" class="stat-row">
       <el-col :xs="12" :sm="8" :md="6" :lg="4" v-for="card in statCards" :key="card.key">
-        <el-card shadow="hover" class="stat-card">
+        <el-card shadow="hover" class="stat-card" :class="{ 'stat-card--clickable': card.route }" @click="card.route && router.push(card.route)">
           <div class="stat-content">
             <div class="stat-info">
               <div class="stat-label">{{ card.label }}</div>
@@ -80,11 +80,31 @@
 
     <!-- 最近异常 -->
     <el-card shadow="hover" class="table-card">
-      <template #header><span class="card-title">{{ t('dashboard.recentErrors') }}</span></template>
+      <template #header>
+        <div class="chart-header">
+          <span class="card-title">{{ t('dashboard.recentErrors') }}</span>
+          <div class="table-filter-bar">
+            <el-switch v-model="hideResolved" :active-text="t('dashboard.hideResolved')" size="small" @change="refreshData" />
+            <el-select v-model="recentProjectId" :placeholder="t('dashboard.allProjects')" clearable multiple collapse-tags collapse-tags-tooltip size="small" style="width: 260px" @change="refreshData">
+              <el-option v-for="p in projectList" :key="p.id" :label="p.name" :value="p.id" />
+            </el-select>
+          </div>
+        </div>
+      </template>
       <el-table :data="recentErrors" stripe @row-click="goToError">
         <el-table-column prop="exception_type" :label="t('dashboard.exceptionType')" min-width="150" />
         <el-table-column prop="message" :label="t('dashboard.message')" min-width="200" show-overflow-tooltip />
-        <el-table-column prop="project_name" :label="t('dashboard.project')" width="150" />
+        <el-table-column prop="project_name" :label="t('dashboard.project')" width="150">
+          <template #default="{ row }">
+            <el-link type="primary" :underline="false" @click.stop="filterByProject(row)">{{ row.project_name }}</el-link>
+          </template>
+        </el-table-column>
+        <el-table-column prop="environment" :label="t('dashboard.environment')" width="120">
+          <template #default="{ row }">
+            <el-tag v-if="row.environment" :type="envTagType(row.environment)" size="small" effect="plain">{{ row.environment }}</el-tag>
+            <span v-else>-</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="source" :label="t('dashboard.source')" width="90">
           <template #default="{ row }">
             <el-tag :type="row.source === 'frontend' ? 'warning' : 'primary'" size="small" effect="plain">
@@ -95,6 +115,11 @@
         <el-table-column prop="severity" :label="t('dashboard.severity')" width="100">
           <template #default="{ row }">
             <el-tag :type="severityType(row.severity)" size="small">{{ row.severity }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="status" :label="t('dashboard.status')" width="100">
+          <template #default="{ row }">
+            <el-tag :type="statusType(row.status)" size="small" effect="plain">{{ statusLabel(row.status) }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="last_seen_at" :label="t('dashboard.lastSeen')" width="180">
@@ -140,6 +165,8 @@ const distributions = ref({})
 const recentErrors = ref([])
 const projectList = ref([])
 const selectedProjectId = ref('')
+const recentProjectId = ref([])
+const hideResolved = ref(true)
 const trendDays = ref(7)
 
 // ─── stat cards ───
@@ -153,7 +180,7 @@ const statCards = computed(() => {
     : '-'
 
   return [
-    { key: 'projects', label: t('dashboard.projectCount'), value: o.project_count || 0, icon: 'FolderOpened', bg: 'rgba(64,158,255,0.1)', color: '#409eff' },
+    { key: 'projects', label: t('dashboard.projectCount'), value: o.project_count || 0, icon: 'FolderOpened', bg: 'rgba(64,158,255,0.1)', color: '#409eff', route: '/projects' },
     { key: 'total', label: t('dashboard.totalErrors'), value: totalErrors, icon: 'DataLine', bg: 'rgba(103,194,58,0.1)', color: '#67c23a' },
     { key: 'unresolved', label: t('dashboard.unresolved'), value: unresolved, icon: 'WarningFilled', bg: 'rgba(245,108,108,0.1)', color: '#f56c6c' },
     { key: 'critical', label: t('dashboard.criticalErrors'), value: o.critical_count || 0, icon: 'CircleCloseFilled', bg: 'rgba(230,0,0,0.08)', color: '#e60000' },
@@ -307,14 +334,40 @@ const sourceLabel = (source) => {
   const map = { frontend: t('dashboard.frontend'), backend: t('dashboard.backend') }
   return map[source] || source
 }
+const envTagType = (env) => {
+  const map = { production: 'danger', staging: 'warning', development: 'info' }
+  return map[env] || 'info'
+}
+const statusType = (status) => {
+  const map = { unresolved: 'danger', resolved: 'success', ignored: 'info' }
+  return map[status] || 'info'
+}
+const statusLabel = (status) => {
+  const map = { unresolved: t('dashboard.unresolved'), resolved: t('dashboard.resolved'), ignored: t('dashboard.ignored') }
+  return map[status] || status
+}
+const filterByProject = (row) => {
+  const ids = recentProjectId.value
+  const idx = ids.indexOf(row.project_id)
+  if (idx === -1) {
+    ids.push(row.project_id)
+  } else {
+    ids.splice(idx, 1)
+  }
+  refreshData()
+}
 const goToError = (row) => {
   router.push(`/errors/${row.id}`)
 }
 
 // ─── data fetching ───
 const refreshData = async () => {
-  const params = { days: trendDays.value }
+  const params = {
+    days: trendDays.value,
+    hide_resolved: hideResolved.value ? 'true' : 'false',
+  }
   if (selectedProjectId.value) params.project_id = selectedProjectId.value
+  if (recentProjectId.value.length) params.recent_project_id = recentProjectId.value.join(',')
 
   const [overviewRes, distRes] = await Promise.all([
     getOverview(params),
@@ -361,6 +414,16 @@ onMounted(() => {
   height: 100%;
 }
 
+.stat-card--clickable {
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.stat-card--clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
 .stat-content {
   display: flex;
   justify-content: space-between;
@@ -404,6 +467,12 @@ onMounted(() => {
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.table-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .chart-row {

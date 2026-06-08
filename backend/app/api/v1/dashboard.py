@@ -56,9 +56,20 @@ def overview(**kwargs):
             'count': count,
         })
 
-    # 最近异常
+    # 最近异常（支持 hide_resolved 和 recent_project_id 过滤）
+    hide_resolved = request.args.get('hide_resolved', 'true').lower() == 'true'
+    recent_project_ids = [
+        pid.strip() for pid in request.args.get('recent_project_id', '').split(',') if pid.strip()
+    ]
+
+    recent_query = Error.query
+    if hide_resolved:
+        recent_query = recent_query.filter(Error.status != 'resolved')
+    if recent_project_ids:
+        recent_query = recent_query.filter(Error.project_id.in_(recent_project_ids))
+
     recent_errors = (
-        Error.query
+        recent_query
         .order_by(Error.last_seen_at.desc())
         .limit(10)
         .all()
@@ -74,7 +85,10 @@ def overview(**kwargs):
             'severity': e.severity,
             'status': e.status,
             'source': e.source,
+            'environment': e.environment,
+            'ip_address': e.ip_address,
             'project_name': project.name if project else 'Unknown',
+            'project_id': str(e.project_id),
             'last_seen_at': e.last_seen_at.isoformat(),
         })
 
