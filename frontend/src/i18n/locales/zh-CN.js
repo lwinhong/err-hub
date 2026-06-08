@@ -144,6 +144,7 @@ export default {
     batchDeleteTitle: '批量删除确认',
     batchDeleteSuccess: '成功删除 {count} 条异常',
     switchProject: '切换项目',
+    ipAddress: 'IP 地址',
   },
   errorDetail: {
     projectList: '项目列表',

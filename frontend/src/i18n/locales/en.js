@@ -144,6 +144,7 @@ export default {
     batchDeleteTitle: 'Batch Delete Confirmation',
     batchDeleteSuccess: 'Successfully deleted {count} errors',
     switchProject: 'Switch Project',
+    ipAddress: 'IP Address',
   },
   errorDetail: {
     projectList: 'Projects',

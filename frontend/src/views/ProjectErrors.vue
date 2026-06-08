@@ -79,6 +79,7 @@
             </el-tag>
           </template>
         </el-table-column>
+        <el-table-column prop="ip_address" :label="t('projectErrors.ipAddress')" width="130" show-overflow-tooltip />
         <el-table-column prop="environment" :label="t('projectErrors.environment')" width="110" />
         <el-table-column prop="count" :label="t('projectErrors.count')" width="100" />
         <el-table-column prop="status" :label="t('projectErrors.status')" width="100">
