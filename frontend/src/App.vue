@@ -194,9 +194,11 @@ html.theme-transition *::after {
 .app-header {
   padding: 0;
   border-bottom: 1px solid var(--el-border-color-light);
+  background-color: var(--el-fill-color-blank);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   z-index: 10;
   height: 60px !important;
+  overflow: hidden;
 }
 
 .app-header.mobile-menu-open {
@@ -207,7 +209,7 @@ html.theme-transition *::after {
 .desktop-header {
   display: flex;
   align-items: center;
-  height: 60px;
+  height: 58px;
   padding: 0 20px;
 }
 
