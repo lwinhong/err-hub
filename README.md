@@ -2,6 +2,8 @@
 
 轻量级异常收集与管理平台。后端 Flask + PostgreSQL，前端 Vue 3 + Element Plus，Docker 一键部署。
 
+[English Version](./README.en.md)
+
 ---
 
 ## 技术栈
