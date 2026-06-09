@@ -117,6 +117,7 @@
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
+import { Search } from '@element-plus/icons-vue'
 import { getProjectErrors, deleteError, batchDeleteErrors } from '../api/errors'
 import { getProject, getProjects } from '../api/projects'
 import { formatTime } from '../utils/format'

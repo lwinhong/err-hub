@@ -1,0 +1,44 @@
+/* ── 基础重置 ── */
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+html.dark {
+  background-color: var(--el-bg-color-page);
+}
+
+/* ── Element Plus 全局覆盖 ── */
+.el-card {
+  border-radius: 8px;
+}
+
+/* 修复 el-dropdown 触发器点击时浏览器默认 focus outline 黑框 */
+.el-dropdown:focus,
+.el-dropdown:focus-visible,
+.el-dropdown .el-dropdown__caret-button:focus,
+.el-dropdown .el-dropdown__caret-button:focus-visible,
+.el-dropdown .el-dropdown-link:focus {
+  outline: none;
+}
+
+.el-tooltip__trigger:focus-visible {
+  outline: none;
+}
+
+/* ── 主题切换过渡 ── */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, fill 0.3s ease !important;
+}

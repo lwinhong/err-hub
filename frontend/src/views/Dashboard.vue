@@ -135,6 +135,10 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useDark } from '@vueuse/core'
+import {
+  FolderOpened, DataLine, WarningFilled,
+  CircleCloseFilled, AlarmClock, TrendCharts
+} from '@element-plus/icons-vue'
 import VChart from 'vue-echarts'
 import { use } from 'echarts/core'
 import { LineChart, BarChart, PieChart } from 'echarts/charts'
@@ -180,12 +184,12 @@ const statCards = computed(() => {
     : '-'
 
   return [
-    { key: 'projects', label: t('dashboard.projectCount'), value: o.project_count || 0, icon: 'FolderOpened', bg: 'rgba(64,158,255,0.1)', color: '#409eff', route: '/projects' },
-    { key: 'total', label: t('dashboard.totalErrors'), value: totalErrors, icon: 'DataLine', bg: 'rgba(103,194,58,0.1)', color: '#67c23a' },
-    { key: 'unresolved', label: t('dashboard.unresolved'), value: unresolved, icon: 'WarningFilled', bg: 'rgba(245,108,108,0.1)', color: '#f56c6c' },
-    { key: 'critical', label: t('dashboard.criticalErrors'), value: o.critical_count || 0, icon: 'CircleCloseFilled', bg: 'rgba(230,0,0,0.08)', color: '#e60000' },
-    { key: 'today', label: t('dashboard.todayNew'), value: o.today_new_count || 0, icon: 'AlarmClock', bg: 'rgba(230,162,60,0.1)', color: '#e6a23c' },
-    { key: 'rate', label: t('dashboard.resolveRate'), value: resolveRate, icon: 'TrendCharts', bg: 'rgba(144,147,153,0.1)', color: '#909399' },
+    { key: 'projects', label: t('dashboard.projectCount'), value: o.project_count || 0, icon: FolderOpened, bg: 'rgba(64,158,255,0.1)', color: '#409eff', route: '/projects' },
+    { key: 'total', label: t('dashboard.totalErrors'), value: totalErrors, icon: DataLine, bg: 'rgba(103,194,58,0.1)', color: '#67c23a' },
+    { key: 'unresolved', label: t('dashboard.unresolved'), value: unresolved, icon: WarningFilled, bg: 'rgba(245,108,108,0.1)', color: '#f56c6c' },
+    { key: 'critical', label: t('dashboard.criticalErrors'), value: o.critical_count || 0, icon: CircleCloseFilled, bg: 'rgba(230,0,0,0.08)', color: '#e60000' },
+    { key: 'today', label: t('dashboard.todayNew'), value: o.today_new_count || 0, icon: AlarmClock, bg: 'rgba(230,162,60,0.1)', color: '#e6a23c' },
+    { key: 'rate', label: t('dashboard.resolveRate'), value: resolveRate, icon: TrendCharts, bg: 'rgba(144,147,153,0.1)', color: '#909399' },
   ]
 })
 
