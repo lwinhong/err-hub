@@ -96,7 +96,7 @@
         <el-table-column prop="message" :label="t('dashboard.message')" min-width="200" show-overflow-tooltip />
         <el-table-column prop="project_name" :label="t('dashboard.project')" width="150">
           <template #default="{ row }">
-            <el-link type="primary" :underline="false" @click.stop="filterByProject(row)">{{ row.project_name }}</el-link>
+            <el-link type="primary" underline="never" @click.stop="filterByProject(row)">{{ row.project_name }}</el-link>
           </template>
         </el-table-column>
         <el-table-column prop="environment" :label="t('dashboard.environment')" width="120">

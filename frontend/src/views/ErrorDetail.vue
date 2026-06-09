@@ -1,10 +1,12 @@
 <template>
   <div class="error-detail">
-    <el-breadcrumb separator="/" class="breadcrumb">
-      <el-breadcrumb-item :to="{ path: '/projects' }">{{ t('errorDetail.projectList') }}</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path: `/projects/${error.project_id}/errors` }">{{ t('errorDetail.errorList') }}</el-breadcrumb-item>
-      <el-breadcrumb-item>{{ t('errorDetail.errorDetail') }}</el-breadcrumb-item>
-    </el-breadcrumb>
+    <div class="page-header">
+      <el-breadcrumb separator="/" class="breadcrumb">
+        <el-breadcrumb-item :to="{ path: '/projects' }">{{ t('errorDetail.projectList') }}</el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path: `/projects/${error.project_id}/errors` }">{{ t('errorDetail.errorList') }}</el-breadcrumb-item>
+        <el-breadcrumb-item>{{ t('errorDetail.errorDetail') }}</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
 
     <el-card shadow="hover" class="info-card">
       <template #header>
@@ -170,7 +172,17 @@ const fetchError = async () => {
 }
 
 .breadcrumb {
+  margin-bottom: 0;
+}
+
+.page-header {
   margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  min-height: 32px;
 }
 
 .card-header {

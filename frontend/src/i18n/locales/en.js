@@ -114,6 +114,7 @@ export default {
   projectErrors: {
     title: '{name} - Error List',
     titleSuffix: '- Error List',
+    breadcrumbProjects: 'Projects',
     severity: 'Severity',
     environment: 'Environment',
     source: 'Source',

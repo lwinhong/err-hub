@@ -1,10 +1,10 @@
 <template>
   <div class="project-errors">
     <div class="page-header">
-      <h2>
-        <router-link to="/projects" class="project-back-link">{{ projectName }}</router-link>
-        <span class="title-suffix">{{ t('projectErrors.titleSuffix') }}</span>
-      </h2>
+      <el-breadcrumb separator="/" class="breadcrumb">
+        <el-breadcrumb-item :to="{ path: '/projects' }">{{ t('projectErrors.breadcrumbProjects') }}</el-breadcrumb-item>
+        <el-breadcrumb-item>{{ projectName }}</el-breadcrumb-item>
+      </el-breadcrumb>
       <el-select
         :model-value="projectId"
         :placeholder="t('projectErrors.switchProject')"
@@ -90,7 +90,7 @@
         <el-table-column prop="last_seen_at" :label="t('projectErrors.lastSeen')" width="180">
           <template #default="{ row }">{{ formatTime(row.last_seen_at) }}</template>
         </el-table-column>
-        <el-table-column :label="t('projectErrors.actions')" :width="authStore.isAdmin ? 120 : 60" fixed="right">
+        <el-table-column :label="t('projectErrors.actions')" :width="authStore.isAdmin ? 130 : 60" fixed="right">
           <template #default="{ row }">
             <el-button link type="primary" @click.stop="goToError(row)">{{ t('projectErrors.detail') }}</el-button>
             <el-button v-if="authStore.isAdmin" link type="danger" @click.stop="handleDelete(row)">{{ t('projectErrors.delete') }}</el-button>
@@ -267,28 +267,11 @@ onMounted(() => {
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
+  min-height: 32px;
 }
 
-.page-header h2 {
-  margin: 0;
-  font-size: 20px;
-  color: var(--el-text-color-primary);
-}
-
-.project-back-link {
-  color: var(--el-color-primary);
-  text-decoration: none;
-  transition: opacity 0.15s;
-}
-
-.project-back-link:hover {
-  opacity: 0.75;
-  text-decoration: underline;
-}
-
-.title-suffix {
-  margin-left: 8px;
-  color: var(--el-text-color-primary);
+:deep(.breadcrumb) {
+  margin-bottom: 0;
 }
 
 .filter-card {

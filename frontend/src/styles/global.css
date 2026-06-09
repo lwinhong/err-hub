@@ -1,0 +1,267 @@
+/* ── 基础重置 ── */
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+html.dark {
+  background-color: var(--el-bg-color-page);
+}
+
+/* ── Element Plus 全局覆盖 ── */
+.el-card {
+  border-radius: 8px;
+}
+
+/* 修复 el-dropdown 触发器点击时浏览器默认 focus outline 黑框 */
+.el-dropdown:focus,
+.el-dropdown:focus-visible,
+.el-dropdown .el-dropdown__caret-button:focus,
+.el-dropdown .el-dropdown__caret-button:focus-visible,
+.el-dropdown .el-dropdown-link:focus {
+  outline: none;
+}
+
+.el-tooltip__trigger:focus-visible {
+  outline: none;
+}
+
+/* ── 主题切换过渡 ── */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, fill 0.3s ease !important;
+}
+
+/* ── 应用容器 ── */
+.app-container {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ── 页面头部 ── */
+.app-header {
+  padding: 0;
+  border-bottom: 1px solid var(--el-border-color-light);
+  background-color: var(--el-fill-color-blank);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  z-index: 10;
+  height: 60px !important;
+  overflow: hidden;
+}
+
+.app-header.mobile-menu-open {
+  height: auto !important;
+}
+
+/* ── 桌面端 ── */
+.desktop-header {
+  display: flex;
+  align-items: center;
+  height: 58px;
+  padding: 0 20px;
+}
+
+.desktop-menu {
+  flex: 1;
+  height: 60px;
+  border-bottom: none !important;
+}
+
+.logo-item {
+  pointer-events: none;
+}
+
+.logo-item.el-menu-item.is-disabled {
+  opacity: 1;
+  color: inherit;
+}
+
+.logo-text {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--el-color-primary);
+  letter-spacing: 1px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  height: 60px;
+  flex-shrink: 0;
+}
+
+.lang-switch-trigger {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--el-text-color-regular);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 10px;
+  height: 60px;
+}
+
+.lang-switch-trigger:hover {
+  color: var(--el-color-primary);
+}
+
+.lang-switch-trigger-mobile {
+  font-size: 13px;
+  color: var(--el-text-color-regular);
+  cursor: pointer;
+  padding: 0 8px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 20px;
+  height: 60px;
+  cursor: pointer;
+  color: var(--el-text-color-regular);
+  transition: color 0.2s;
+}
+
+.theme-toggle:hover {
+  color: var(--el-color-primary);
+}
+
+.header-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 20px;
+  height: 60px;
+  cursor: pointer;
+  color: var(--el-text-color-regular);
+  transition: color 0.2s;
+  font-size: 14px;
+}
+
+.header-action-btn:hover {
+  color: var(--el-color-primary);
+}
+
+/* ── 移动端头部 ── */
+.mobile-header {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  padding: 0 16px;
+}
+
+.mobile-header-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hamburger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  border-radius: 6px;
+  color: var(--el-text-color-regular);
+  transition: background-color 0.2s;
+}
+
+.hamburger:hover {
+  background-color: var(--el-fill-color-light);
+}
+
+/* ── 移动端下拉菜单 ── */
+.mobile-menu {
+  display: none;
+  flex-direction: column;
+  border-top: 1px solid var(--el-border-color-lighter);
+  background: var(--el-bg-color-overlay);
+}
+
+.mobile-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  cursor: pointer;
+  color: var(--el-text-color-regular);
+  transition: background-color 0.2s, color 0.2s;
+  font-size: 14px;
+}
+
+.mobile-menu-item:hover {
+  background-color: var(--el-fill-color-light);
+  color: var(--el-color-primary);
+}
+
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 0.25s ease;
+  overflow: hidden;
+}
+
+.slide-down-enter-from,
+.slide-down-leave-to {
+  opacity: 0;
+  max-height: 0;
+}
+
+.slide-down-enter-to,
+.slide-down-leave-from {
+  opacity: 1;
+  max-height: 300px;
+}
+
+/* ── 主内容区 ── */
+.app-main {
+  background-color: var(--el-bg-color-page);
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+  padding: 0;
+}
+
+/* ── 移动端适配 ── */
+@media (max-width: 768px) {
+  .desktop-header {
+    display: none !important;
+  }
+
+  .mobile-header {
+    display: flex;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .mobile-menu {
+    display: flex;
+  }
+
+  .mobile-header .theme-toggle {
+    height: 36px;
+    padding: 0 8px;
+  }
+
+  .app-main {
+    height: calc(100vh - 56px);
+  }
+}

@@ -114,6 +114,7 @@ export default {
   projectErrors: {
     title: '{name} - 异常列表',
     titleSuffix: '- 异常列表',
+    breadcrumbProjects: '项目列表',
     severity: '级别',
     environment: '环境',
     source: '来源',
