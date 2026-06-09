@@ -109,7 +109,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Plus } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getUsers, createUser, updateUser, resetUserPassword, deleteUser } from '../api/users'
+import { getUsers, createUser, updateUser, resetUserPassword, deleteUser } from '../../api/users'
 
 const { t } = useI18n()
 

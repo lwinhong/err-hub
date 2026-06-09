@@ -20,11 +20,11 @@
               </el-icon>
               <span>{{ t('app.projects') }}</span>
             </el-menu-item>
-            <el-menu-item v-if="authStore.isAdmin" index="/users">
+            <el-menu-item v-if="authStore.isAdmin" index="/admin">
               <el-icon>
-                <User />
+                <Setting />
               </el-icon>
-              <span>{{ t('app.users') }}</span>
+              <span>{{ t('app.admin') }}</span>
             </el-menu-item>
           </el-menu>
           <div class="header-actions">
@@ -96,10 +96,10 @@
                 <FolderOpened />
               </el-icon><span>{{ t('app.projects') }}</span>
             </div>
-            <div v-if="authStore.isAdmin" class="mobile-menu-item" @click="navigateTo('/users')">
+            <div v-if="authStore.isAdmin" class="mobile-menu-item" @click="navigateTo('/admin')">
               <el-icon>
-                <User />
-              </el-icon><span>{{ t('app.users') }}</span>
+                <Setting />
+              </el-icon><span>{{ t('app.admin') }}</span>
             </div>
             <div class="mobile-menu-item" @click="handleLogout">
               <el-icon>
@@ -123,7 +123,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useDark, useToggle } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import {
-  DataAnalysis, FolderOpened, User, CollectionTag,
+  DataAnalysis, FolderOpened, Setting, CollectionTag,
   Sunny, Moon, SwitchButton, Close, Expand
 } from '@element-plus/icons-vue'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
@@ -171,6 +171,7 @@ onMounted(() => {
 
 const activeMenu = computed(() => {
   if (route.path.startsWith('/projects')) return '/projects'
+  if (route.path.startsWith('/admin')) return '/admin'
   return route.path
 })
 

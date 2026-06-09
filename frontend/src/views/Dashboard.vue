@@ -214,7 +214,7 @@ const trendOption = computed(() => {
   const counts = trend.map(t => t.count)
   return {
     tooltip: { trigger: 'axis' },
-    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+    grid: { left: '3%', right: '4%', bottom: '3%', outerBounds: { contain: 'label' } },
     xAxis: { type: 'category', boundaryGap: false, data: dates, axisLine: { lineStyle: { color: chartAxisLineColor.value } }, axisLabel: { color: chartTextColor.value } },
     yAxis: { type: 'value', minInterval: 1, axisLine: { lineStyle: { color: chartAxisLineColor.value } }, axisLabel: { color: chartTextColor.value }, splitLine: { lineStyle: { color: chartSplitLineColor.value } } },
     series: [{
@@ -307,7 +307,7 @@ const topErrorsOption = computed(() => {
   const counts = items.map(i => i.count).reverse()
   return {
     tooltip: { trigger: 'axis' },
-    grid: { left: '3%', right: '8%', bottom: '3%', containLabel: true },
+    grid: { left: '3%', right: '8%', bottom: '3%', outerBounds: { contain: 'label' } },
     xAxis: { type: 'value', minInterval: 1, axisLine: { lineStyle: { color: chartAxisLineColor.value } }, axisLabel: { color: chartTextColor.value }, splitLine: { lineStyle: { color: chartSplitLineColor.value } } },
     yAxis: { type: 'category', data: names, axisLine: { lineStyle: { color: chartAxisLineColor.value } }, axisLabel: { width: 100, overflow: 'truncate', color: chartTextColor.value } },
     series: [{
@@ -326,7 +326,7 @@ const projectRankOption = computed(() => {
   const counts = items.map(i => i.total_count).reverse()
   return {
     tooltip: { trigger: 'axis' },
-    grid: { left: '3%', right: '8%', bottom: '3%', containLabel: true },
+    grid: { left: '3%', right: '8%', bottom: '3%', outerBounds: { contain: 'label' } },
     xAxis: { type: 'value', minInterval: 1, axisLine: { lineStyle: { color: chartAxisLineColor.value } }, axisLabel: { color: chartTextColor.value }, splitLine: { lineStyle: { color: chartSplitLineColor.value } } },
     yAxis: { type: 'category', data: names, axisLine: { lineStyle: { color: chartAxisLineColor.value } }, axisLabel: { width: 100, overflow: 'truncate', color: chartTextColor.value } },
     series: [{

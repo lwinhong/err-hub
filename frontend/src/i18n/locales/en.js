@@ -2,7 +2,7 @@ export default {
   app: {
     dashboard: 'Dashboard',
     projects: 'Projects',
-    users: 'Users',
+    admin: 'Admin',
     logout: 'Logout',
     light: 'Light',
     dark: 'Dark',
@@ -221,6 +221,10 @@ export default {
     deleteTitle: 'Delete Confirmation',
     userDeleted: 'User deleted',
     deleteFailed: 'Delete failed',
+  },
+  admin: {
+    title: 'Admin Center',
+    users: 'User Management',
   },
   api: {
     sessionExpired: 'Session expired, please login again',

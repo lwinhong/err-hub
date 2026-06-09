@@ -2,7 +2,7 @@ export default {
   app: {
     dashboard: '仪表盘',
     projects: '项目列表',
-    users: '用户管理',
+    admin: '管理中心',
     logout: '退出登录',
     light: '亮色',
     dark: '暗色',
@@ -221,6 +221,10 @@ export default {
     deleteTitle: '删除确认',
     userDeleted: '用户已删除',
     deleteFailed: '删除失败',
+  },
+  admin: {
+    title: '管理中心',
+    users: '用户管理',
   },
   api: {
     sessionExpired: '登录已过期，请重新登录',

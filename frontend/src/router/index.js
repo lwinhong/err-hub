@@ -4,7 +4,8 @@ import Dashboard from '../views/Dashboard.vue'
 import Projects from '../views/Projects.vue'
 import ProjectErrors from '../views/ProjectErrors.vue'
 import ErrorDetail from '../views/ErrorDetail.vue'
-import Users from '../views/Users.vue'
+import AdminLayout from '../views/admin/AdminLayout.vue'
+import Users from '../views/admin/Users.vue'
 
 const routes = [
   {
@@ -38,10 +39,22 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/admin',
+    component: AdminLayout,
+    meta: { requiresAuth: true, requiresAdmin: true },
+    redirect: '/admin/users',
+    children: [
+      {
+        path: 'users',
+        name: 'AdminUsers',
+        component: Users,
+        meta: { requiresAuth: true, requiresAdmin: true }
+      }
+    ]
+  },
+  {
     path: '/users',
-    name: 'Users',
-    component: Users,
-    meta: { requiresAuth: true, requiresAdmin: true }
+    redirect: '/admin/users'
   }
 ]
 
