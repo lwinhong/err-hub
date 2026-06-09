@@ -1,184 +1,184 @@
 # ErrHub
 
-轻量级异常收集与管理平台。后端 Flask + PostgreSQL，前端 Vue 3 + Element Plus，Docker 一键部署。
+Lightweight exception collection and management platform. Backend with Flask + PostgreSQL, frontend with Vue 3 + Element Plus, one-click deployment via Docker.
 
-[English Version](./README.en.md)
-
----
-
-## 技术栈
-
-| 层 | 技术 |
-|----|------|
-| 后端 API | Python 3.12 / Flask / SQLAlchemy / Gunicorn |
-| 数据库 | PostgreSQL 15 |
-| 缓存 | Redis 6 |
-| 前端 | Vue 3 / Element Plus / Vite / vue-i18n |
-| 反向代理 | Nginx (Alpine) |
-| 包管理 | uv (后端) / pnpm (前端) |
+[中文版](./README.md)
 
 ---
 
-## 项目结构
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Backend API | Python 3.12 / Flask / SQLAlchemy / Gunicorn |
+| Database | PostgreSQL 15 |
+| Cache | Redis 6 |
+| Frontend | Vue 3 / Element Plus / Vite / vue-i18n |
+| Reverse Proxy | Nginx (Alpine) |
+| Package Manager | uv (backend) / pnpm (frontend) |
+
+---
+
+## Project Structure
 
 ```
 err-hub/
-├── backend/          # Flask API 服务
+├── backend/          # Flask API service
 │   ├── app/
-│   │   ├── api/v1/   # 接口路由
-│   │   ├── models/   # 数据模型
-│   │   ├── static/   # SDK 静态文件 (error-feedback.js)
+│   │   ├── api/v1/   # API routes
+│   │   ├── models/   # Data models
+│   │   ├── static/   # SDK static files (error-feedback.js)
 │   │   └── ...
 │   └── Dockerfile
-├── frontend/         # Vue 3 管理后台
+├── frontend/         # Vue 3 admin dashboard
 │   ├── src/
-│   │   ├── i18n/     # 国际化配置与语言包
+│   │   ├── i18n/     # Internationalization configuration
 │   │   └── ...
 │   └── Dockerfile
 └── docker/
     ├── docker-compose.yml
-    ├── nginx/        # 网关 Nginx 配置
-    ├── volumes/      # 持久化数据目录
-    └── .env          # 环境变量（从 .env.example 复制）
+    ├── nginx/        # Gateway Nginx configuration
+    ├── volumes/      # Persistent data directory
+    └── .env          # Environment variables (copy from .env.example)
 ```
 
 ---
 
-## 快速开始
+## Quick Start
 
-### 前置条件
+### Prerequisites
 
 - Docker >= 20.10
 - Docker Compose >= 2.0
-- Make（可选，直接用 docker compose 命令亦可）
+- Make (optional, can use docker compose commands directly)
 
-### 1. 配置环境变量
+### 1. Configure Environment Variables
 
 ```bash
 cd docker
 cp .env.example .env
-# 编辑 .env，按需修改密码、端口等
+# Edit .env, modify passwords, ports, etc. as needed
 ```
 
-关键配置项：
+Key Configuration Items:
 
-| 变量 | 默认值 | 说明 |
-|------|--------|------|
-| `GATEWAY_PORT` | `80` | 对外暴露端口 |
-| `SECRET_KEY` | - | Flask Session 密钥，**生产环境必须修改** |
-| `JWT_SECRET_KEY` | - | JWT 签名密钥，**生产环境必须修改** |
-| `SUPERADMIN_USERNAME` | `admin` | 超级管理员用户名 |
-| `SUPERADMIN_PASSWORD` | `admin123` | 超级管理员初始密码 |
-| `DATA_RETENTION_DAYS` | `90` | 错误数据保留天数 |
-| `POSTGRES_PASSWORD` | `errhub` | 数据库密码 |
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `GATEWAY_PORT` | `80` | Exposed port |
+| `SECRET_KEY` | - | Flask Session secret key, **must change in production** |
+| `JWT_SECRET_KEY` | - | JWT signing secret key, **must change in production** |
+| `SUPERADMIN_USERNAME` | `admin` | Super admin username |
+| `SUPERADMIN_PASSWORD` | `admin123` | Super admin initial password |
+| `DATA_RETENTION_DAYS` | `90` | Error data retention days |
+| `POSTGRES_PASSWORD` | `errhub` | Database password |
 
-### 2. 一键构建并启动
+### 2. Build and Start with One Click
 
 ```bash
-make up        # 构建镜像 + 启动所有服务
+make up        # Build images + start all services
 ```
 
-或分步执行：
+Or execute step by step:
 
 ```bash
-make build     # 仅构建镜像
-make start     # 仅启动容器
+make build     # Build images only
+make start     # Start containers only
 ```
 
-启动后访问 `http://<your-ip>:<GATEWAY_PORT>` 进入管理后台。
+After startup, visit `http://<your-ip>:<GATEWAY_PORT>` to access the admin dashboard.
 
 ---
 
-## Make 命令一览
+## Make Commands
 
-| 命令 | 说明 |
-|------|------|
-| `make build` | 构建 api 和 web 镜像 |
-| `make up` | 构建并启动所有服务（后台运行） |
-| `make start` | 启动已构建的容器 |
-| `make stop` | 停止所有容器（保留数据） |
-| `make restart` | 重启所有容器 |
-| `make down` | 停止并删除容器和网络 |
-| `make rebuild` | 重建 api/gateway 镜像并强制重启（**代码修改后用此命令**） |
-| `make rebuild-all` | 重建全部镜像并强制重启 |
-| `make logs` | 实时查看所有服务日志 |
-| `make logs-api` | 仅查看 API 服务日志 |
-| `make status` | 查看各容器运行状态 |
-| `make clean` | 停止容器并删除数据卷（**慎用，会丢数据**） |
-
----
-
-## 代码修改后如何生效
-
-修改后端代码或 Nginx 配置后，执行：
-
-```bash
-make rebuild          # 重建 api 镜像 + 强制重启 api 和 gateway
-```
-
-修改前端代码后，执行：
-
-```bash
-make rebuild-all      # 重建全部镜像
-```
+| Command | Description |
+|---------|-------------|
+| `make build` | Build api and web images |
+| `make up` | Build and start all services (background) |
+| `make start` | Start existing containers |
+| `make stop` | Stop all containers (retain data) |
+| `make restart` | Restart all containers |
+| `make down` | Stop and delete containers and network |
+| `make rebuild` | Rebuild api/gateway images and force restart (**use this after code changes**) |
+| `make rebuild-all` | Rebuild all images and force restart |
+| `make logs` | View all service logs in real-time |
+| `make logs-api` | View only API service logs |
+| `make status` | Check container status |
+| `make clean` | Stop containers and delete volumes (**use with caution, will lose data**) |
 
 ---
 
-## Web SDK 接入
+## How to Apply Code Changes
 
-在你的 HTML 页面中引入即可，无需安装任何依赖：
+After modifying backend code or Nginx configuration:
+
+```bash
+make rebuild          # Rebuild api image + force restart api and gateway
+```
+
+After modifying frontend code:
+
+```bash
+make rebuild-all      # Rebuild all images
+```
+
+---
+
+## Web SDK Integration
+
+Simply include in your HTML page, no dependencies required:
 
 ```html
 <script src="http://your-domain/sdk/error-feedback.js"
-        data-api-token="项目的 API Token"
+        data-api-token="Project API Token"
         data-auto-capture="true"
         data-environment="production"
         data-before-send="onBeforeErrorSend">
 </script>
 
 <script>
-  // 手动上报
-  ErrHub.report('TypeError', '按钮点击失败', { severity: 'error' });
+  // Manual reporting
+  ErrHub.report('TypeError', 'Button click failed', { severity: 'error' });
 
-  // 捕获 Error 对象
+  // Capture Error object
   try { riskyOp(); } catch (e) { ErrHub.captureException(e); }
 
-  // 上报前回调（可选）
+  // Before send callback (optional)
   window.onBeforeErrorSend = function (payload) {
     payload.context.user_id = currentUser?.id;
-    return payload;   // 返回 false 可取消本次上报
+    return payload;   // Return false to cancel reporting
   };
 </script>
 ```
 
-**script 标签属性：**
+**Script Tag Attributes:**
 
-| 属性 | 必填 | 默认值 | 说明 |
-|------|------|--------|------|
-| `data-api-token` | 是 | - | 项目 API Token（管理后台创建项目后获取） |
-| `data-auto-capture` | 否 | `true` | 自动捕获未处理异常和 Promise rejection |
-| `data-environment` | 否 | `production` | 环境标识 |
-| `data-before-send` | 否 | - | window 上的回调函数名，上报前触发 |
+| Attribute | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `data-api-token` | Yes | - | Project API Token (obtained after creating project in admin dashboard) |
+| `data-auto-capture` | No | `true` | Auto capture unhandled exceptions and Promise rejections |
+| `data-environment` | No | `production` | Environment identifier |
+| `data-before-send` | No | - | Callback function name on window, triggered before reporting |
 
-**window.ErrHub 方法：**
+**window.ErrHub Methods:**
 
-| 方法 | 说明 |
-|------|------|
-| `ErrHub.report(type, message, opts?)` | 手动上报一条错误 |
-| `ErrHub.captureException(error, opts?)` | 上报 Error 对象（自动解析 name/message/stack） |
-| `ErrHub.flush()` | 立即发送队列中所有待上报的错误 |
+| Method | Description |
+|--------|-------------|
+| `ErrHub.report(type, message, opts?)` | Manually report an error |
+| `ErrHub.captureException(error, opts?)` | Report Error object (auto parses name/message/stack) |
+| `ErrHub.flush()` | Send all pending errors in queue immediately |
 
-**beforeSend 回调规则：**
-- 返回 `payload`（可修改后）→ 继续上报
-- 不返回（无 `return`）→ 继续上报原始 payload
-- 返回 `false` → 取消本次上报
-- 抛出异常 → 静默降级，仍发送原始 payload
+**beforeSend Callback Rules:**
+- Return `payload` (modified if needed) → continue reporting
+- No return → continue reporting original payload
+- Return `false` → cancel this report
+- Throw exception → silently fall back, still send original payload
 
 ---
 
-## API 鉴权
+## API Authentication
 
-### 管理后台接口（JWT）
+### Admin Dashboard API (JWT)
 
 ```
 POST /api/v1/auth/login
@@ -187,15 +187,15 @@ Content-Type: application/json
 
 → { "access_token": "..." }
 
-# 后续请求携带：
+# Subsequent requests include:
 Authorization: Bearer <access_token>
 ```
 
-### 错误上报接口（API Token）
+### Error Reporting API (API Token)
 
 ```
 POST /api/v1/errors
-X-API-Token: <项目 API Token>
+X-API-Token: <Project API Token>
 Content-Type: application/json
 {
   "exception_type": "ValueError",
@@ -205,58 +205,58 @@ Content-Type: application/json
 
 ---
 
-## 数据持久化
+## Data Persistence
 
-数据存储在 `docker/volumes/` 目录下：
+Data is stored in `docker/volumes/` directory:
 
 ```
 docker/volumes/
-├── postgres/    # PostgreSQL 数据文件
+├── postgres/    # PostgreSQL data files
 └── redis/       # Redis dump.rdb
 ```
 
-**备份：** 直接打包 `docker/volumes/` 目录即可。
+**Backup:** Simply package the `docker/volumes/` directory.
 
-**重置：** `make clean` 会删除 volumes，重新 `make up` 即可初始化空库。
+**Reset:** `make clean` deletes volumes, then `make up` initializes empty database.
 
 ---
 
-## 国际化 (i18n)
+## Internationalization (i18n)
 
-前端使用 [vue-i18n](https://vue-i18n.intlify.dev/) 实现多语言支持，当前支持 **中文 (zh-CN)** 和 **英文 (en)**。
+Frontend uses [vue-i18n](https://vue-i18n.intlify.dev/) for multi-language support, currently supports **Chinese (zh-CN)** and **English (en)**.
 
-### 语言检测与切换
+### Language Detection and Switching
 
-- **首次访问**：自动检测浏览器 `navigator.language`，`zh` 开头使用中文，其他语言回退为英文
-- **手动切换**：点击顶部导航栏的语言切换下拉菜单即可切换
-- **偏好持久化**：用户选择的语言保存在 `localStorage` 的 `locale` 键中，下次访问优先使用
+- **First visit:** Auto detect browser `navigator.language`, use Chinese for `zh` prefix, fallback to English for other languages
+- **Manual switch:** Click language switch dropdown in top navigation
+- **Preference persistence:** User's language choice is saved in `localStorage` under `locale` key, used on next visit
 
-### 目录结构
+### Directory Structure
 
 ```
 frontend/src/i18n/
-├── index.js              # i18n 初始化、语言检测逻辑
+├── index.js              # i18n initialization, language detection logic
 └── locales/
-    ├── zh-CN.js           # 中文语言包
-    └── en.js              # 英文语言包
+    ├── zh-CN.js          # Chinese language pack
+    └── en.js             # English language pack
 ```
 
-### 添加新语言
+### Add New Language
 
-1. 在 `frontend/src/i18n/locales/` 下新建语言文件（如 `ja.js`），参照现有语言包的 key 结构填写翻译
-2. 在 `frontend/src/i18n/index.js` 中：
-   - 导入新语言包，添加到 `messages` 对象
-   - 在 `languages` 数组中追加 `{ code: 'ja', label: '日本語' }`
-   - 在 `langMap` 中添加浏览器语言前缀映射（如 `ja: 'ja'`）
-3. 如需 Element Plus 组件库的联动，导入对应的 Element Plus locale（如 `element-plus/es/locale/lang/ja`）并在 `App.vue` 的 `elementLocale` computed 中添加判断
+1. Create new language file in `frontend/src/i18n/locales/` (e.g., `ja.js`), fill translations following existing key structure
+2. In `frontend/src/i18n/index.js`:
+   - Import new language pack, add to `messages` object
+   - Append `{ code: 'ja', label: '日本語' }` to `languages` array
+   - Add browser language prefix mapping in `langMap` (e.g., `ja: 'ja'`)
+3. For Element Plus integration, import corresponding Element Plus locale (e.g., `element-plus/es/locale/lang/ja`) and add condition in `App.vue`'s `elementLocale` computed
 
-**无需修改任何组件模板**，语言切换菜单会自动根据 `languages` 数组渲染。
+**No need to modify any component templates**, language switch menu will automatically render based on `languages` array.
 
-### 添加新的翻译 key
+### Add New Translation Keys
 
-1. 在 `zh-CN.js` 和 `en.js` 中同时添加相同的 key 路径
-2. 在组件中通过 `t('key.path')` 或模板中 `{{ t('key.path') }}` 使用
+1. Add same key path to both `zh-CN.js` and `en.js`
+2. Use in components via `t('key.path')` or in templates via `{{ t('key.path') }}`
 
-**注意事项：**
-- vue-i18n 中 `{` 和 `}` 是插值语法的特殊字符，翻译文本中如需显示字面量花括号，需使用 `{'{'}` 和 `{'}'}` 转义
-- 例如要显示 `{"user_id": "123"}`，应写为：`"如 {'{'}\"user_id\": \"123\"{'}'}"`
+**Notes:**
+- In vue-i18n, `{` and `}` are special characters for interpolation syntax, to display literal braces use `{'{'}` and `{'}'}` escape
+- For example, to display `{"user_id": "123"}`, write: `"like {'{'}\"user_id\": \"123\"{'}'}"`
