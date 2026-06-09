@@ -8,9 +8,9 @@
       </el-button>
     </div>
 
-    <el-card shadow="hover">
+    <el-card shadow="hover" class="table-card">
       <div class="table-scroll">
-        <el-table :data="users" stripe v-loading="loading">
+        <el-table :data="users" stripe v-loading="loading" height="100%">
         <el-table-column prop="username" :label="t('users.username')" min-width="150" />
         <el-table-column :label="t('users.role')" width="120">
           <template #default="{ row }">
@@ -264,6 +264,11 @@ onMounted(() => {
 <style scoped>
 .users {
   padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .page-header {
@@ -271,6 +276,7 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  flex-shrink: 0;
 }
 
 .page-header h2 {
@@ -279,14 +285,31 @@ onMounted(() => {
   color: var(--el-text-color-primary);
 }
 
+.table-card {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.table-card :deep(.el-card__body) {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .table-scroll {
-  overflow-x: auto;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .pagination-wrapper {
   display: flex;
   justify-content: flex-end;
   margin-top: 16px;
+  flex-shrink: 0;
 }
 
 @media (max-width: 768px) {

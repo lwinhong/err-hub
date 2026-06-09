@@ -8,7 +8,6 @@
       <el-select
         :model-value="projectId"
         :placeholder="t('projectErrors.switchProject')"
-        size="small"
         style="width: 200px"
         @change="switchProject"
       >
@@ -59,9 +58,9 @@
       </div>
     </el-card>
 
-    <el-card shadow="hover">
+    <el-card shadow="hover" class="table-card">
       <div class="table-scroll">
-        <el-table :data="errors" stripe v-loading="loading" @row-click="goToError" @selection-change="handleSelectionChange">
+        <el-table :data="errors" stripe v-loading="loading" @row-click="goToError" @selection-change="handleSelectionChange" height="100%">
         <el-table-column v-if="authStore.isAdmin" type="selection" width="45" @click.stop />
         <el-table-column prop="exception_type" :label="t('projectErrors.exceptionType')" min-width="160" show-overflow-tooltip />
         <el-table-column prop="message" :label="t('projectErrors.message')" min-width="200" show-overflow-tooltip />
@@ -259,6 +258,11 @@ onMounted(() => {
 <style scoped>
 .project-errors {
   padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .page-header {
@@ -273,10 +277,12 @@ onMounted(() => {
 
 :deep(.breadcrumb) {
   margin-bottom: 0;
+  font-size: 18px;
 }
 
 .filter-card {
   margin-bottom: 16px;
+  flex-shrink: 0;
 }
 
 .filter-grid {
@@ -302,14 +308,31 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
+.table-card {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.table-card :deep(.el-card__body) {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .table-scroll {
-  overflow-x: auto;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .pagination-wrapper {
   display: flex;
   justify-content: flex-end;
   margin-top: 16px;
+  flex-shrink: 0;
 }
 
 :deep(.el-table__row) {

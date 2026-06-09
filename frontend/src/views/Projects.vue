@@ -8,9 +8,9 @@
       </el-button>
     </div>
 
-    <el-card shadow="hover">
+    <el-card shadow="hover" class="table-card">
       <div class="table-scroll">
-        <el-table :data="projects" stripe v-loading="loading">
+        <el-table :data="projects" stripe v-loading="loading" height="100%">
           <el-table-column prop="name" :label="t('projects.name')" min-width="150" />
           <el-table-column prop="project_key" :label="t('projects.projectKey')" width="250" />
           <el-table-column :label="t('projects.apiToken')" width="200">
@@ -149,6 +149,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useClipboard } from '@vueuse/core'
 import { Plus, CopyDocument } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getProjects, createProject, updateProject, deleteProject, regenerateToken } from '../api/projects'
@@ -157,6 +158,7 @@ import { useAuthStore } from '../stores/auth'
 const router = useRouter()
 const { t } = useI18n()
 const authStore = useAuthStore()
+const { copy: clipboardCopy } = useClipboard({ legacy: true })
 
 const loading = ref(false)
 const projects = ref([])
@@ -398,7 +400,7 @@ const maskToken = (token) => {
 
 const copyToken = async (token) => {
   try {
-    await navigator.clipboard.writeText(token)
+    await clipboardCopy(token)
     ElMessage.success(t('projects.tokenCopied'))
   } catch {
     ElMessage.error(t('projects.copyFailed'))
@@ -407,7 +409,7 @@ const copyToken = async (token) => {
 
 const copyCode = async (code) => {
   try {
-    await navigator.clipboard.writeText(code)
+    await clipboardCopy(code)
     ElMessage.success(t('projects.codeCopied'))
   } catch {
     ElMessage.error(t('projects.copyFailed'))
@@ -510,6 +512,11 @@ onMounted(() => {
 <style scoped>
 .projects {
   padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .page-header {
@@ -517,6 +524,7 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  flex-shrink: 0;
 }
 
 .page-header h2 {
@@ -525,8 +533,24 @@ onMounted(() => {
   color: var(--el-text-color-primary);
 }
 
+.table-card {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.table-card :deep(.el-card__body) {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .table-scroll {
-  overflow-x: auto;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .token-cell {
@@ -545,6 +569,7 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   margin-top: 16px;
+  flex-shrink: 0;
 }
 
 .code-block-wrapper {

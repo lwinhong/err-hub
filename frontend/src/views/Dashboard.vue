@@ -2,7 +2,9 @@
   <div class="dashboard">
     <!-- 项目筛选 -->
     <div class="filter-bar">
-      <el-select v-model="selectedProjectId" :placeholder="t('dashboard.allProjects')" clearable @change="refreshData" style="width: 220px">
+      <h2>{{ t('app.dashboard') }}</h2>
+      <el-select v-model="selectedProjectId" :placeholder="t('dashboard.allProjects')" clearable @change="refreshData"
+        style="width: 220px">
         <el-option :label="t('dashboard.allProjects')" value="" />
         <el-option v-for="p in projectList" :key="p.id" :label="p.name" :value="p.id" />
       </el-select>
@@ -11,14 +13,17 @@
     <!-- 统计卡片 Row 1 -->
     <el-row :gutter="16" class="stat-row">
       <el-col :xs="12" :sm="8" :md="6" :lg="4" v-for="card in statCards" :key="card.key">
-        <el-card shadow="hover" class="stat-card" :class="{ 'stat-card--clickable': card.route }" @click="card.route && router.push(card.route)">
+        <el-card shadow="hover" class="stat-card" :class="{ 'stat-card--clickable': card.route }"
+          @click="card.route && router.push(card.route)">
           <div class="stat-content">
             <div class="stat-info">
               <div class="stat-label">{{ card.label }}</div>
               <div class="stat-value">{{ card.value }}</div>
             </div>
             <div class="stat-icon" :style="{ backgroundColor: card.bg, color: card.color }">
-              <el-icon :size="28"><component :is="card.icon" /></el-icon>
+              <el-icon :size="28">
+                <component :is="card.icon" />
+              </el-icon>
             </div>
           </div>
         </el-card>
@@ -84,8 +89,10 @@
         <div class="chart-header">
           <span class="card-title">{{ t('dashboard.recentErrors') }}</span>
           <div class="table-filter-bar">
-            <el-switch v-model="hideResolved" :active-text="t('dashboard.hideResolved')" size="small" @change="refreshData" />
-            <el-select v-model="recentProjectId" :placeholder="t('dashboard.allProjects')" clearable multiple collapse-tags collapse-tags-tooltip size="small" style="width: 260px" @change="refreshData">
+            <el-switch v-model="hideResolved" :active-text="t('dashboard.hideResolved')" size="small"
+              @change="refreshData" />
+            <el-select v-model="recentProjectId" :placeholder="t('dashboard.allProjects')" clearable multiple
+              collapse-tags collapse-tags-tooltip size="small" style="width: 260px" @change="refreshData">
               <el-option v-for="p in projectList" :key="p.id" :label="p.name" :value="p.id" />
             </el-select>
           </div>
@@ -96,12 +103,14 @@
         <el-table-column prop="message" :label="t('dashboard.message')" min-width="200" show-overflow-tooltip />
         <el-table-column prop="project_name" :label="t('dashboard.project')" width="150">
           <template #default="{ row }">
-            <el-link type="primary" underline="never" @click.stop="filterByProject(row)">{{ row.project_name }}</el-link>
+            <el-link type="primary" underline="never" @click.stop="filterByProject(row)">{{ row.project_name
+            }}</el-link>
           </template>
         </el-table-column>
         <el-table-column prop="environment" :label="t('dashboard.environment')" width="120">
           <template #default="{ row }">
-            <el-tag v-if="row.environment" :type="envTagType(row.environment)" size="small" effect="plain">{{ row.environment }}</el-tag>
+            <el-tag v-if="row.environment" :type="envTagType(row.environment)" size="small" effect="plain">{{
+              row.environment }}</el-tag>
             <span v-else>-</span>
           </template>
         </el-table-column>
@@ -386,7 +395,7 @@ const fetchProjects = async () => {
   try {
     const res = await getProjects({ page: 1, per_page: 100 })
     projectList.value = res.data.items || []
-  } catch {}
+  } catch { }
 }
 
 onMounted(() => {
@@ -403,7 +412,12 @@ onMounted(() => {
 .filter-bar {
   margin-bottom: 16px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+}
+
+.filter-bar h2 {
+  margin: 0;
+  font-size: 20px;
 }
 
 .stat-row {

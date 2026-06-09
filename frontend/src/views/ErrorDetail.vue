@@ -3,7 +3,8 @@
     <div class="page-header">
       <el-breadcrumb separator="/" class="breadcrumb">
         <el-breadcrumb-item :to="{ path: '/projects' }">{{ t('errorDetail.projectList') }}</el-breadcrumb-item>
-        <el-breadcrumb-item :to="{ path: `/projects/${error.project_id}/errors` }">{{ t('errorDetail.errorList') }}</el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path: `/projects/${error.project_id}/errors` }">{{ t('errorDetail.errorList')
+          }}</el-breadcrumb-item>
         <el-breadcrumb-item>{{ t('errorDetail.errorDetail') }}</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
@@ -13,7 +14,9 @@
         <div class="card-header">
           <span class="card-title">{{ t('errorDetail.errorInfo') }}</span>
           <el-button @click="goBack">
-            <el-icon><ArrowLeft /></el-icon>
+            <el-icon>
+              <ArrowLeft />
+            </el-icon>
             {{ t('errorDetail.back') }}
           </el-button>
         </div>
@@ -26,7 +29,8 @@
           <span class="message-text" :class="{ 'message-code': isCodeLike(error.message) }">{{ error.message }}</span>
         </el-descriptions-item>
         <el-descriptions-item :label="t('errorDetail.severity')">
-          <el-tag :type="severityType(error.severity)" :effect="error.severity === 'critical' ? 'dark' : 'light'" size="small">
+          <el-tag :type="severityType(error.severity)" :effect="error.severity === 'critical' ? 'dark' : 'light'"
+            size="small">
             {{ error.severity }}
           </el-tag>
         </el-descriptions-item>
@@ -41,8 +45,10 @@
         </el-descriptions-item>
         <el-descriptions-item :label="t('errorDetail.ipAddress')">{{ error.ip_address || '-' }}</el-descriptions-item>
         <el-descriptions-item :label="t('errorDetail.count')">{{ error.count }}</el-descriptions-item>
-        <el-descriptions-item :label="t('errorDetail.firstSeen')">{{ formatTime(error.first_seen_at) }}</el-descriptions-item>
-        <el-descriptions-item :label="t('errorDetail.lastSeen')">{{ formatTime(error.last_seen_at) }}</el-descriptions-item>
+        <el-descriptions-item :label="t('errorDetail.firstSeen')">{{ formatTime(error.first_seen_at)
+          }}</el-descriptions-item>
+        <el-descriptions-item :label="t('errorDetail.lastSeen')">{{ formatTime(error.last_seen_at)
+          }}</el-descriptions-item>
       </el-descriptions>
 
       <div v-if="authStore.isAdmin" class="action-bar">
@@ -163,7 +169,7 @@ const fetchError = async () => {
   try {
     const res = await getError(errorId)
     error.value = res.data
-  } catch {}
+  } catch { }
 }
 </script>
 
@@ -174,6 +180,7 @@ const fetchError = async () => {
 
 .breadcrumb {
   margin-bottom: 0;
+  font-size: 18px;
 }
 
 .page-header {
