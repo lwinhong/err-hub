@@ -2,6 +2,7 @@
   <div class="flex justify-center items-center min-h-screen p-5 max-sm:p-0 max-sm:items-start max-sm:pt-[15vh]" style="background-color: var(--el-bg-color-page)">
     <div class="w-[400px] max-w-full p-10 rounded-lg shadow-[0_2px_12px_rgba(0,0,0,0.1)] max-sm:p-6 max-sm:px-5 max-sm:shadow-none max-sm:rounded-none" style="background: var(--el-bg-color-overlay)">
       <div class="text-center mb-[30px]">
+        <img src="/favicon.svg" alt="ErrHub" class="w-16 h-16 mx-auto mb-3" />
         <h1 class="text-[28px] max-sm:text-2xl font-bold m-0 mb-2" style="color: var(--el-color-primary)">ErrHub</h1>
         <p class="text-sm m-0" style="color: var(--el-text-color-secondary)">{{ t('login.subtitle') }}</p>
       </div>

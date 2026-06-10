@@ -5,11 +5,12 @@
         style="border-color: var(--el-border-color-light); background-color: var(--el-fill-color-blank); box-shadow: 0 1px 4px rgba(0,0,0,0.08)">
         <!-- 桌面端：菜单 + 控件 -->
         <div class="flex items-center h-[58px] px-5 max-md:hidden">
+          <span class="flex items-center shrink-0 mr-4">
+            <img src="/favicon.svg" alt="ErrHub" class="logo-icon" />
+            <span class="logo-text">ErrHub</span>
+          </span>
           <el-menu mode="horizontal" :default-active="activeMenu" :ellipsis="false" class="flex-1 h-[60px] !border-b-0"
             router>
-            <el-menu-item index="logo" disabled class="logo-item">
-              <span class="logo-text">ErrHub</span>
-            </el-menu-item>
             <el-menu-item index="/">
               <el-icon>
                 <DataAnalysis />
@@ -66,7 +67,7 @@
         </div>
         <!-- 移动端：Logo + 汉堡按钮 -->
         <div class="hidden md:hidden flex items-center justify-between h-14 px-4 max-md:flex">
-          <span class="logo-text">ErrHub</span>
+          <span class="flex items-center"><img src="/favicon.svg" alt="ErrHub" class="logo-icon" /><span class="logo-text">ErrHub</span></span>
           <div class="flex items-center gap-1">
             <el-dropdown @command="handleLangChange">
               <span class="text-xs cursor-pointer px-2 h-9 flex items-center"
@@ -227,13 +228,10 @@ const navigateTo = (path) => {
   }
 }
 
-.logo-item {
-  pointer-events: none;
-
-  &.el-menu-item.is-disabled {
-    opacity: 1;
-    color: inherit;
-  }
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  margin-right: 8px;
 }
 
 .logo-text {
@@ -241,6 +239,7 @@ const navigateTo = (path) => {
   font-weight: 700;
   color: var(--el-color-primary);
   letter-spacing: 1px;
+  white-space: nowrap;
 }
 
 .hamburger {

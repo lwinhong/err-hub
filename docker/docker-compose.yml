@@ -17,6 +17,7 @@ services:
     
     ports:
       - "5454:5432"
+    restart: unless-stopped
 
   redis:
     image: redis:6-alpine
@@ -30,6 +31,7 @@ services:
     
     ports:
       - "6363:6379"
+    restart: unless-stopped
 
   api:
     build:
@@ -51,11 +53,13 @@ services:
         condition: service_healthy
     command: >
       sh -c "uv run flask init-db && uv run gunicorn --bind 0.0.0.0:5000 --workers $${GUNICORN_WORKERS:-4} --timeout 120 run:app"
+    restart: unless-stopped
 
   web:
     build:
       context: ../frontend
       dockerfile: Dockerfile
+    restart: unless-stopped
 
   gateway:
     image: nginx:alpine
