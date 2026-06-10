@@ -63,6 +63,7 @@ export default {
     apiToken: 'API Token',
     description: 'Description',
     createdAt: 'Created At',
+    errorCount: 'Error Count',
     actions: 'Actions',
     viewErrors: 'View Errors',
     usageExample: 'Usage Example',

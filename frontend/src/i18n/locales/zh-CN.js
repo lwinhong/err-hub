@@ -63,6 +63,7 @@ export default {
     apiToken: 'API Token',
     description: '描述',
     createdAt: '创建时间',
+    errorCount: '异常总数',
     actions: '操作',
     viewErrors: '查看异常',
     usageExample: '使用示例',

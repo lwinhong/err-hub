@@ -9,8 +9,6 @@ import 'element-plus/theme-chalk/el-loading.css'
 import { ElMessage, ElNotification, ElMessageBox } from 'element-plus';
 /*********** element-plus ****************/
 
-import './styles/main.scss'
-
 import App from './App.vue'
 import router from './router'
 import i18n from './i18n'

@@ -1,10 +1,12 @@
 <template>
   <el-config-provider :locale="elementLocale">
-    <el-container v-if="authStore.isAuthenticated" class="app-container">
-      <el-header class="app-header" :class="{ 'mobile-menu-open': mobileMenuOpen }">
+    <el-container v-if="authStore.isAuthenticated" class="h-full overflow-hidden">
+      <el-header class="app-header p-0 border-b z-10 overflow-hidden" :class="{ 'mobile-menu-open': mobileMenuOpen }"
+        style="border-color: var(--el-border-color-light); background-color: var(--el-fill-color-blank); box-shadow: 0 1px 4px rgba(0,0,0,0.08)">
         <!-- 桌面端：菜单 + 控件 -->
-        <div class="desktop-header">
-          <el-menu mode="horizontal" :default-active="activeMenu" :ellipsis="false" class="desktop-menu" router>
+        <div class="flex items-center h-[58px] px-5 max-md:hidden">
+          <el-menu mode="horizontal" :default-active="activeMenu" :ellipsis="false" class="flex-1 h-[60px] !border-b-0"
+            router>
             <el-menu-item index="logo" disabled class="logo-item">
               <span class="logo-text">ErrHub</span>
             </el-menu-item>
@@ -27,9 +29,11 @@
               <span>{{ t('app.admin') }}</span>
             </el-menu-item>
           </el-menu>
-          <div class="header-actions">
+          <div class="flex items-center h-[60px] shrink-0">
             <el-dropdown @command="handleLangChange">
-              <span class="lang-switch-trigger">
+              <span
+                class="flex items-center gap-1 cursor-pointer text-sm px-2.5 h-[60px] hover:text-[var(--el-color-primary)]"
+                style="color: var(--el-text-color-regular)">
                 <el-icon>
                   <CollectionTag />
                 </el-icon>
@@ -42,13 +46,17 @@
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
-            <div class="theme-toggle" @click="handleToggleDark()">
+            <div
+              class="flex items-center gap-1.5 px-5 h-[60px] cursor-pointer transition-colors hover:text-[var(--el-color-primary)]"
+              style="color: var(--el-text-color-regular)" @click="handleToggleDark()">
               <el-icon>
                 <component :is="isDark ? Sunny : Moon" />
               </el-icon>
               <span>{{ isDark ? t('app.light') : t('app.dark') }}</span>
             </div>
-            <div class="header-action-btn" @click="handleLogout">
+            <div
+              class="flex items-center gap-1.5 px-5 h-[60px] cursor-pointer transition-colors text-sm hover:text-[var(--el-color-primary)]"
+              style="color: var(--el-text-color-regular)" @click="handleLogout">
               <el-icon>
                 <SwitchButton />
               </el-icon>
@@ -57,11 +65,12 @@
           </div>
         </div>
         <!-- 移动端：Logo + 汉堡按钮 -->
-        <div class="mobile-header">
+        <div class="hidden md:hidden flex items-center justify-between h-14 px-4 max-md:flex">
           <span class="logo-text">ErrHub</span>
-          <div class="mobile-header-right">
+          <div class="flex items-center gap-1">
             <el-dropdown @command="handleLangChange">
-              <span class="lang-switch-trigger-mobile">
+              <span class="text-xs cursor-pointer px-2 h-9 flex items-center"
+                style="color: var(--el-text-color-regular)">
                 {{ currentLangLabel }}
               </span>
               <template #dropdown>
@@ -71,12 +80,16 @@
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
-            <div class="theme-toggle" @click="handleToggleDark()">
+            <div
+              class="flex items-center gap-1.5 px-2 h-9 cursor-pointer transition-colors hover:text-[var(--el-color-primary)]"
+              style="color: var(--el-text-color-regular)" @click="handleToggleDark()">
               <el-icon>
                 <component :is="isDark ? Sunny : Moon" />
               </el-icon>
             </div>
-            <div class="hamburger" @click="mobileMenuOpen = !mobileMenuOpen">
+            <div
+              class="hamburger flex items-center justify-center w-9 h-9 cursor-pointer rounded-md transition-colors hover:bg-[var(--el-fill-color-light)]"
+              style="color: var(--el-text-color-regular)" @click="mobileMenuOpen = !mobileMenuOpen">
               <el-icon :size="22">
                 <component :is="mobileMenuOpen ? Close : Expand" />
               </el-icon>
@@ -85,23 +98,32 @@
         </div>
         <!-- 移动端下拉菜单 -->
         <transition name="slide-down">
-          <div v-if="mobileMenuOpen" class="mobile-menu">
-            <div class="mobile-menu-item" @click="navigateTo('/')">
+          <div v-if="mobileMenuOpen" class="mobile-menu flex flex-col border-t"
+            style="border-color: var(--el-border-color-lighter); background: var(--el-bg-color-overlay)">
+            <div
+              class="mobile-menu-item flex items-center gap-2.5 py-3.5 px-5 cursor-pointer text-sm transition-colors hover:bg-[var(--el-fill-color-light)] hover:text-[var(--el-color-primary)]"
+              style="color: var(--el-text-color-regular)" @click="navigateTo('/')">
               <el-icon>
                 <DataAnalysis />
               </el-icon><span>{{ t('app.dashboard') }}</span>
             </div>
-            <div class="mobile-menu-item" @click="navigateTo('/projects')">
+            <div
+              class="mobile-menu-item flex items-center gap-2.5 py-3.5 px-5 cursor-pointer text-sm transition-colors hover:bg-[var(--el-fill-color-light)] hover:text-[var(--el-color-primary)]"
+              style="color: var(--el-text-color-regular)" @click="navigateTo('/projects')">
               <el-icon>
                 <FolderOpened />
               </el-icon><span>{{ t('app.projects') }}</span>
             </div>
-            <div v-if="authStore.isAdmin" class="mobile-menu-item" @click="navigateTo('/admin')">
+            <div v-if="authStore.isAdmin"
+              class="mobile-menu-item flex items-center gap-2.5 py-3.5 px-5 cursor-pointer text-sm transition-colors hover:bg-[var(--el-fill-color-light)] hover:text-[var(--el-color-primary)]"
+              style="color: var(--el-text-color-regular)" @click="navigateTo('/admin')">
               <el-icon>
                 <Setting />
               </el-icon><span>{{ t('app.admin') }}</span>
             </div>
-            <div class="mobile-menu-item" @click="handleLogout">
+            <div
+              class="mobile-menu-item flex items-center gap-2.5 py-3.5 px-5 cursor-pointer text-sm transition-colors hover:bg-[var(--el-fill-color-light)] hover:text-[var(--el-color-primary)]"
+              style="color: var(--el-text-color-regular)" @click="handleLogout">
               <el-icon>
                 <SwitchButton />
               </el-icon><span>{{ t('app.logout') }}</span>
@@ -109,7 +131,8 @@
           </div>
         </transition>
       </el-header>
-      <el-main class="app-main">
+      <el-main class="app-main overflow-y-auto p-0"
+        style="background-color: var(--el-bg-color-page); height: calc(100vh - 60px)">
         <router-view />
       </el-main>
     </el-container>
@@ -187,40 +210,21 @@ const navigateTo = (path) => {
 }
 </script>
 
+<style>
+@import './styles/main.css';
+</style>
+
 <style scoped lang="scss">
-/* ── 应用容器 ── */
-.app-container {
-  height: 100%;
-  overflow: hidden;
+:deep(.el-main) {
+  --el-main-padding: 0;
 }
 
-/* ── 页面头部 ── */
 .app-header {
-  padding: 0;
-  border-bottom: 1px solid var(--el-border-color-light);
-  background-color: var(--el-fill-color-blank);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-  z-index: 10;
   height: 60px !important;
-  overflow: hidden;
 
   &.mobile-menu-open {
     height: auto !important;
   }
-}
-
-/* ── 桌面端 ── */
-.desktop-header {
-  display: flex;
-  align-items: center;
-  height: 58px;
-  padding: 0 20px;
-}
-
-.desktop-menu {
-  flex: 1;
-  height: 60px;
-  border-bottom: none !important;
 }
 
 .logo-item {
@@ -239,122 +243,12 @@ const navigateTo = (path) => {
   letter-spacing: 1px;
 }
 
-.header-actions {
-  display: flex;
-  align-items: center;
-  height: 60px;
-  flex-shrink: 0;
-}
-
-.lang-switch-trigger {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--el-text-color-regular);
-  cursor: pointer;
-  font-size: 14px;
-  padding: 0 10px;
-  height: 60px;
-
-  &:hover {
-    color: var(--el-color-primary);
-  }
-}
-
-.lang-switch-trigger-mobile {
-  font-size: 13px;
-  color: var(--el-text-color-regular);
-  cursor: pointer;
-  padding: 0 8px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-}
-
-.theme-toggle {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 20px;
-  height: 60px;
-  cursor: pointer;
-  color: var(--el-text-color-regular);
-  transition: color 0.2s;
-
-  &:hover {
-    color: var(--el-color-primary);
-  }
-}
-
-.header-action-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 20px;
-  height: 60px;
-  cursor: pointer;
-  color: var(--el-text-color-regular);
-  transition: color 0.2s;
-  font-size: 14px;
-
-  &:hover {
-    color: var(--el-color-primary);
-  }
-}
-
-/* ── 移动端头部 ── */
-.mobile-header {
-  display: none;
-  align-items: center;
-  justify-content: space-between;
-  height: 56px;
-  padding: 0 16px;
-}
-
-.mobile-header-right {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
 .hamburger {
   display: none;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  cursor: pointer;
-  border-radius: 6px;
-  color: var(--el-text-color-regular);
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: var(--el-fill-color-light);
-  }
 }
 
-/* ── 移动端下拉菜单 ── */
 .mobile-menu {
   display: none;
-  flex-direction: column;
-  border-top: 1px solid var(--el-border-color-lighter);
-  background: var(--el-bg-color-overlay);
-}
-
-.mobile-menu-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 20px;
-  cursor: pointer;
-  color: var(--el-text-color-regular);
-  transition: background-color 0.2s, color 0.2s;
-  font-size: 14px;
-
-  &:hover {
-    background-color: var(--el-fill-color-light);
-    color: var(--el-color-primary);
-  }
 }
 
 /* ── 过渡动画 ── */
@@ -376,24 +270,8 @@ const navigateTo = (path) => {
   max-height: 300px;
 }
 
-/* ── 主内容区 ── */
-.app-main {
-  background-color: var(--el-bg-color-page);
-  height: calc(100vh - 60px);
-  overflow-y: auto;
-  padding: 0;
-}
-
 /* ── 移动端适配 ── */
 @media (max-width: 768px) {
-  .desktop-header {
-    display: none !important;
-  }
-
-  .mobile-header {
-    display: flex;
-  }
-
   .hamburger {
     display: flex;
   }
@@ -402,13 +280,8 @@ const navigateTo = (path) => {
     display: flex;
   }
 
-  .mobile-header .theme-toggle {
-    height: 36px;
-    padding: 0 8px;
-  }
-
   .app-main {
-    height: calc(100vh - 56px);
+    height: calc(100vh - 56px) !important;
   }
 }
 </style>

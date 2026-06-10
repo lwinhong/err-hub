@@ -1,9 +1,9 @@
 <template>
-  <div class="login-wrapper">
-    <div class="login-card">
-      <div class="login-header">
-        <h1 class="login-title">ErrHub</h1>
-        <p class="login-subtitle">{{ t('login.subtitle') }}</p>
+  <div class="flex justify-center items-center min-h-screen p-5 max-sm:p-0 max-sm:items-start max-sm:pt-[15vh]" style="background-color: var(--el-bg-color-page)">
+    <div class="w-[400px] max-w-full p-10 rounded-lg shadow-[0_2px_12px_rgba(0,0,0,0.1)] max-sm:p-6 max-sm:px-5 max-sm:shadow-none max-sm:rounded-none" style="background: var(--el-bg-color-overlay)">
+      <div class="text-center mb-[30px]">
+        <h1 class="text-[28px] max-sm:text-2xl font-bold m-0 mb-2" style="color: var(--el-color-primary)">ErrHub</h1>
+        <p class="text-sm m-0" style="color: var(--el-text-color-secondary)">{{ t('login.subtitle') }}</p>
       </div>
       <el-form
         ref="formRef"
@@ -36,7 +36,7 @@
             type="primary"
             size="large"
             :loading="loading"
-            class="login-btn"
+            class="w-full"
             @click="handleLogin"
           >
             {{ t('login.submit') }}
@@ -89,63 +89,3 @@ const handleLogin = async () => {
   })
 }
 </script>
-
-<style scoped>
-.login-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: var(--el-bg-color-page);
-  padding: 20px;
-}
-
-.login-card {
-  width: 400px;
-  max-width: 100%;
-  padding: 40px;
-  background: var(--el-bg-color-overlay);
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-}
-
-.login-header {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.login-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--el-color-primary);
-  margin: 0 0 8px 0;
-}
-
-.login-subtitle {
-  font-size: 14px;
-  color: var(--el-text-color-secondary);
-  margin: 0;
-}
-
-.login-btn {
-  width: 100%;
-}
-
-@media (max-width: 480px) {
-  .login-card {
-    padding: 24px 20px;
-    box-shadow: none;
-    border-radius: 0;
-  }
-
-  .login-wrapper {
-    padding: 0;
-    align-items: flex-start;
-    padding-top: 15vh;
-  }
-
-  .login-title {
-    font-size: 24px;
-  }
-}
-</style>

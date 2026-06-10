@@ -1,26 +1,31 @@
 <template>
-  <div class="dashboard">
+  <div class="p-5 max-sm:p-3">
     <!-- 项目筛选 -->
-    <div class="filter-bar">
-      <h2>{{ t('app.dashboard') }}</h2>
-      <el-select v-model="selectedProjectId" :placeholder="t('dashboard.allProjects')" clearable @change="refreshData"
-        style="width: 220px">
-        <el-option :label="t('dashboard.allProjects')" value="" />
-        <el-option v-for="p in projectList" :key="p.id" :label="p.name" :value="p.id" />
-      </el-select>
+    <div class="mb-4 flex justify-between max-sm:justify-stretch">
+      <h2 class="m-0 text-xl max-sm:hidden">{{ t('app.dashboard') }}</h2>
+      <div class="w-[220px] max-sm:!w-full">
+        <el-select v-model="selectedProjectId" :placeholder="t('dashboard.allProjects')" clearable
+          @change="refreshData">
+          <el-option :label="t('dashboard.allProjects')" value="" />
+          <el-option v-for="p in projectList" :key="p.id" :label="p.name" :value="p.id" />
+        </el-select>
+      </div>
     </div>
 
     <!-- 统计卡片 Row 1 -->
-    <el-row :gutter="16" class="stat-row">
+    <el-row :gutter="16" class="mb-4 [&>.el-col]:mb-3">
       <el-col :xs="12" :sm="8" :md="6" :lg="4" v-for="card in statCards" :key="card.key">
-        <el-card shadow="hover" class="stat-card" :class="{ 'stat-card--clickable': card.route }"
+        <el-card shadow="hover" class="h-full"
+          :class="{ 'cursor-pointer transition-transform transition-shadow duration-150 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)]': card.route }"
           @click="card.route && router.push(card.route)">
-          <div class="stat-content">
-            <div class="stat-info">
-              <div class="stat-label">{{ card.label }}</div>
-              <div class="stat-value">{{ card.value }}</div>
+          <div class="flex justify-between items-center">
+            <div class="flex-1 min-w-0">
+              <div class="text-[13px] mb-1" style="color: var(--el-text-color-secondary)">{{ card.label }}</div>
+              <div class="text-2xl max-sm:text-xl font-bold" style="color: var(--el-text-color-primary)">{{ card.value
+              }}</div>
             </div>
-            <div class="stat-icon" :style="{ backgroundColor: card.bg, color: card.color }">
+            <div class="w-12 h-12 max-sm:w-10 max-sm:h-10 rounded-[10px] flex items-center justify-center shrink-0"
+              :style="{ backgroundColor: card.bg, color: card.color }">
               <el-icon :size="28">
                 <component :is="card.icon" />
               </el-icon>
@@ -31,10 +36,10 @@
     </el-row>
 
     <!-- 趋势图 -->
-    <el-card shadow="hover" class="chart-card">
+    <el-card shadow="hover" class="mb-4">
       <template #header>
-        <div class="chart-header">
-          <span class="card-title">{{ t('dashboard.errorTrend') }}</span>
+        <div class="flex justify-between items-center flex-wrap gap-2 max-sm:flex-col max-sm:items-start">
+          <span class="text-[15px] font-semibold">{{ t('dashboard.errorTrend') }}</span>
           <el-radio-group v-model="trendDays" size="small" @change="refreshData">
             <el-radio-button :value="7">{{ t('dashboard.days7') }}</el-radio-button>
             <el-radio-button :value="14">{{ t('dashboard.days14') }}</el-radio-button>
@@ -46,49 +51,53 @@
     </el-card>
 
     <!-- 分布图 Row -->
-    <el-row :gutter="16" class="chart-row">
+    <el-row :gutter="16" class="mb-4 [&>.el-col]:mb-3">
       <el-col :xs="24" :sm="8">
         <el-card shadow="hover">
-          <template #header><span class="card-title">{{ t('dashboard.severityDistribution') }}</span></template>
+          <template #header><span class="text-[15px] font-semibold">{{ t('dashboard.severityDistribution')
+              }}</span></template>
           <v-chart :option="severityOption" style="height: 260px" autoresize />
         </el-card>
       </el-col>
       <el-col :xs="24" :sm="8">
         <el-card shadow="hover">
-          <template #header><span class="card-title">{{ t('dashboard.sourceDistribution') }}</span></template>
+          <template #header><span class="text-[15px] font-semibold">{{ t('dashboard.sourceDistribution')
+              }}</span></template>
           <v-chart :option="sourceOption" style="height: 260px" autoresize />
         </el-card>
       </el-col>
       <el-col :xs="24" :sm="8">
         <el-card shadow="hover">
-          <template #header><span class="card-title">{{ t('dashboard.statusDistribution') }}</span></template>
+          <template #header><span class="text-[15px] font-semibold">{{ t('dashboard.statusDistribution')
+              }}</span></template>
           <v-chart :option="statusOption" style="height: 260px" autoresize />
         </el-card>
       </el-col>
     </el-row>
 
     <!-- 排名 Row -->
-    <el-row :gutter="16" class="chart-row">
+    <el-row :gutter="16" class="mb-4 [&>.el-col]:mb-3">
       <el-col :xs="24" :sm="12">
         <el-card shadow="hover">
-          <template #header><span class="card-title">{{ t('dashboard.topErrors') }}</span></template>
+          <template #header><span class="text-[15px] font-semibold">{{ t('dashboard.topErrors') }}</span></template>
           <v-chart :option="topErrorsOption" style="height: 280px" autoresize />
         </el-card>
       </el-col>
       <el-col :xs="24" :sm="12">
         <el-card shadow="hover">
-          <template #header><span class="card-title">{{ t('dashboard.projectRanking') }}</span></template>
+          <template #header><span class="text-[15px] font-semibold">{{ t('dashboard.projectRanking')
+              }}</span></template>
           <v-chart :option="projectRankOption" style="height: 280px" autoresize />
         </el-card>
       </el-col>
     </el-row>
 
     <!-- 最近异常 -->
-    <el-card shadow="hover" class="table-card">
+    <el-card shadow="hover" class="mb-5">
       <template #header>
-        <div class="chart-header">
-          <span class="card-title">{{ t('dashboard.recentErrors') }}</span>
-          <div class="table-filter-bar">
+        <div class="flex justify-between items-center flex-wrap gap-2 max-sm:flex-col max-sm:items-start">
+          <span class="text-[15px] font-semibold">{{ t('dashboard.recentErrors') }}</span>
+          <div class="flex items-center gap-3">
             <el-switch v-model="hideResolved" :active-text="t('dashboard.hideResolved')" size="small"
               @change="refreshData" />
             <el-select v-model="recentProjectId" :placeholder="t('dashboard.allProjects')" clearable multiple
@@ -98,7 +107,7 @@
           </div>
         </div>
       </template>
-      <el-table :data="recentErrors" stripe @row-click="goToError">
+      <el-table :data="recentErrors" stripe class="dashboard-table" @row-click="goToError">
         <el-table-column prop="exception_type" :label="t('dashboard.exceptionType')" min-width="150" />
         <el-table-column prop="message" :label="t('dashboard.message')" min-width="200" show-overflow-tooltip />
         <el-table-column prop="project_name" :label="t('dashboard.project')" width="150">
@@ -405,147 +414,16 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.dashboard {
-  padding: 20px;
-}
-
-.filter-bar {
-  margin-bottom: 16px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.filter-bar h2 {
-  margin: 0;
-  font-size: 20px;
-}
-
-.stat-row {
-  margin-bottom: 16px;
-}
-
-.stat-row :deep(.el-col) {
-  margin-bottom: 12px;
-}
-
-.stat-card {
-  height: 100%;
-}
-
-.stat-card--clickable {
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
-}
-
-.stat-card--clickable:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.stat-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.stat-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.stat-label {
-  font-size: 13px;
-  color: var(--el-text-color-secondary);
-  margin-bottom: 4px;
-}
-
-.stat-value {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--el-text-color-primary);
-}
-
-.stat-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.chart-card {
-  margin-bottom: 16px;
-}
-
-.chart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.table-filter-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.chart-row {
-  margin-bottom: 16px;
-}
-
-.chart-row :deep(.el-col) {
-  margin-bottom: 12px;
-}
-
-.table-card {
-  margin-bottom: 20px;
-}
-
-.card-title {
-  font-size: 15px;
-  font-weight: 600;
-}
-
 :deep(.el-table__row) {
   cursor: pointer;
 }
 
 @media (max-width: 768px) {
-  .dashboard {
-    padding: 12px;
-  }
-
-  .filter-bar {
-    justify-content: stretch;
-  }
-
-  .filter-bar .el-select {
-    width: 100% !important;
-  }
-
-  .stat-value {
-    font-size: 20px;
-  }
-
-  .stat-icon {
-    width: 40px;
-    height: 40px;
-  }
-
-  .chart-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  :deep(.el-table) {
+  :deep(.dashboard-table) {
     font-size: 13px;
   }
 
-  :deep(.el-table .el-table__cell) {
+  :deep(.dashboard-table .el-table__cell) {
     padding: 8px 4px;
   }
 }

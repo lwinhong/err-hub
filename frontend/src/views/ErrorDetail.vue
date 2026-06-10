@@ -1,7 +1,7 @@
 <template>
-  <div class="error-detail">
-    <div class="page-header">
-      <el-breadcrumb separator="/" class="breadcrumb">
+  <div class="p-5 max-sm:p-3">
+    <div class="mb-5 flex items-center justify-between gap-3 flex-wrap min-h-[32px]">
+      <el-breadcrumb separator="/" class="!mb-0 text-lg">
         <el-breadcrumb-item :to="{ path: '/projects' }">{{ t('errorDetail.projectList') }}</el-breadcrumb-item>
         <el-breadcrumb-item :to="{ path: `/projects/${error.project_id}/errors` }">{{ t('errorDetail.errorList')
           }}</el-breadcrumb-item>
@@ -9,10 +9,10 @@
       </el-breadcrumb>
     </div>
 
-    <el-card shadow="hover" class="info-card">
+    <el-card shadow="hover" class="mb-5">
       <template #header>
-        <div class="card-header">
-          <span class="card-title">{{ t('errorDetail.errorInfo') }}</span>
+        <div class="flex justify-between items-center flex-wrap gap-2 max-sm:flex-col max-sm:items-start">
+          <span class="text-base font-semibold">{{ t('errorDetail.errorInfo') }}</span>
           <el-button @click="goBack">
             <el-icon>
               <ArrowLeft />
@@ -23,10 +23,10 @@
       </template>
       <el-descriptions :column="isMobile ? 1 : 2" border>
         <el-descriptions-item :label="t('errorDetail.exceptionType')" :span="2">
-          <code class="code-text">{{ error.exception_type }}</code>
+          <code class="font-mono font-semibold px-1.5 py-0.5 rounded-sm" style="color: var(--el-text-color-primary); background-color: var(--el-fill-color-light)">{{ error.exception_type }}</code>
         </el-descriptions-item>
         <el-descriptions-item :label="t('errorDetail.message')" :span="2">
-          <span class="message-text" :class="{ 'message-code': isCodeLike(error.message) }">{{ error.message }}</span>
+          <span class="break-all leading-relaxed" :class="isCodeLike(error.message) ? 'font-mono px-1.5 py-0.5 rounded-sm' : ''" :style="isCodeLike(error.message) ? 'background-color: var(--el-color-danger-light-9); color: var(--el-color-danger)' : ''">{{ error.message }}</span>
         </el-descriptions-item>
         <el-descriptions-item :label="t('errorDetail.severity')">
           <el-tag :type="severityType(error.severity)" :effect="error.severity === 'critical' ? 'dark' : 'light'"
@@ -51,7 +51,7 @@
           }}</el-descriptions-item>
       </el-descriptions>
 
-      <div v-if="authStore.isAdmin" class="action-bar">
+      <div v-if="authStore.isAdmin" class="mt-5 action-bar">
         <el-button-group>
           <el-button :type="error.status === 'unresolved' ? 'danger' : ''" @click="changeStatus('unresolved')">
             {{ t('errorDetail.markUnresolved') }}
@@ -66,18 +66,18 @@
       </div>
     </el-card>
 
-    <el-card shadow="hover" class="stack-card">
+    <el-card shadow="hover" class="mb-5">
       <template #header>
-        <span class="card-title">{{ t('errorDetail.stackTrace') }}</span>
+        <span class="text-base font-semibold">{{ t('errorDetail.stackTrace') }}</span>
       </template>
-      <pre class="stack-trace">{{ error.stack_trace || t('errorDetail.noStackTrace') }}</pre>
+      <pre class="bg-[#1e1e1e] text-[#d4d4d4] p-4 rounded-md font-mono text-[13px] max-sm:text-xs max-sm:p-3 leading-relaxed overflow-x-auto whitespace-pre-wrap break-all m-0">{{ error.stack_trace || t('errorDetail.noStackTrace') }}</pre>
     </el-card>
 
-    <el-card shadow="hover" class="context-card">
+    <el-card shadow="hover" class="mb-5">
       <template #header>
-        <span class="card-title">{{ t('errorDetail.context') }}</span>
+        <span class="text-base font-semibold">{{ t('errorDetail.context') }}</span>
       </template>
-      <pre class="context-data">{{ formatContext(error.context) }}</pre>
+      <pre class="p-4 rounded-md font-mono text-[13px] max-sm:text-xs max-sm:p-3 leading-relaxed overflow-x-auto whitespace-pre-wrap break-all m-0" style="background-color: var(--el-fill-color-light); color: var(--el-text-color-primary)">{{ formatContext(error.context) }}</pre>
     </el-card>
   </div>
 </template>
@@ -174,115 +174,7 @@ const fetchError = async () => {
 </script>
 
 <style scoped>
-.error-detail {
-  padding: 20px;
-}
-
-.breadcrumb {
-  margin-bottom: 0;
-  font-size: 18px;
-}
-
-.page-header {
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-  min-height: 32px;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.card-title {
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.exception-type,
-.code-text {
-  font-family: 'Courier New', Courier, monospace;
-  font-weight: 600;
-  color: var(--el-text-color-primary);
-  background-color: var(--el-fill-color-light);
-  padding: 2px 6px;
-  border-radius: 3px;
-}
-
-.message-text {
-  word-break: break-all;
-  line-height: 1.6;
-}
-
-.message-code {
-  font-family: 'Courier New', Courier, monospace;
-  background-color: var(--el-color-danger-light-9);
-  padding: 2px 6px;
-  border-radius: 3px;
-  color: var(--el-color-danger);
-}
-
-.action-bar {
-  margin-top: 20px;
-}
-
-.info-card {
-  margin-bottom: 20px;
-}
-
-.stack-card {
-  margin-bottom: 20px;
-}
-
-.context-card {
-  margin-bottom: 20px;
-}
-
-.stack-trace {
-  background-color: #1e1e1e;
-  color: #d4d4d4;
-  padding: 16px;
-  border-radius: 6px;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 13px;
-  line-height: 1.6;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  word-break: break-all;
-  margin: 0;
-}
-
-.context-data {
-  background-color: var(--el-fill-color-light);
-  padding: 16px;
-  border-radius: 6px;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 13px;
-  line-height: 1.6;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  word-break: break-all;
-  margin: 0;
-  color: var(--el-text-color-primary);
-}
-
 @media (max-width: 768px) {
-  .error-detail {
-    padding: 12px;
-  }
-
-  .card-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
   .action-bar :deep(.el-button-group) {
     display: flex;
     flex-wrap: wrap;
@@ -291,12 +183,6 @@ const fetchError = async () => {
   .action-bar :deep(.el-button-group .el-button) {
     flex: 1;
     min-width: 0;
-  }
-
-  .stack-trace,
-  .context-data {
-    font-size: 12px;
-    padding: 12px;
   }
 }
 </style>

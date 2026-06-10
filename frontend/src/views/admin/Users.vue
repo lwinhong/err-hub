@@ -1,15 +1,15 @@
 <template>
-  <div class="users">
-    <div class="page-header">
-      <h2>{{ t('users.title') }}</h2>
+  <div class="p-5 h-full flex flex-col overflow-hidden box-border max-sm:p-3">
+    <div class="flex justify-between items-center mb-5 shrink-0 max-sm:flex-col max-sm:items-start max-sm:gap-3">
+      <h2 class="m-0 text-xl" style="color: var(--el-text-color-primary)">{{ t('users.title') }}</h2>
       <el-button type="primary" @click="openDialog()">
         <el-icon><Plus /></el-icon>
         {{ t('users.createUser') }}
       </el-button>
     </div>
 
-    <el-card shadow="hover" class="table-card">
-      <div class="table-scroll">
+    <el-card shadow="hover" class="flex-1 min-h-0 flex flex-col [&>.el-card__body]:flex-1 [&>.el-card__body]:min-h-0 [&>.el-card__body]:flex [&>.el-card__body]:flex-col">
+      <div class="flex-1 min-h-0 overflow-hidden">
         <el-table :data="users" stripe v-loading="loading" height="100%">
         <el-table-column prop="username" :label="t('users.username')" min-width="150" />
         <el-table-column :label="t('users.role')" width="120">
@@ -45,7 +45,7 @@
         </el-table-column>
       </el-table>
       </div>
-      <div class="pagination-wrapper">
+      <div class="flex justify-end mt-4 shrink-0 max-sm:justify-center max-sm:[&_.el-pagination]:flex-wrap max-sm:[&_.el-pagination]:justify-center">
         <el-pagination
           v-model:current-page="page"
           v-model:page-size="pageSize"
@@ -262,74 +262,4 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.users {
-  padding: 20px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-sizing: border-box;
-}
-
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  flex-shrink: 0;
-}
-
-.page-header h2 {
-  margin: 0;
-  font-size: 20px;
-  color: var(--el-text-color-primary);
-}
-
-.table-card {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.table-card :deep(.el-card__body) {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.table-scroll {
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.pagination-wrapper {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 16px;
-  flex-shrink: 0;
-}
-
-@media (max-width: 768px) {
-  .users {
-    padding: 12px;
-  }
-
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .pagination-wrapper {
-    justify-content: center;
-  }
-
-  .pagination-wrapper :deep(.el-pagination) {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-}
 </style>

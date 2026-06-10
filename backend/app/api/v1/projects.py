@@ -3,6 +3,7 @@ from flask import Blueprint, request, jsonify
 from app.extensions import db
 from app.models.user import User
 from app.models.project import Project
+from app.models.error import Error
 from app.utils.decorators import jwt_required, admin_required
 
 bp = Blueprint('projects_v1', __name__, url_prefix='/api/v1/projects')
@@ -29,14 +30,32 @@ def list_projects(**kwargs):
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 20, type=int)
     per_page = min(per_page, 100)
-    pagination = Project.query.order_by(Project.created_at.desc()).paginate(
-        page=page, per_page=per_page, error_out=False
+
+    # 子查询：统计每个项目的异常总数（sum of count 字段）
+    error_counts = (
+        db.session.query(
+            Error.project_id,
+            db.func.sum(Error.count).label('total_errors')
+        )
+        .group_by(Error.project_id)
+        .subquery()
     )
+
+    pagination = (
+        db.session.query(Project, db.func.coalesce(error_counts.c.total_errors, 0).label('error_count'))
+        .outerjoin(error_counts, Project.id == error_counts.c.project_id)
+        .order_by(Project.created_at.desc())
+        .paginate(page=page, per_page=per_page, error_out=False)
+    )
+
+    items = []
+    for project, error_count in pagination.items:
+        data = _project_to_dict(project, include_token=current_user.is_admin)
+        data['error_count'] = error_count
+        items.append(data)
+
     return jsonify({
-        'items': [
-            _project_to_dict(p, include_token=current_user.is_admin)
-            for p in pagination.items
-        ],
+        'items': items,
         'total': pagination.total,
         'page': pagination.page,
         'per_page': pagination.per_page,

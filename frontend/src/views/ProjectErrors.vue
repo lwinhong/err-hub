@@ -1,7 +1,7 @@
 <template>
-  <div class="project-errors">
-    <div class="page-header">
-      <el-breadcrumb separator="/" class="breadcrumb">
+  <div class="p-5 h-full flex flex-col overflow-hidden box-border max-sm:p-3">
+    <div class="mb-5 flex items-center justify-between gap-3 flex-wrap min-h-[32px] shrink-0">
+      <el-breadcrumb separator="/" class="!mb-0 text-lg">
         <el-breadcrumb-item :to="{ path: '/projects' }">{{ t('projectErrors.breadcrumbProjects') }}</el-breadcrumb-item>
         <el-breadcrumb-item>{{ projectName }}</el-breadcrumb-item>
       </el-breadcrumb>
@@ -15,8 +15,8 @@
       </el-select>
     </div>
 
-    <el-card shadow="hover" class="filter-card">
-      <div class="filter-grid">
+    <el-card shadow="hover" class="mb-4 shrink-0">
+      <div class="flex flex-wrap gap-2.5 items-center max-sm:flex-col filter-grid">
         <el-select v-model="filters.severity" :placeholder="t('projectErrors.severity')" clearable multiple collapse-tags collapse-tags-tooltip @change="fetchErrors" class="filter-item">
           <el-option label="Debug" value="debug" />
           <el-option label="Warning" value="warning" />
@@ -45,7 +45,7 @@
           <el-option :label="t('projectErrors.count')" value="count" />
           <el-option :label="t('projectErrors.firstSeen')" value="first_seen_at" />
         </el-select>
-        <div class="filter-actions">
+        <div class="flex gap-2 shrink-0 max-sm:w-full max-sm:[&>.el-button]:flex-1">
           <el-button type="primary" @click="fetchErrors">{{ t('projectErrors.filter') }}</el-button>
           <el-button
             v-if="authStore.isAdmin && selectedIds.length > 0"
@@ -58,8 +58,8 @@
       </div>
     </el-card>
 
-    <el-card shadow="hover" class="table-card">
-      <div class="table-scroll">
+    <el-card shadow="hover" class="flex-1 min-h-0 flex flex-col [&>.el-card__body]:flex-1 [&>.el-card__body]:min-h-0 [&>.el-card__body]:flex [&>.el-card__body]:flex-col">
+      <div class="flex-1 min-h-0 overflow-hidden">
         <el-table :data="errors" stripe v-loading="loading" @row-click="goToError" @selection-change="handleSelectionChange" height="100%">
         <el-table-column v-if="authStore.isAdmin" type="selection" width="45" @click.stop />
         <el-table-column prop="exception_type" :label="t('projectErrors.exceptionType')" min-width="160" show-overflow-tooltip />
@@ -97,7 +97,7 @@
         </el-table-column>
       </el-table>
       </div>
-      <div class="pagination-wrapper">
+      <div class="flex justify-end mt-4 shrink-0 max-sm:justify-center max-sm:[&_.el-pagination]:flex-wrap max-sm:[&_.el-pagination]:justify-center">
         <el-pagination
           v-model:current-page="page"
           v-model:page-size="pageSize"
@@ -256,42 +256,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.project-errors {
-  padding: 20px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-sizing: border-box;
-}
-
-.page-header {
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-  min-height: 32px;
-}
-
-:deep(.breadcrumb) {
-  margin-bottom: 0;
-  font-size: 18px;
-}
-
-.filter-card {
-  margin-bottom: 16px;
-  flex-shrink: 0;
-}
-
-.filter-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-}
-
 .filter-item {
   flex: 1 1 140px;
   min-width: 120px;
@@ -302,74 +266,16 @@ onMounted(() => {
   min-width: 180px;
 }
 
-.filter-actions {
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.table-card {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.table-card :deep(.el-card__body) {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.table-scroll {
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.pagination-wrapper {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 16px;
-  flex-shrink: 0;
-}
-
 :deep(.el-table__row) {
   cursor: pointer;
 }
 
 @media (max-width: 768px) {
-  .project-errors {
-    padding: 12px;
-  }
-
-  .filter-grid {
-    flex-direction: column;
-  }
-
   .filter-item,
   .filter-search {
     flex: 1 1 100%;
     min-width: 0;
     width: 100%;
-  }
-
-  .filter-actions {
-    width: 100%;
-  }
-
-  .filter-actions .el-button {
-    flex: 1;
-  }
-
-  .pagination-wrapper {
-    justify-content: center;
-  }
-
-  .pagination-wrapper :deep(.el-pagination) {
-    flex-wrap: wrap;
-    justify-content: center;
   }
 }
 </style>

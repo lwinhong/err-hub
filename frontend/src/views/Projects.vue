@@ -1,30 +1,35 @@
 <template>
-  <div class="projects">
-    <div class="page-header">
-      <h2>{{ t('projects.title') }}</h2>
+  <div class="p-5 h-full flex flex-col overflow-hidden box-border max-sm:p-3">
+    <div class="flex justify-between items-center mb-5 shrink-0 max-sm:flex-col max-sm:items-start max-sm:gap-3">
+      <h2 class="m-0 text-xl" style="color: var(--el-text-color-primary)">{{ t('projects.title') }}</h2>
       <el-button v-if="authStore.isAdmin" type="primary" @click="openDialog()">
         <el-icon><Plus /></el-icon>
         {{ t('projects.create') }}
       </el-button>
     </div>
 
-    <el-card shadow="hover" class="table-card">
-      <div class="table-scroll">
+    <el-card shadow="hover" class="flex-1 min-h-0 flex flex-col [&>.el-card__body]:flex-1 [&>.el-card__body]:min-h-0 [&>.el-card__body]:flex [&>.el-card__body]:flex-col">
+      <div class="flex-1 min-h-0 overflow-hidden">
         <el-table :data="projects" stripe v-loading="loading" height="100%">
           <el-table-column prop="name" :label="t('projects.name')" min-width="150" />
           <el-table-column prop="project_key" :label="t('projects.projectKey')" width="250" />
           <el-table-column :label="t('projects.apiToken')" width="200">
             <template #default="{ row }">
-              <div v-if="authStore.isAdmin" class="token-cell">
-                <span class="token-text">{{ maskToken(row.api_token) }}</span>
+              <div v-if="authStore.isAdmin" class="flex items-center gap-1">
+                <span class="font-mono text-[13px]" style="color: var(--el-text-color-regular)">{{ maskToken(row.api_token) }}</span>
                 <el-button link type="primary" @click="copyToken(row.api_token)">
                   <el-icon><CopyDocument /></el-icon>
                 </el-button>
               </div>
-              <span v-else class="token-text">***</span>
+              <span v-else class="font-mono text-[13px]" style="color: var(--el-text-color-regular)">***</span>
             </template>
           </el-table-column>
           <el-table-column prop="description" :label="t('projects.description')" min-width="200" show-overflow-tooltip />
+          <el-table-column :label="t('projects.errorCount')" width="120" align="center">
+            <template #default="{ row }">
+              <el-button link type="primary" @click="goToErrors(row)">{{ row.error_count ?? 0 }}</el-button>
+            </template>
+          </el-table-column>
           <el-table-column prop="created_at" :label="t('projects.createdAt')" width="180">
             <template #default="{ row }">{{ formatTime(row.created_at) }}</template>
           </el-table-column>
@@ -41,7 +46,7 @@
           </el-table-column>
         </el-table>
       </div>
-      <div class="pagination-wrapper">
+      <div class="flex justify-end mt-4 shrink-0 max-sm:justify-center max-sm:[&_.el-pagination]:flex-wrap max-sm:[&_.el-pagination]:justify-center">
         <el-pagination
           v-model:current-page="page"
           v-model:page-size="pageSize"
@@ -90,24 +95,24 @@
 
       <el-tabs>
         <el-tab-pane label="cURL">
-          <div class="code-block-wrapper">
-            <el-button class="copy-btn" link type="primary" @click="copyCode(curlExample)">
+          <div class="relative">
+            <el-button class="absolute top-2 right-2 z-1" link type="primary" @click="copyCode(curlExample)">
               <el-icon><CopyDocument /></el-icon> {{ t('projects.copy') }}
             </el-button>
             <pre class="code-block">{{ curlExample }}</pre>
           </div>
         </el-tab-pane>
         <el-tab-pane label="Python">
-          <div class="code-block-wrapper">
-            <el-button class="copy-btn" link type="primary" @click="copyCode(pythonExample)">
+          <div class="relative">
+            <el-button class="absolute top-2 right-2 z-1" link type="primary" @click="copyCode(pythonExample)">
               <el-icon><CopyDocument /></el-icon> {{ t('projects.copy') }}
             </el-button>
             <pre class="code-block">{{ pythonExample }}</pre>
           </div>
         </el-tab-pane>
         <el-tab-pane label="JavaScript">
-          <div class="code-block-wrapper">
-            <el-button class="copy-btn" link type="primary" @click="copyCode(jsExample)">
+          <div class="relative">
+            <el-button class="absolute top-2 right-2 z-1" link type="primary" @click="copyCode(jsExample)">
               <el-icon><CopyDocument /></el-icon> {{ t('projects.copy') }}
             </el-button>
             <pre class="code-block">{{ jsExample }}</pre>
@@ -121,8 +126,8 @@
             show-icon
             style="margin-bottom: 12px"
           />
-          <div class="code-block-wrapper">
-            <el-button class="copy-btn" link type="primary" @click="copyCode(sdkExample)">
+          <div class="relative">
+            <el-button class="absolute top-2 right-2 z-1" link type="primary" @click="copyCode(sdkExample)">
               <el-icon><CopyDocument /></el-icon> {{ t('projects.copy') }}
             </el-button>
             <pre class="code-block">{{ sdkExample }}</pre>
@@ -510,79 +515,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.projects {
-  padding: 20px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-sizing: border-box;
-}
-
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  flex-shrink: 0;
-}
-
-.page-header h2 {
-  margin: 0;
-  font-size: 20px;
-  color: var(--el-text-color-primary);
-}
-
-.table-card {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.table-card :deep(.el-card__body) {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.table-scroll {
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.token-cell {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.token-text {
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 13px;
-  color: var(--el-text-color-regular);
-}
-
-.pagination-wrapper {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 16px;
-  flex-shrink: 0;
-}
-
-.code-block-wrapper {
-  position: relative;
-}
-
-.copy-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 1;
-}
-
 .code-block {
   background-color: #1e1e1e;
   color: #d4d4d4;
@@ -597,26 +529,5 @@ onMounted(() => {
   margin: 0;
   max-height: 500px;
   overflow-y: auto;
-}
-
-@media (max-width: 768px) {
-  .projects {
-    padding: 12px;
-  }
-
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .pagination-wrapper {
-    justify-content: center;
-  }
-
-  .pagination-wrapper :deep(.el-pagination) {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
 }
 </style>

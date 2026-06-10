@@ -1,8 +1,8 @@
 <template>
-  <div class="settings">
-    <div class="page-header">
-      <h2>{{ t('settings.title') }}</h2>
-      <div class="header-actions">
+  <div class="p-5 h-full flex flex-col overflow-hidden box-border max-sm:p-3">
+    <div class="flex justify-between items-center mb-5 shrink-0">
+      <h2 class="m-0 text-xl" style="color: var(--el-text-color-primary)">{{ t('settings.title') }}</h2>
+      <div class="flex">
         <el-button :disabled="!dirty" @click="handleReset">{{ t('settings.reset') }}</el-button>
         <el-button type="primary" :disabled="!dirty" :loading="saving" @click="doSave">
           {{ t('settings.save') }}
@@ -10,7 +10,7 @@
       </div>
     </div>
 
-    <el-card shadow="hover" class="settings-card">
+    <el-card shadow="hover" class="flex-1 min-h-0 [&>.el-card__body]:h-full [&>.el-card__body]:box-border">
       <el-skeleton :loading="loading" :rows="4" animated>
         <template #default>
           <el-form ref="formRef" :model="form" :rules="rules" label-width="200px" label-position="right">
@@ -24,8 +24,8 @@
                 style="width: 200px"
                 @change="onFieldChange"
               />
-              <span class="field-unit">{{ t('settings.unitDays') }}</span>
-              <div class="field-hint">
+              <span class="ml-2" style="color: var(--el-text-color-regular)">{{ t('settings.unitDays') }}</span>
+              <div class="text-xs leading-tight mt-1" style="color: var(--el-text-color-secondary)">
                 {{ t('settings.dataRetentionDaysHint', { default: retentionMeta.default }) }}
               </div>
             </el-form-item>
@@ -119,59 +119,4 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.settings {
-  padding: 20px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-sizing: border-box;
-}
-
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  flex-shrink: 0;
-}
-
-.page-header h2 {
-  margin: 0;
-  font-size: 20px;
-  color: var(--el-text-color-primary);
-}
-
-.header-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.settings-card {
-  flex: 1;
-  min-height: 0;
-}
-
-.settings-card :deep(.el-card__body) {
-  height: 100%;
-  box-sizing: border-box;
-}
-
-.field-unit {
-  margin-left: 8px;
-  color: var(--el-text-color-regular);
-}
-
-.field-hint {
-  font-size: 12px;
-  color: var(--el-text-color-secondary);
-  line-height: 1.4;
-  margin-top: 4px;
-}
-
-@media (max-width: 768px) {
-  .settings {
-    padding: 12px;
-  }
-}
 </style>
