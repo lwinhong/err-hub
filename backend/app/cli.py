@@ -55,6 +55,8 @@ def register_cli(app):
     @app.cli.command('cleanup')
     def cleanup():
         from app.services.cleanup import cleanup_old_errors
-        retention_days = current_app.config['DATA_RETENTION_DAYS']
+        from app.models.setting import SystemSetting
+        db_val = SystemSetting.get_value('data_retention_days')
+        retention_days = int(db_val) if db_val is not None else current_app.config['DATA_RETENTION_DAYS']
         count = cleanup_old_errors(retention_days)
         click.echo(f'Deleted {count} errors older than {retention_days} days.')

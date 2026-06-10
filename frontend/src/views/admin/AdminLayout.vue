@@ -38,7 +38,7 @@
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { User, Menu } from '@element-plus/icons-vue'
+import { User, Menu, Setting } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const { t } = useI18n()
@@ -49,6 +49,7 @@ const isMobile = ref(false)
 // 侧边栏菜单配置 —— 新增管理页面只需在此追加
 const adminMenuItems = [
   { path: '/admin/users', icon: User, labelKey: 'admin.users' },
+  { path: '/admin/settings', icon: Setting, labelKey: 'admin.settings' },
 ]
 
 const activeMenu = computed(() => route.path)

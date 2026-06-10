@@ -225,6 +225,20 @@ export default {
   admin: {
     title: '管理中心',
     users: '用户管理',
+    settings: '系统设置',
+  },
+  settings: {
+    title: '系统设置',
+    dataRetentionDays: '异常数据保留天数',
+    unitDays: '天',
+    dataRetentionDaysHint: '超过该天数的异常数据将在定时清理时自动删除，默认 {default} 天',
+    dataRetentionDaysRequired: '请输入保留天数',
+    save: '保存',
+    reset: '重置',
+    unsaved: '未保存',
+    saveSuccess: '设置已保存',
+    saveFailed: '保存失败',
+    loadFailed: '加载设置失败',
   },
   api: {
     sessionExpired: '登录已过期，请重新登录',

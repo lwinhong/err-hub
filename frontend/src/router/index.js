@@ -6,6 +6,7 @@ import ProjectErrors from '../views/ProjectErrors.vue'
 import ErrorDetail from '../views/ErrorDetail.vue'
 import AdminLayout from '../views/admin/AdminLayout.vue'
 import Users from '../views/admin/Users.vue'
+import Settings from '../views/admin/Settings.vue'
 
 const routes = [
   {
@@ -48,6 +49,12 @@ const routes = [
         path: 'users',
         name: 'AdminUsers',
         component: Users,
+        meta: { requiresAuth: true, requiresAdmin: true }
+      },
+      {
+        path: 'settings',
+        name: 'AdminSettings',
+        component: Settings,
         meta: { requiresAuth: true, requiresAdmin: true }
       }
     ]

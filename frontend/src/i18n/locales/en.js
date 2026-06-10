@@ -225,6 +225,20 @@ export default {
   admin: {
     title: 'Admin Center',
     users: 'User Management',
+    settings: 'System Settings',
+  },
+  settings: {
+    title: 'System Settings',
+    dataRetentionDays: 'Error Data Retention Days',
+    unitDays: 'days',
+    dataRetentionDaysHint: 'Errors older than this will be automatically deleted during scheduled cleanup. Default: {default} days',
+    dataRetentionDaysRequired: 'Please enter retention days',
+    save: 'Save',
+    reset: 'Reset',
+    unsaved: 'Unsaved',
+    saveSuccess: 'Settings saved',
+    saveFailed: 'Save failed',
+    loadFailed: 'Failed to load settings',
   },
   api: {
     sessionExpired: 'Session expired, please login again',
