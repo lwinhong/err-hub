@@ -62,7 +62,7 @@
       <div class="flex-1 min-h-0 overflow-hidden">
         <el-table :data="errors" stripe v-loading="loading" @row-click="goToError" @selection-change="handleSelectionChange" height="100%">
         <el-table-column v-if="authStore.isAdmin" type="selection" width="45" @click.stop />
-        <el-table-column prop="exception_type" :label="t('projectErrors.exceptionType')" min-width="160" show-overflow-tooltip />
+        <el-table-column prop="exception_type" :label="t('projectErrors.exceptionType')" min-width="100" show-overflow-tooltip />
         <el-table-column prop="message" :label="t('projectErrors.message')" min-width="200" show-overflow-tooltip />
         <el-table-column prop="severity" :label="t('projectErrors.severity')" width="100">
           <template #default="{ row }">

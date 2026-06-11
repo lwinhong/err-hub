@@ -42,6 +42,8 @@ export default defineConfig({
     }
   },
   server: {
+    host: '0.0.0.0',
+    port: process.env.PORT || 5170, //这里的端口跟配置开发环境文件# .env.development的端口要一致
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:5000/',

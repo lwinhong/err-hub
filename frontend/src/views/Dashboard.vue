@@ -110,12 +110,7 @@
       <el-table :data="recentErrors" stripe class="dashboard-table" @row-click="goToError">
         <el-table-column prop="exception_type" :label="t('dashboard.exceptionType')" min-width="150" />
         <el-table-column prop="message" :label="t('dashboard.message')" min-width="200" show-overflow-tooltip />
-        <el-table-column prop="project_name" :label="t('dashboard.project')" width="150">
-          <template #default="{ row }">
-            <el-link type="primary" underline="never" @click.stop="filterByProject(row)">{{ row.project_name
-            }}</el-link>
-          </template>
-        </el-table-column>
+        <el-table-column prop="project_name" :label="t('dashboard.project')" width="150" />
         <el-table-column prop="environment" :label="t('dashboard.environment')" width="120">
           <template #default="{ row }">
             <el-tag v-if="row.environment" :type="envTagType(row.environment)" size="small" effect="plain">{{
@@ -368,18 +363,8 @@ const statusLabel = (status) => {
   const map = { unresolved: t('dashboard.unresolved'), resolved: t('dashboard.resolved'), ignored: t('dashboard.ignored') }
   return map[status] || status
 }
-const filterByProject = (row) => {
-  const ids = recentProjectId.value
-  const idx = ids.indexOf(row.project_id)
-  if (idx === -1) {
-    ids.push(row.project_id)
-  } else {
-    ids.splice(idx, 1)
-  }
-  refreshData()
-}
 const goToError = (row) => {
-  router.push(`/errors/${row.id}`)
+  router.push(`/projects/${row.project_id}/errors`)
 }
 
 // ─── data fetching ───
