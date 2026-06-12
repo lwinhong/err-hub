@@ -15,6 +15,15 @@ def login():
     data = request.get_json()
     if not data or not data.get('username') or not data.get('password'):
         return jsonify({'error': 'Username and password are required'}), 400
+    if not data.get('captcha_id'):
+        return jsonify({'error': 'Captcha verification is required'}), 400
+
+    captcha_id = data['captcha_id']
+    store_key = f'captcha_verified:{captcha_id}'
+    if not current_app.redis.get(store_key):
+        return jsonify({'error': 'Captcha verification failed or expired'}), 400
+    current_app.redis.delete(store_key)
+
     user = User.query.filter_by(username=data['username']).first()
     if not user or not user.check_password(data['password']):
         return jsonify({'error': 'Invalid username or password'}), 401

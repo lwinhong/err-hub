@@ -13,6 +13,7 @@ dependencies = [
     "gunicorn==26.0.0",
     "pyjwt==2.13.0",
     "werkzeug==3.1.8",
+    "pillow>=10.0.0",
 ]
 
 [dependency-groups]

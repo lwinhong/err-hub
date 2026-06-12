@@ -12,8 +12,8 @@ export const useAuthStore = defineStore('auth', {
     isAdmin: (state) => state.user?.is_admin === true
   },
   actions: {
-    async login(username, password) {
-      const res = await loginApi(username, password)
+    async login(username, password, captcha_id) {
+      const res = await loginApi(username, password, captcha_id)
       this.token = res.data.access_token
       this.refreshToken = res.data.refresh_token
       localStorage.setItem('token', this.token)

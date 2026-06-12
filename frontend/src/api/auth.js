@@ -1,7 +1,7 @@
 import request from './index'
 
-export function login(username, password) {
-  return request.post('auth/login', { username, password })
+export function login(username, password, captcha_id) {
+  return request.post('auth/login', { username, password, captcha_id })
 }
 
 export function refreshToken(refresh_token) {
