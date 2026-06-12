@@ -268,6 +268,8 @@ async function doLogin(username, password, captchaId) {
 .login-left__logo {
   width: 56px;
   height: 56px;
+  display: block;
+  flex-shrink: 0;
 }
 
 .login-left__title {
@@ -541,52 +543,54 @@ async function doLogin(username, password, captchaId) {
     right: 16px;
   }
 }
+</style>
 
-:global(.dark) .login-left {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e1b4b 100%);
+<style>
+html.dark .login-left {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e1b4b 100%) !important;
 }
 
-:global(.dark) .login-left::before {
-  background: radial-gradient(circle, rgba(129,140,248,0.12) 0%, transparent 60%);
+html.dark .login-left::before {
+  background: radial-gradient(circle, rgba(129,140,248,0.12) 0%, transparent 60%) !important;
 }
 
-:global(.dark) .login-left__content {
+html.dark .login-left__content {
   color: #e2e8f0;
 }
 
-:global(.dark) .login-left__title {
+html.dark .login-left__title {
   color: #f1f5f9;
 }
 
-:global(.dark) .login-left__icon-item span {
+html.dark .login-left__icon-item span {
   color: #94a3b8;
 }
 
-:global(.dark) .icon-circle--red {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: rgba(239, 68, 68, 0.3);
+html.dark .icon-circle--red {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
 }
 
-:global(.dark) .icon-circle--blue {
-  background: rgba(59, 130, 246, 0.15);
-  border-color: rgba(59, 130, 246, 0.3);
+html.dark .icon-circle--blue {
+  background: rgba(59, 130, 246, 0.15) !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
 }
 
-:global(.dark) .icon-circle--green {
-  background: rgba(34, 197, 94, 0.15);
-  border-color: rgba(34, 197, 94, 0.3);
+html.dark .icon-circle--green {
+  background: rgba(34, 197, 94, 0.15) !important;
+  border-color: rgba(34, 197, 94, 0.3) !important;
 }
 
-:global(.dark) .feature-item {
-  background: rgba(30, 41, 59, 0.8);
-  border-color: rgba(51, 65, 85, 0.8);
+html.dark .feature-item {
+  background: rgba(30, 41, 59, 0.8) !important;
+  border-color: rgba(51, 65, 85, 0.8) !important;
 }
 
-:global(.dark) .feature-item svg {
+html.dark .feature-item svg {
   color: #818cf8;
 }
 
-:global(.dark) .feature-item span {
+html.dark .feature-item span {
   color: #cbd5e1;
 }
 </style>
