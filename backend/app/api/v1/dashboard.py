@@ -82,6 +82,7 @@ def overview(**kwargs):
             'id': str(e.id),
             'exception_type': e.exception_type,
             'message': e.message,
+            'count': e.count,
             'severity': e.severity,
             'status': e.status,
             'source': e.source,

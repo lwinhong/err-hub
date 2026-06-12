@@ -110,7 +110,12 @@
       <el-table :data="recentErrors" stripe class="dashboard-table" @row-click="goToError">
         <el-table-column prop="exception_type" :label="t('dashboard.exceptionType')" min-width="150" />
         <el-table-column prop="message" :label="t('dashboard.message')" min-width="200" show-overflow-tooltip />
-        <el-table-column prop="project_name" :label="t('dashboard.project')" width="150" />
+        <el-table-column prop="count" :label="t('dashboard.count')" width="100" />
+        <el-table-column prop="project_name" :label="t('dashboard.project')" width="150">
+          <template #default="{ row }">
+            <el-tag size="small" effect="plain" :type="projectTagType(row.project_name)">{{ row.project_name }}</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column prop="environment" :label="t('dashboard.environment')" width="120">
           <template #default="{ row }">
             <el-tag v-if="row.environment" :type="envTagType(row.environment)" size="small" effect="plain">{{
@@ -362,6 +367,12 @@ const statusType = (status) => {
 const statusLabel = (status) => {
   const map = { unresolved: t('dashboard.unresolved'), resolved: t('dashboard.resolved'), ignored: t('dashboard.ignored') }
   return map[status] || status
+}
+const tagTypes = ['primary', 'success', 'warning', 'danger', 'info']
+const projectTagType = (name) => {
+  let hash = 0
+  for (let i = 0; i < name.length; i++) hash = ((hash << 5) - hash + name.charCodeAt(i)) | 0
+  return tagTypes[Math.abs(hash) % tagTypes.length]
 }
 const goToError = (row) => {
   router.push(`/projects/${row.project_id}/errors`)

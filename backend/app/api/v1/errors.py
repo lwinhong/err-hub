@@ -66,11 +66,16 @@ def create_error():
     if not data or not data.get('exception_type') or not data.get('message'):
         return jsonify({'error': 'exception_type and message are required'}), 400
 
+    context = data.get('context') or {}
+    user = context.get('user', '')
+
     fingerprint = generate_fingerprint(
         data['exception_type'],
         data.get('stack_trace', ''),
         data.get('message', ''),
         data.get('source', 'backend'),
+        ip=client_ip,
+        user=user,
     )
 
     existing = Error.query.filter_by(

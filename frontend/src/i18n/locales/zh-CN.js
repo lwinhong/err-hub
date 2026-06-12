@@ -47,6 +47,7 @@ export default {
     severity: '级别',
     status: '状态',
     lastSeen: '最近出现',
+    count: '异常数量',
     errorCount: '异常数',
     frontend: '前端',
     backend: '后端',

@@ -47,6 +47,7 @@ export default {
     severity: 'Severity',
     status: 'Status',
     lastSeen: 'Last Seen',
+    count: 'Count',
     errorCount: 'Error Count',
     frontend: 'Frontend',
     backend: 'Backend',
