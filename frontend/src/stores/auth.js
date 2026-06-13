@@ -1,39 +1,40 @@
+import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { login as loginApi, getMe } from '../api/auth'
 
-export const useAuthStore = defineStore('auth', {
-  state: () => ({
-    token: localStorage.getItem('token') || '',
-    refreshToken: localStorage.getItem('refreshToken') || '',
-    user: null
-  }),
-  getters: {
-    isAuthenticated: (state) => !!state.token,
-    isAdmin: (state) => state.user?.is_admin === true
-  },
-  actions: {
-    async login(username, password, captcha_id) {
-      const res = await loginApi(username, password, captcha_id)
-      this.token = res.data.access_token
-      this.refreshToken = res.data.refresh_token
-      localStorage.setItem('token', this.token)
-      localStorage.setItem('refreshToken', this.refreshToken)
-      await this.fetchUser()
-    },
-    logout() {
-      this.token = ''
-      this.refreshToken = ''
-      this.user = null
-      localStorage.removeItem('token')
-      localStorage.removeItem('refreshToken')
-    },
-    async fetchUser() {
-      try {
-        const res = await getMe()
-        this.user = res.data
-      } catch {
-        this.logout()
-      }
+export const useAuthStore = defineStore('auth', () => {
+  const token = ref(localStorage.getItem('token') || '')
+  const refreshToken = ref(localStorage.getItem('refreshToken') || '')
+  const user = ref(null)
+
+  const isAuthenticated = computed(() => !!token.value)
+  const isAdmin = computed(() => user.value?.is_admin === true)
+
+  async function login(username, password, captcha_id) {
+    const res = await loginApi(username, password, captcha_id)
+    token.value = res.data.access_token
+    refreshToken.value = res.data.refresh_token
+    localStorage.setItem('token', token.value)
+    localStorage.setItem('refreshToken', refreshToken.value)
+    await fetchUser()
+  }
+
+  function logout() {
+    token.value = ''
+    refreshToken.value = ''
+    user.value = null
+    localStorage.removeItem('token')
+    localStorage.removeItem('refreshToken')
+  }
+
+  async function fetchUser() {
+    try {
+      const res = await getMe()
+      user.value = res.data
+    } catch {
+      logout()
     }
   }
+
+  return { token, refreshToken, user, isAuthenticated, isAdmin, login, logout, fetchUser }
 })

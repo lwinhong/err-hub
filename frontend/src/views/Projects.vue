@@ -3,12 +3,14 @@
     <div class="flex justify-between items-center mb-5 shrink-0 max-sm:flex-col max-sm:items-start max-sm:gap-3">
       <h2 class="m-0 text-xl" style="color: var(--el-text-color-primary)">{{ t('projects.title') }}</h2>
       <el-button v-if="authStore.isAdmin" type="primary" @click="openDialog()">
-        <el-icon><Plus /></el-icon>
+        <el-icon>
+          <Plus />
+        </el-icon>
         {{ t('projects.create') }}
       </el-button>
     </div>
 
-    <el-card shadow="hover" class="flex-1 min-h-0 flex flex-col [&>.el-card__body]:flex-1 [&>.el-card__body]:min-h-0 [&>.el-card__body]:flex [&>.el-card__body]:flex-col">
+    <el-card shadow="hover" class="flex-1 min-h-0 flex flex-col" body-class="flex-1 min-h-0 flex flex-col">
       <div class="flex-1 min-h-0 overflow-hidden">
         <el-table :data="projects" stripe v-loading="loading" height="100%">
           <el-table-column prop="name" :label="t('projects.name')" min-width="150" />
@@ -16,15 +18,19 @@
           <el-table-column :label="t('projects.apiToken')" width="200">
             <template #default="{ row }">
               <div v-if="authStore.isAdmin" class="flex items-center gap-1">
-                <span class="font-mono text-[13px]" style="color: var(--el-text-color-regular)">{{ maskToken(row.api_token) }}</span>
+                <span class="font-mono text-[13px]" style="color: var(--el-text-color-regular)">{{
+                  maskToken(row.api_token) }}</span>
                 <el-button link type="primary" @click="copyToken(row.api_token)">
-                  <el-icon><CopyDocument /></el-icon>
+                  <el-icon>
+                    <CopyDocument />
+                  </el-icon>
                 </el-button>
               </div>
               <span v-else class="font-mono text-[13px]" style="color: var(--el-text-color-regular)">***</span>
             </template>
           </el-table-column>
-          <el-table-column prop="description" :label="t('projects.description')" min-width="200" show-overflow-tooltip />
+          <el-table-column prop="description" :label="t('projects.description')" min-width="200"
+            show-overflow-tooltip />
           <el-table-column :label="t('projects.errorCount')" width="120" align="center">
             <template #default="{ row }">
               <el-button link type="primary" @click="goToErrors(row)">{{ row.error_count ?? 0 }}</el-button>
@@ -36,41 +42,35 @@
           <el-table-column :label="t('projects.actions')" :width="authStore.isAdmin ? 390 : 160" fixed="right">
             <template #default="{ row }">
               <el-button link type="primary" @click="goToErrors(row)">{{ t('projects.viewErrors') }}</el-button>
-              <el-button link type="success" @click="openExampleDialog(row)">{{ t('projects.usageExample') }}</el-button>
+              <el-button link type="success" @click="openExampleDialog(row)">{{ t('projects.usageExample')
+                }}</el-button>
               <template v-if="authStore.isAdmin">
                 <el-button link type="primary" @click="openDialog(row)">{{ t('projects.edit') }}</el-button>
-                <el-button link type="warning" @click="handleRegenerate(row)">{{ t('projects.regenerateToken') }}</el-button>
+                <el-button link type="warning" @click="handleRegenerate(row)">{{ t('projects.regenerateToken')
+                  }}</el-button>
                 <el-button link type="danger" @click="handleDelete(row)">{{ t('projects.delete') }}</el-button>
               </template>
             </template>
           </el-table-column>
         </el-table>
       </div>
-      <div class="flex justify-end mt-4 shrink-0 max-sm:justify-center max-sm:[&_.el-pagination]:flex-wrap max-sm:[&_.el-pagination]:justify-center">
-        <el-pagination
-          v-model:current-page="page"
-          v-model:page-size="pageSize"
-          :total="total"
-          :page-sizes="[10, 20, 50]"
-          layout="total, sizes, prev, pager, next"
-          @size-change="fetchProjects"
-          @current-change="fetchProjects"
-        />
+      <div
+        class="flex justify-end mt-4 shrink-0 max-sm:justify-center max-sm:[&_.el-pagination]:flex-wrap max-sm:[&_.el-pagination]:justify-center">
+        <el-pagination v-model:current-page="page" v-model:page-size="pageSize" :total="total"
+          :page-sizes="[10, 20, 50]" layout="total, sizes, prev, pager, next" @size-change="fetchProjects"
+          @current-change="fetchProjects" />
       </div>
     </el-card>
 
-    <el-dialog
-      v-model="dialogVisible"
-      :title="editingProject ? t('projects.editProject') : t('projects.createProject')"
-      width="500px"
-      destroy-on-close
-    >
+    <el-dialog v-model="dialogVisible" :title="editingProject ? t('projects.editProject') : t('projects.createProject')"
+      width="500px" destroy-on-close>
       <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
         <el-form-item :label="t('projects.projectName')" prop="name">
           <el-input v-model="form.name" :placeholder="t('projects.projectNamePlaceholder')" />
         </el-form-item>
         <el-form-item :label="t('projects.projectDesc')" prop="description">
-          <el-input v-model="form.description" type="textarea" :rows="3" :placeholder="t('projects.projectDescPlaceholder')" />
+          <el-input v-model="form.description" type="textarea" :rows="3"
+            :placeholder="t('projects.projectDescPlaceholder')" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -79,25 +79,18 @@
       </template>
     </el-dialog>
 
-    <el-dialog
-      v-model="exampleDialogVisible"
-      :title="t('projects.exampleTitle', { name: exampleProjectName })"
-      width="920px"
-      destroy-on-close
-    >
-      <el-alert
-        :title="t('projects.exampleAlert')"
-        type="info"
-        :closable="false"
-        show-icon
-        style="margin-bottom: 16px"
-      />
+    <el-dialog v-model="exampleDialogVisible" :title="t('projects.exampleTitle', { name: exampleProjectName })"
+      width="920px" destroy-on-close>
+      <el-alert :title="t('projects.exampleAlert')" type="info" :closable="false" show-icon
+        style="margin-bottom: 16px" />
 
       <el-tabs>
         <el-tab-pane label="cURL">
           <div class="relative">
             <el-button class="absolute top-2 right-2 z-1" link type="primary" @click="copyCode(curlExample)">
-              <el-icon><CopyDocument /></el-icon> {{ t('projects.copy') }}
+              <el-icon>
+                <CopyDocument />
+              </el-icon> {{ t('projects.copy') }}
             </el-button>
             <pre class="code-block">{{ curlExample }}</pre>
           </div>
@@ -105,7 +98,9 @@
         <el-tab-pane label="Python">
           <div class="relative">
             <el-button class="absolute top-2 right-2 z-1" link type="primary" @click="copyCode(pythonExample)">
-              <el-icon><CopyDocument /></el-icon> {{ t('projects.copy') }}
+              <el-icon>
+                <CopyDocument />
+              </el-icon> {{ t('projects.copy') }}
             </el-button>
             <pre class="code-block">{{ pythonExample }}</pre>
           </div>
@@ -113,22 +108,21 @@
         <el-tab-pane label="JavaScript">
           <div class="relative">
             <el-button class="absolute top-2 right-2 z-1" link type="primary" @click="copyCode(jsExample)">
-              <el-icon><CopyDocument /></el-icon> {{ t('projects.copy') }}
+              <el-icon>
+                <CopyDocument />
+              </el-icon> {{ t('projects.copy') }}
             </el-button>
             <pre class="code-block">{{ jsExample }}</pre>
           </div>
         </el-tab-pane>
         <el-tab-pane label="Web SDK">
-          <el-alert
-            :title="t('projects.sdkAlert')"
-            type="success"
-            :closable="false"
-            show-icon
-            style="margin-bottom: 12px"
-          />
+          <el-alert :title="t('projects.sdkAlert')" type="success" :closable="false" show-icon
+            style="margin-bottom: 12px" />
           <div class="relative">
             <el-button class="absolute top-2 right-2 z-1" link type="primary" @click="copyCode(sdkExample)">
-              <el-icon><CopyDocument /></el-icon> {{ t('projects.copy') }}
+              <el-icon>
+                <CopyDocument />
+              </el-icon> {{ t('projects.copy') }}
             </el-button>
             <pre class="code-block">{{ sdkExample }}</pre>
           </div>
@@ -140,7 +134,8 @@
         <el-table-column prop="field" :label="t('projects.field')" width="140" />
         <el-table-column prop="required" :label="t('projects.required')" width="60" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.required ? 'danger' : 'info'" size="small">{{ row.required ? t('projects.yes') : t('projects.no') }}</el-tag>
+            <el-tag :type="row.required ? 'danger' : 'info'" size="small">{{ row.required ? t('projects.yes') :
+              t('projects.no') }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="default" :label="t('projects.defaultValue')" width="100" />
@@ -151,7 +146,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useClipboard } from '@vueuse/core'
@@ -159,16 +154,18 @@ import { Plus, CopyDocument } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getProjects, createProject, updateProject, deleteProject, regenerateToken } from '../api/projects'
 import { useAuthStore } from '../stores/auth'
+import { useSettingsStore } from '../stores/settings'
 
 const router = useRouter()
 const { t } = useI18n()
 const authStore = useAuthStore()
+const settingsStore = useSettingsStore()
 const { copy: clipboardCopy } = useClipboard({ legacy: true })
 
 const loading = ref(false)
 const projects = ref([])
 const page = ref(1)
-const pageSize = ref(10)
+const pageSize = ref(20)
 const total = ref(0)
 
 const dialogVisible = ref(false)
@@ -479,7 +476,7 @@ const handleDelete = (row) => {
     } catch (err) {
       ElMessage.error(err.response?.data?.error || t('projects.deleteFailed'))
     }
-  }).catch(() => {})
+  }).catch(() => { })
 }
 
 const handleRegenerate = (row) => {
@@ -495,7 +492,7 @@ const handleRegenerate = (row) => {
     } catch (err) {
       ElMessage.error(err.response?.data?.error || t('projects.operationFailed'))
     }
-  }).catch(() => {})
+  }).catch(() => { })
 }
 
 const fetchProjects = async () => {
@@ -504,12 +501,19 @@ const fetchProjects = async () => {
     const res = await getProjects({ page: page.value, per_page: pageSize.value })
     projects.value = res.data.items || res.data
     total.value = res.data.total || projects.value.length
-  } catch {} finally {
+  } catch { } finally {
     loading.value = false
   }
 }
 
 onMounted(() => {
+  pageSize.value = settingsStore.defaultPageSize
+  fetchProjects()
+})
+
+watch(() => settingsStore.defaultPageSize, (val) => {
+  pageSize.value = val
+  page.value = 1
   fetchProjects()
 })
 </script>

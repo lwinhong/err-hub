@@ -14,6 +14,7 @@ class DevelopmentConfig:
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
     DATA_RETENTION_DAYS = int(os.environ.get('DATA_RETENTION_DAYS', 90))
+    DEFAULT_PAGE_SIZE = int(os.environ.get('DEFAULT_PAGE_SIZE', 20))
     SUPERADMIN_USERNAME = os.environ.get('SUPERADMIN_USERNAME', 'admin')
     SUPERADMIN_PASSWORD = os.environ.get('SUPERADMIN_PASSWORD', 'admin123')
     # API 滥用防护
@@ -35,6 +36,7 @@ class ProductionConfig:
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
     DATA_RETENTION_DAYS = int(os.environ.get('DATA_RETENTION_DAYS', 90))
+    DEFAULT_PAGE_SIZE = int(os.environ.get('DEFAULT_PAGE_SIZE', 20))
     SUPERADMIN_USERNAME = os.environ.get('SUPERADMIN_USERNAME', 'admin')
     SUPERADMIN_PASSWORD = os.environ.get('SUPERADMIN_PASSWORD', 'admin123')
     # API 滥用防护

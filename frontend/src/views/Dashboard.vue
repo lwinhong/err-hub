@@ -23,6 +23,10 @@
               <div class="text-[13px] mb-1" style="color: var(--el-text-color-secondary)">{{ card.label }}</div>
               <div class="text-2xl max-sm:text-xl font-bold" style="color: var(--el-text-color-primary)">{{ card.value
               }}</div>
+              <div v-if="card.extra" class="text-[11px] mt-0.5 flex items-center gap-1">
+                <span :style="{ color: card.extraColor }">{{ card.extra }}</span>
+                <span style="color: var(--el-text-color-placeholder)">{{ card.extraLabel }}</span>
+              </div>
             </div>
             <div class="w-12 h-12 max-sm:w-10 max-sm:h-10 rounded-[10px] flex items-center justify-center shrink-0"
               :style="{ backgroundColor: card.bg, color: card.color }">
@@ -35,20 +39,31 @@
       </el-col>
     </el-row>
 
-    <!-- 趋势图 -->
-    <el-card shadow="hover" class="mb-4">
-      <template #header>
-        <div class="flex justify-between items-center flex-wrap gap-2 max-sm:flex-col max-sm:items-start">
-          <span class="text-[15px] font-semibold">{{ t('dashboard.errorTrend') }}</span>
-          <el-radio-group v-model="trendDays" size="small" @change="refreshData">
-            <el-radio-button :value="7">{{ t('dashboard.days7') }}</el-radio-button>
-            <el-radio-button :value="14">{{ t('dashboard.days14') }}</el-radio-button>
-            <el-radio-button :value="30">{{ t('dashboard.days30') }}</el-radio-button>
-          </el-radio-group>
-        </div>
-      </template>
-      <v-chart :option="trendOption" style="height: 320px" autoresize />
-    </el-card>
+    <!-- 趋势图 + 环境分布 -->
+    <el-row :gutter="16" class="mb-4 [&>.el-col]:mb-3">
+      <el-col :xs="24" :sm="12">
+        <el-card shadow="hover" class="h-full">
+          <template #header>
+            <div class="flex justify-between items-center flex-wrap gap-2 max-sm:flex-col max-sm:items-start">
+              <span class="text-[15px] font-semibold">{{ t('dashboard.errorTrend') }}</span>
+              <el-radio-group v-model="trendDays" size="small" @change="refreshData">
+                <el-radio-button :value="7">{{ t('dashboard.days7') }}</el-radio-button>
+                <el-radio-button :value="14">{{ t('dashboard.days14') }}</el-radio-button>
+                <el-radio-button :value="30">{{ t('dashboard.days30') }}</el-radio-button>
+              </el-radio-group>
+            </div>
+          </template>
+          <v-chart :option="trendOption" style="height: 300px" autoresize />
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="12">
+        <el-card shadow="hover" class="h-full">
+          <template #header><span class="text-[15px] font-semibold">{{ t('dashboard.environmentDistribution')
+              }}</span></template>
+          <v-chart :option="environmentOption" style="height: 300px" autoresize />
+        </el-card>
+      </el-col>
+    </el-row>
 
     <!-- 分布图 Row -->
     <el-row :gutter="16" class="mb-4 [&>.el-col]:mb-3">
@@ -155,7 +170,8 @@ import { useI18n } from 'vue-i18n'
 import { useDark } from '@vueuse/core'
 import {
   FolderOpened, DataLine, WarningFilled,
-  CircleCloseFilled, AlarmClock, TrendCharts
+  CircleCloseFilled, AlarmClock, TrendCharts,
+  Calendar, Aim
 } from '@element-plus/icons-vue'
 import VChart from 'vue-echarts'
 import { use } from 'echarts/core'
@@ -201,12 +217,43 @@ const statCards = computed(() => {
     ? ((resolved / totalErrors) * 100).toFixed(1) + '%'
     : '-'
 
+  const trend = o.trend || []
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const thisMonday = new Date(today)
+  thisMonday.setDate(today.getDate() - today.getDay() + 1)
+  const lastMonday = new Date(thisMonday)
+  lastMonday.setDate(thisMonday.getDate() - 7)
+
+  let thisWeekCount = 0
+  let lastWeekCount = 0
+  for (const item of trend) {
+    if (!item.date) continue
+    const dateStr = item.date.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(item.date) ? item.date : item.date + 'Z'
+    const d = new Date(dateStr)
+    if (d >= thisMonday) thisWeekCount += item.count
+    else if (d >= lastMonday) lastWeekCount += item.count
+  }
+
+  const weeklyTrendPct = lastWeekCount > 0
+    ? (((thisWeekCount - lastWeekCount) / lastWeekCount) * 100).toFixed(0)
+    : null
+  const weeklyTrendText = weeklyTrendPct !== null
+    ? `${weeklyTrendPct > 0 ? '+' : ''}${weeklyTrendPct}%`
+    : '-'
+
+  const avgDaily = trend.length > 0
+    ? (trend.reduce((s, t) => s + t.count, 0) / trend.length).toFixed(1)
+    : '0'
+
   return [
     { key: 'projects', label: t('dashboard.projectCount'), value: o.project_count || 0, icon: FolderOpened, bg: 'rgba(64,158,255,0.1)', color: '#409eff', route: '/projects' },
     { key: 'total', label: t('dashboard.totalErrors'), value: totalErrors, icon: DataLine, bg: 'rgba(103,194,58,0.1)', color: '#67c23a' },
     { key: 'unresolved', label: t('dashboard.unresolved'), value: unresolved, icon: WarningFilled, bg: 'rgba(245,108,108,0.1)', color: '#f56c6c' },
     { key: 'critical', label: t('dashboard.criticalErrors'), value: o.critical_count || 0, icon: CircleCloseFilled, bg: 'rgba(230,0,0,0.08)', color: '#e60000' },
     { key: 'today', label: t('dashboard.todayNew'), value: o.today_new_count || 0, icon: AlarmClock, bg: 'rgba(230,162,60,0.1)', color: '#e6a23c' },
+    { key: 'weekly', label: t('dashboard.weeklyNew'), value: thisWeekCount, icon: Calendar, bg: 'rgba(103,194,58,0.1)', color: '#67c23a', extra: weeklyTrendText, extraColor: weeklyTrendPct > 0 ? '#f56c6c' : weeklyTrendPct < 0 ? '#67c23a' : '#909399', extraLabel: t('dashboard.weeklyTrend') },
+    { key: 'avg', label: t('dashboard.avgDaily'), value: avgDaily, icon: Aim, bg: 'rgba(144,147,153,0.1)', color: '#909399' },
     { key: 'rate', label: t('dashboard.resolveRate'), value: resolveRate, icon: TrendCharts, bg: 'rgba(144,147,153,0.1)', color: '#909399' },
   ]
 })
@@ -294,6 +341,30 @@ const statusOption = computed(() => {
     name: labelMap[name] || name,
     value,
     itemStyle: { color: colorMap[name] || '#409eff' }
+  }))
+  return {
+    tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+    legend: { bottom: 0, textStyle: { color: chartTextColor.value } },
+    series: [{
+      type: 'pie',
+      radius: ['40%', '70%'],
+      center: ['50%', '45%'],
+      data: pieData,
+      label: { show: false },
+      emphasis: { label: { show: true, fontSize: 14 } }
+    }]
+  }
+})
+
+// ─── environment pie ───
+const environmentOption = computed(() => {
+  const data = distributions.value.by_environment || {}
+  const colorMap = { production: '#e60000', staging: '#e6a23c', development: '#67c23a' }
+  const labelMap = { production: t('dashboard.production'), staging: t('dashboard.staging'), development: t('dashboard.development') }
+  const pieData = Object.entries(data).map(([name, value]) => ({
+    name: labelMap[name] || name,
+    value,
+    itemStyle: { color: colorMap[name] || '#909399' }
   }))
   return {
     tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },

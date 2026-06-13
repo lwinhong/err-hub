@@ -24,10 +24,12 @@
               <span>{{ t('app.projects') }}</span>
             </el-menu-item>
             <el-menu-item v-if="authStore.isAdmin" index="/admin">
-              <el-icon>
-                <Setting />
-              </el-icon>
-              <span>{{ t('app.admin') }}</span>
+              <el-badge :value="t('app.adminBadge')" :offset="[0, 12]">
+                <div class="flex items-center gap-1">
+                  <el-icon><Setting /></el-icon>
+                  <span>{{ t('app.admin') }}</span>
+                </div>
+              </el-badge>
             </el-menu-item>
           </el-menu>
           <div class="flex items-center h-[60px] shrink-0 gap-2">
@@ -46,11 +48,11 @@
               <svg v-if="isDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
               <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             </button>
-            <div
-              class="flex items-center gap-1.5 px-4 h-[36px] cursor-pointer transition-colors text-sm rounded-md hover:bg-[var(--el-fill-color-light)]"
-              style="color: var(--el-text-color-regular)" @click="handleLogout">
-              <span>{{ t('app.logout') }}</span>
-            </div>
+            <el-tooltip :content="t('app.logout')" placement="bottom" :show-after="300">
+              <button class="settings-btn" @click="handleLogout">
+                <el-icon :size="18"><SwitchButton /></el-icon>
+              </button>
+            </el-tooltip>
           </div>
         </div>
         <!-- 移动端：Logo + 汉堡按钮 -->
@@ -131,16 +133,18 @@ import { useRoute, useRouter } from 'vue-router'
 import { useDark, useToggle } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import {
-  DataAnalysis, FolderOpened, Setting, Close, Expand
+  DataAnalysis, FolderOpened, Setting, Close, Expand, SwitchButton
 } from '@element-plus/icons-vue'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import en from 'element-plus/es/locale/lang/en'
 import { useAuthStore } from './stores/auth'
+import { useSettingsStore } from './stores/settings'
 import { STORAGE_KEY, languages } from './i18n'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const settingsStore = useSettingsStore()
 const isDark = useDark()
 const toggleDark = useToggle(isDark)
 const mobileMenuOpen = ref(false)
@@ -170,9 +174,12 @@ watch(locale, () => {
   document.title = `${t('login.title')} - ${t('login.subtitle')}`
 }, { immediate: true })
 
-onMounted(() => {
+onMounted(async () => {
   if (authStore.isAuthenticated && !authStore.user) {
-    authStore.fetchUser()
+    await authStore.fetchUser()
+  }
+  if (authStore.isAuthenticated) {
+    settingsStore.fetchSettings()
   }
 })
 
@@ -201,6 +208,9 @@ const navigateTo = (path) => {
 <style scoped lang="scss">
 :deep(.el-main) {
   --el-main-padding: 0;
+}
+:deep(.el-header) {
+  --el-header-padding: 0;
 }
 
 .app-header {
@@ -268,6 +278,10 @@ const navigateTo = (path) => {
 :deep(.el-dropdown-menu__item.is-active) {
   color: var(--el-color-primary);
   font-weight: 600;
+}
+
+.admin-badge :deep(.el-badge__content) {
+  font-size: 10px;
 }
 
 .hamburger {

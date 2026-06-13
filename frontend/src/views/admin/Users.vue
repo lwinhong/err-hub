@@ -3,80 +3,67 @@
     <div class="flex justify-between items-center mb-5 shrink-0 max-sm:flex-col max-sm:items-start max-sm:gap-3">
       <h2 class="m-0 text-xl" style="color: var(--el-text-color-primary)">{{ t('users.title') }}</h2>
       <el-button type="primary" @click="openDialog()">
-        <el-icon><Plus /></el-icon>
+        <el-icon>
+          <Plus />
+        </el-icon>
         {{ t('users.createUser') }}
       </el-button>
     </div>
 
-    <el-card shadow="hover" class="flex-1 min-h-0 flex flex-col [&>.el-card__body]:flex-1 [&>.el-card__body]:min-h-0 [&>.el-card__body]:flex [&>.el-card__body]:flex-col">
+    <el-card shadow="hover" class="flex-1 min-h-0 flex flex-col" body-class="flex-1 min-h-0 flex flex-col">
       <div class="flex-1 min-h-0 overflow-hidden">
         <el-table :data="users" stripe v-loading="loading" height="100%">
-        <el-table-column prop="username" :label="t('users.username')" min-width="150" />
-        <el-table-column :label="t('users.role')" width="120">
-          <template #default="{ row }">
-            <el-tag :type="row.is_admin ? 'danger' : 'info'" size="small">
-              {{ row.is_admin ? t('users.admin') : t('users.normalUser') }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column :label="t('users.status')" width="100">
-          <template #default="{ row }">
-            <el-tag :type="row.is_active ? 'success' : 'warning'" size="small">
-              {{ row.is_active ? t('users.active') : t('users.inactive') }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="created_at" :label="t('users.createdAt')" width="180">
-          <template #default="{ row }">{{ formatTime(row.created_at) }}</template>
-        </el-table-column>
-        <el-table-column :label="t('users.actions')" width="280" fixed="right">
-          <template #default="{ row }">
-            <el-button link type="primary" @click="openDialog(row)">{{ t('users.edit') }}</el-button>
-            <el-button link type="warning" @click="handleResetPassword(row)">{{ t('users.resetPassword') }}</el-button>
-            <el-button
-              link
-              :type="row.is_active ? 'warning' : 'success'"
-              @click="handleToggleActive(row)"
-            >
-              {{ row.is_active ? t('users.disable') : t('users.enable') }}
-            </el-button>
-            <el-button link type="danger" @click="handleDelete(row)">{{ t('users.deleteUser') }}</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+          <el-table-column prop="username" :label="t('users.username')" min-width="150" />
+          <el-table-column :label="t('users.role')" width="120">
+            <template #default="{ row }">
+              <el-tag :type="row.is_admin ? 'danger' : 'info'" size="small">
+                {{ row.is_admin ? t('users.admin') : t('users.normalUser') }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column :label="t('users.status')" width="100">
+            <template #default="{ row }">
+              <el-tag :type="row.is_active ? 'success' : 'warning'" size="small">
+                {{ row.is_active ? t('users.active') : t('users.inactive') }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="created_at" :label="t('users.createdAt')" width="180">
+            <template #default="{ row }">{{ formatTime(row.created_at) }}</template>
+          </el-table-column>
+          <el-table-column :label="t('users.actions')" width="280" fixed="right">
+            <template #default="{ row }">
+              <el-button link type="primary" @click="openDialog(row)">{{ t('users.edit') }}</el-button>
+              <el-button link type="warning" @click="handleResetPassword(row)">{{ t('users.resetPassword')
+                }}</el-button>
+              <el-button link :type="row.is_active ? 'warning' : 'success'" @click="handleToggleActive(row)">
+                {{ row.is_active ? t('users.disable') : t('users.enable') }}
+              </el-button>
+              <el-button link type="danger" @click="handleDelete(row)">{{ t('users.deleteUser') }}</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
       </div>
-      <div class="flex justify-end mt-4 shrink-0 max-sm:justify-center max-sm:[&_.el-pagination]:flex-wrap max-sm:[&_.el-pagination]:justify-center">
-        <el-pagination
-          v-model:current-page="page"
-          v-model:page-size="pageSize"
-          :total="total"
-          :page-sizes="[10, 20, 50]"
-          layout="total, sizes, prev, pager, next"
-          @size-change="fetchUsers"
-          @current-change="fetchUsers"
-        />
+      <div
+        class="flex justify-end mt-4 shrink-0 max-sm:justify-center max-sm:[&_.el-pagination]:flex-wrap max-sm:[&_.el-pagination]:justify-center">
+        <el-pagination v-model:current-page="page" v-model:page-size="pageSize" :total="total"
+          :page-sizes="[10, 20, 50]" layout="total, sizes, prev, pager, next" @size-change="fetchUsers"
+          @current-change="fetchUsers" />
       </div>
     </el-card>
 
-    <el-dialog
-      v-model="dialogVisible"
-      :title="editingUser ? t('users.editUser') : t('users.createUserTitle')"
-      width="500px"
-      destroy-on-close
-    >
+    <el-dialog v-model="dialogVisible" :title="editingUser ? t('users.editUser') : t('users.createUserTitle')"
+      width="500px" destroy-on-close>
       <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
         <el-form-item :label="t('users.usernameLabel')" prop="username">
           <el-input v-model="form.username" :disabled="!!editingUser" :placeholder="t('users.usernamePlaceholder')" />
         </el-form-item>
         <el-form-item v-if="!editingUser" :label="t('users.passwordLabel')" prop="password">
-          <el-input v-model="form.password" type="password" show-password :placeholder="t('users.passwordPlaceholder')" />
+          <el-input v-model="form.password" type="password" show-password
+            :placeholder="t('users.passwordPlaceholder')" />
         </el-form-item>
         <el-form-item :label="t('users.role')">
-          <el-switch
-            v-model="form.is_admin"
-            :active-text="t('users.admin')"
-            :inactive-text="t('users.normalUser')"
-          />
+          <el-switch v-model="form.is_admin" :active-text="t('users.admin')" :inactive-text="t('users.normalUser')" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -85,38 +72,37 @@
       </template>
     </el-dialog>
 
-    <el-dialog
-      v-model="resetPwdDialogVisible"
-      :title="t('users.resetPwdTitle')"
-      width="420px"
-      destroy-on-close
-    >
+    <el-dialog v-model="resetPwdDialogVisible" :title="t('users.resetPwdTitle')" width="420px" destroy-on-close>
       <el-form ref="resetPwdFormRef" :model="resetPwdForm" :rules="resetPwdRules" label-width="80px">
         <el-form-item :label="t('users.newPassword')" prop="password">
-          <el-input v-model="resetPwdForm.password" type="password" show-password :placeholder="t('users.newPasswordPlaceholder')" />
+          <el-input v-model="resetPwdForm.password" type="password" show-password
+            :placeholder="t('users.newPasswordPlaceholder')" />
         </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="resetPwdDialogVisible = false">{{ t('users.cancel') }}</el-button>
-        <el-button type="primary" :loading="resetPwdSubmitting" @click="handleResetPasswordSubmit">{{ t('users.confirm') }}</el-button>
+        <el-button type="primary" :loading="resetPwdSubmitting" @click="handleResetPasswordSubmit">{{ t('users.confirm')
+          }}</el-button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Plus } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getUsers, createUser, updateUser, resetUserPassword, deleteUser } from '../../api/users'
+import { useSettingsStore } from '../../stores/settings'
 
 const { t } = useI18n()
+const settingsStore = useSettingsStore()
 
 const loading = ref(false)
 const users = ref([])
 const page = ref(1)
-const pageSize = ref(10)
+const pageSize = ref(20)
 const total = ref(0)
 
 const dialogVisible = ref(false)
@@ -242,7 +228,7 @@ const handleDelete = (row) => {
     } catch (err) {
       ElMessage.error(err.response?.data?.error || t('users.deleteFailed'))
     }
-  }).catch(() => {})
+  }).catch(() => { })
 }
 
 const fetchUsers = async () => {
@@ -251,15 +237,21 @@ const fetchUsers = async () => {
     const res = await getUsers({ page: page.value, per_page: pageSize.value })
     users.value = res.data.items || res.data
     total.value = res.data.total || users.value.length
-  } catch {} finally {
+  } catch { } finally {
     loading.value = false
   }
 }
 
 onMounted(() => {
+  pageSize.value = settingsStore.defaultPageSize
+  fetchUsers()
+})
+
+watch(() => settingsStore.defaultPageSize, (val) => {
+  pageSize.value = val
+  page.value = 1
   fetchUsers()
 })
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

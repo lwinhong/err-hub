@@ -3,8 +3,9 @@
     <div class="mb-5 flex items-center justify-between gap-3 flex-wrap min-h-[32px]">
       <el-breadcrumb separator="/" class="!mb-0 text-lg">
         <el-breadcrumb-item :to="{ path: '/projects' }">{{ t('errorDetail.projectList') }}</el-breadcrumb-item>
-        <el-breadcrumb-item :to="{ path: `/projects/${error.project_id}/errors` }">{{ t('errorDetail.errorList')
-          }}</el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path: `/projects/${error.project_id}/errors` }">{{ projectName
+          || t('errorDetail.errorList')
+        }}</el-breadcrumb-item>
         <el-breadcrumb-item>{{ t('errorDetail.errorDetail') }}</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
@@ -23,10 +24,15 @@
       </template>
       <el-descriptions :column="isMobile ? 1 : 2" border>
         <el-descriptions-item :label="t('errorDetail.exceptionType')" :span="2">
-          <code class="font-mono font-semibold px-1.5 py-0.5 rounded-sm" style="color: var(--el-text-color-primary); background-color: var(--el-fill-color-light)">{{ error.exception_type }}</code>
+          <code class="font-mono font-semibold px-1.5 py-0.5 rounded-sm"
+            style="color: var(--el-text-color-primary); background-color: var(--el-fill-color-light)">{{ error.exception_type
+            }}</code>
         </el-descriptions-item>
         <el-descriptions-item :label="t('errorDetail.message')" :span="2">
-          <span class="break-all leading-relaxed" :class="isCodeLike(error.message) ? 'font-mono px-1.5 py-0.5 rounded-sm' : ''" :style="isCodeLike(error.message) ? 'background-color: var(--el-color-danger-light-9); color: var(--el-color-danger)' : ''">{{ error.message }}</span>
+          <span class="break-all leading-relaxed"
+            :class="isCodeLike(error.message) ? 'font-mono px-1.5 py-0.5 rounded-sm' : ''"
+            :style="isCodeLike(error.message) ? 'background-color: var(--el-color-danger-light-9); color: var(--el-color-danger)' : ''">{{
+              error.message }}</span>
         </el-descriptions-item>
         <el-descriptions-item :label="t('errorDetail.severity')">
           <el-tag :type="severityType(error.severity)" :effect="error.severity === 'critical' ? 'dark' : 'light'"
@@ -46,9 +52,9 @@
         <el-descriptions-item :label="t('errorDetail.ipAddress')">{{ error.ip_address || '-' }}</el-descriptions-item>
         <el-descriptions-item :label="t('errorDetail.count')">{{ error.count }}</el-descriptions-item>
         <el-descriptions-item :label="t('errorDetail.firstSeen')">{{ formatTime(error.first_seen_at)
-          }}</el-descriptions-item>
+        }}</el-descriptions-item>
         <el-descriptions-item :label="t('errorDetail.lastSeen')">{{ formatTime(error.last_seen_at)
-          }}</el-descriptions-item>
+        }}</el-descriptions-item>
       </el-descriptions>
 
       <div v-if="authStore.isAdmin" class="mt-5 action-bar">
@@ -70,14 +76,19 @@
       <template #header>
         <span class="text-base font-semibold">{{ t('errorDetail.stackTrace') }}</span>
       </template>
-      <pre class="bg-[#1e1e1e] text-[#d4d4d4] p-4 rounded-md font-mono text-[13px] max-sm:text-xs max-sm:p-3 leading-relaxed overflow-x-auto whitespace-pre-wrap break-all m-0">{{ error.stack_trace || t('errorDetail.noStackTrace') }}</pre>
+      <pre
+        class="bg-[#1e1e1e] text-[#d4d4d4] p-4 rounded-md font-mono text-[13px] max-sm:text-xs max-sm:p-3 leading-relaxed overflow-x-auto whitespace-pre-wrap break-all m-0">
+    {{ error.stack_trace || t('errorDetail.noStackTrace') }}</pre>
     </el-card>
 
     <el-card shadow="hover" class="mb-5">
       <template #header>
         <span class="text-base font-semibold">{{ t('errorDetail.context') }}</span>
       </template>
-      <pre class="p-4 rounded-md font-mono text-[13px] max-sm:text-xs max-sm:p-3 leading-relaxed overflow-x-auto whitespace-pre-wrap break-all m-0" style="background-color: var(--el-fill-color-light); color: var(--el-text-color-primary)">{{ formatContext(error.context) }}</pre>
+      <pre
+        class="p-4 rounded-md font-mono text-[13px] max-sm:text-xs max-sm:p-3 leading-relaxed overflow-x-auto whitespace-pre-wrap break-all m-0"
+        style="background-color: var(--el-fill-color-light); color: var(--el-text-color-primary)">{{
+          formatContext(error.context) }}</pre>
     </el-card>
   </div>
 </template>
@@ -89,6 +100,7 @@ import { useI18n } from 'vue-i18n'
 import { ArrowLeft } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { getError, updateError } from '../api/errors'
+import { getProject } from '../api/projects'
 import { formatTime } from '../utils/format'
 import { useAuthStore } from '../stores/auth'
 
@@ -99,6 +111,7 @@ const authStore = useAuthStore()
 const errorId = route.params.id
 
 const error = ref({})
+const projectName = ref('')
 
 const windowWidth = ref(window.innerWidth)
 const isMobile = computed(() => windowWidth.value < 768)
@@ -169,6 +182,12 @@ const fetchError = async () => {
   try {
     const res = await getError(errorId)
     error.value = res.data
+    if (res.data.project_id) {
+      try {
+        const projRes = await getProject(res.data.project_id)
+        projectName.value = projRes.data.name
+      } catch { }
+    }
   } catch { }
 }
 </script>

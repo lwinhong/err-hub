@@ -58,7 +58,7 @@
       </div>
     </el-card>
 
-    <el-card shadow="hover" class="flex-1 min-h-0 flex flex-col [&>.el-card__body]:flex-1 [&>.el-card__body]:min-h-0 [&>.el-card__body]:flex [&>.el-card__body]:flex-col">
+    <el-card shadow="hover" class="flex-1 min-h-0 flex flex-col" body-class="flex-1 min-h-0 flex flex-col">
       <div class="flex-1 min-h-0 overflow-hidden">
         <el-table :data="errors" stripe v-loading="loading" @row-click="goToError" @selection-change="handleSelectionChange" height="100%">
         <el-table-column v-if="authStore.isAdmin" type="selection" width="45" @click.stop />
@@ -122,11 +122,13 @@ import { getProject, getProjects } from '../api/projects'
 import { formatTime } from '../utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useAuthStore } from '../stores/auth'
+import { useSettingsStore } from '../stores/settings'
 
 const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
 const authStore = useAuthStore()
+const settingsStore = useSettingsStore()
 const projectId = computed(() => route.params.id)
 
 const projectName = ref('')
@@ -135,7 +137,7 @@ const loading = ref(false)
 const errors = ref([])
 const selectedIds = ref([])
 const page = ref(1)
-const pageSize = ref(10)
+const pageSize = ref(20)
 const total = ref(0)
 
 const filters = reactive({
@@ -248,7 +250,14 @@ watch(() => route.params.id, () => {
   fetchErrors()
 })
 
+watch(() => settingsStore.defaultPageSize, (val) => {
+  pageSize.value = val
+  page.value = 1
+  fetchErrors()
+})
+
 onMounted(() => {
+  pageSize.value = settingsStore.defaultPageSize
   fetchProjects()
   fetchProject()
   fetchErrors()

@@ -14,6 +14,12 @@ SETTING_SCHEMA = {
         'max': 3650,
         'description': '异常数据保留天数，超出后自动清理',
     },
+    'default_page_size': {
+        'type': int,
+        'min': 10,
+        'max': 100,
+        'description': '列表默认每页显示条数',
+    },
 }
 
 
