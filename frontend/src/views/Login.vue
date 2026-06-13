@@ -1,51 +1,58 @@
 <template>
   <div class="login-page">
+    <!-- 左侧品牌区 -->
     <div class="login-left">
+      <div class="login-left__bg">
+        <div class="bg-orb bg-orb-1"></div>
+        <div class="bg-orb bg-orb-2"></div>
+        <div class="bg-orb bg-orb-3"></div>
+        <div class="bg-grid"></div>
+      </div>
       <div class="login-left__content">
         <div class="login-left__brand">
-          <img src="/favicon.svg" alt="ErrHub" class="login-left__logo" />
-          <h1 class="login-left__title">ErrHub</h1>
+          <div class="brand-logo">
+            <img src="/favicon.svg" alt="ErrHub" class="brand-logo__img" />
+          </div>
+          <h1 class="brand-title">ErrHub</h1>
         </div>
-        <div class="login-left__hero">
-          <div class="login-left__icon-row">
-            <div class="login-left__icon-item">
-              <div class="icon-circle icon-circle--red">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-              </div>
-              <span>{{ t('login.feature1Title') }}</span>
+
+        <p class="brand-tagline">{{ t('login.subtitle') }}</p>
+
+        <div class="feature-cards">
+          <div class="feature-card card-red">
+            <div class="feature-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
             </div>
-            <div class="login-left__icon-item">
-              <div class="icon-circle icon-circle--blue">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-              </div>
-              <span>{{ t('login.feature2Title') }}</span>
-            </div>
-            <div class="login-left__icon-item">
-              <div class="icon-circle icon-circle--green">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              </div>
-              <span>{{ t('login.feature3Title') }}</span>
+            <div class="feature-card__text">
+              <span class="feature-card__title">{{ t('login.feature1Title') }}</span>
+              <span class="feature-card__desc">{{ t('login.feature1Desc') }}</span>
             </div>
           </div>
-        </div>
-        <div class="login-left__features">
-          <div class="feature-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-            <span>{{ t('login.feature1Desc') }}</span>
+          <div class="feature-card card-blue">
+            <div class="feature-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <div class="feature-card__text">
+              <span class="feature-card__title">{{ t('login.feature2Title') }}</span>
+              <span class="feature-card__desc">{{ t('login.feature2Desc') }}</span>
+            </div>
           </div>
-          <div class="feature-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            <span>{{ t('login.feature2Desc') }}</span>
-          </div>
-          <div class="feature-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span>{{ t('login.feature3Desc') }}</span>
+          <div class="feature-card card-green">
+            <div class="feature-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div class="feature-card__text">
+              <span class="feature-card__title">{{ t('login.feature3Title') }}</span>
+              <span class="feature-card__desc">{{ t('login.feature3Desc') }}</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- 右侧登录区 -->
     <div class="login-right">
+      <!-- 设置按钮 -->
       <div class="login-settings">
         <el-dropdown trigger="click" @command="handleLangChange">
           <button class="settings-btn">
@@ -53,12 +60,7 @@
           </button>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item
-                v-for="lang in languages"
-                :key="lang.code"
-                :command="lang.code"
-                :class="{ 'is-active': locale === lang.code }"
-              >
+              <el-dropdown-item v-for="lang in languages" :key="lang.code" :command="lang.code" :class="{ 'is-active': locale === lang.code }">
                 {{ lang.label }}
               </el-dropdown-item>
             </el-dropdown-menu>
@@ -69,54 +71,61 @@
           <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
       </div>
+
       <div class="login-form-wrapper">
+        <!-- Logo (移动端) -->
+        <div class="mobile-brand">
+          <img src="/favicon.svg" alt="ErrHub" class="mobile-brand__img" />
+          <span class="mobile-brand__name">ErrHub</span>
+        </div>
+
         <div class="login-form-header">
           <h2>{{ t('login.welcome') }}</h2>
           <p>{{ t('login.subtitle') }}</p>
         </div>
 
-        <div v-if="!showCaptcha">
-          <el-form
-            ref="formRef"
-            :model="form"
-            :rules="rules"
-            label-position="top"
-            @submit.prevent="handleLogin"
-            class="login-form"
-          >
-            <el-form-item :label="t('login.username')" prop="username">
-              <el-input
+        <!-- 登录表单 -->
+        <div v-if="!showCaptcha" class="login-form-body">
+          <div class="input-group">
+            <label class="input-label">{{ t('login.username') }}</label>
+            <div class="input-wrapper">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="input-icon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input
                 v-model="form.username"
                 :placeholder="t('login.usernamePlaceholder')"
-                :prefix-icon="User"
-                size="large"
-              />
-            </el-form-item>
-            <el-form-item :label="t('login.password')" prop="password">
-              <el-input
-                v-model="form.password"
-                type="password"
-                :placeholder="t('login.passwordPlaceholder')"
-                :prefix-icon="Lock"
-                size="large"
-                show-password
+                class="login-input"
                 @keyup.enter="handleLogin"
               />
-            </el-form-item>
-            <el-form-item>
-              <el-button
-                type="primary"
-                size="large"
-                :loading="loading"
-                class="w-full login-btn"
-                @click="handleLogin"
-              >
-                {{ t('login.submit') }}
-              </el-button>
-            </el-form-item>
-          </el-form>
+            </div>
+            <span v-if="errors.username" class="input-error">{{ errors.username }}</span>
+          </div>
+
+          <div class="input-group">
+            <label class="input-label">{{ t('login.password') }}</label>
+            <div class="input-wrapper">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="input-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <input
+                v-model="form.password"
+                :type="showPwd ? 'text' : 'password'"
+                :placeholder="t('login.passwordPlaceholder')"
+                class="login-input"
+                @keyup.enter="handleLogin"
+              />
+              <button class="pwd-toggle" @click="showPwd = !showPwd" type="button">
+                <svg v-if="!showPwd" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+            <span v-if="errors.password" class="input-error">{{ errors.password }}</span>
+          </div>
+
+          <button class="login-btn" :class="{ loading }" :disabled="loading" @click="handleLogin">
+            <span v-if="loading" class="btn-spinner"></span>
+            <span v-else>{{ t('login.submit') }}</span>
+          </button>
         </div>
 
+        <!-- 验证码 -->
         <div v-else class="captcha-inline">
           <div class="captcha-inline__header">
             <button class="captcha-inline__back" @click="cancelCaptcha">
@@ -140,7 +149,6 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useDark, useToggle } from '@vueuse/core'
-import { User, Lock } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { useAuthStore } from '../stores/auth'
 import { STORAGE_KEY, languages } from '../i18n'
@@ -152,10 +160,10 @@ const authStore = useAuthStore()
 const isDark = useDark()
 const toggleDark = useToggle(isDark)
 
-const formRef = ref(null)
 const captchaRef = ref(null)
 const loading = ref(false)
 const showCaptcha = ref(false)
+const showPwd = ref(false)
 const pendingLoginData = ref(null)
 
 const form = reactive({
@@ -163,9 +171,15 @@ const form = reactive({
   password: ''
 })
 
-const rules = {
-  username: [{ required: true, message: t('login.usernameRequired'), trigger: 'blur' }],
-  password: [{ required: true, message: t('login.passwordRequired'), trigger: 'blur' }]
+const errors = reactive({
+  username: '',
+  password: ''
+})
+
+const validate = () => {
+  errors.username = form.username ? '' : t('login.usernameRequired')
+  errors.password = form.password ? '' : t('login.passwordRequired')
+  return !errors.username && !errors.password
 }
 
 const handleLangChange = (lang) => {
@@ -177,16 +191,11 @@ const handleToggleDark = () => {
   const root = document.documentElement
   root.classList.add('theme-transition')
   toggleDark()
-  setTimeout(() => {
-    root.classList.remove('theme-transition')
-  }, 350)
+  setTimeout(() => root.classList.remove('theme-transition'), 350)
 }
 
 async function handleLogin() {
-  if (!formRef.value) return
-  const valid = await formRef.value.validate().catch(() => false)
-  if (!valid) return
-
+  if (!validate()) return
   pendingLoginData.value = { username: form.username, password: form.password }
   showCaptcha.value = true
 }
@@ -224,146 +233,191 @@ async function doLogin(username, password, captchaId) {
   background: var(--el-bg-color-page);
 }
 
+/* ── 左侧品牌区 ── */
 .login-left {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 60px;
-  background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 50%, #dbeafe 100%);
   position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+}
+
+.login-left__bg {
+  position: absolute;
+  inset: 0;
   overflow: hidden;
 }
 
-.login-left::before {
-  content: '';
+.bg-orb {
   position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 60%);
-  animation: float 20s ease-in-out infinite;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
 }
 
-@keyframes float {
+.bg-orb-1 {
+  width: 400px;
+  height: 400px;
+  background: #6366f1;
+  top: -100px;
+  right: -100px;
+  animation: float1 15s ease-in-out infinite;
+}
+
+.bg-orb-2 {
+  width: 300px;
+  height: 300px;
+  background: #ec4899;
+  bottom: -50px;
+  left: -50px;
+  animation: float2 18s ease-in-out infinite;
+}
+
+.bg-orb-3 {
+  width: 200px;
+  height: 200px;
+  background: #22d3ee;
+  top: 50%;
+  left: 50%;
+  animation: float3 12s ease-in-out infinite;
+}
+
+@keyframes float1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-40px, 40px); }
+}
+
+@keyframes float2 {
   0%, 100% { transform: translate(0, 0); }
   50% { transform: translate(30px, -30px); }
+}
+
+@keyframes float3 {
+  0%, 100% { transform: translate(-50%, -50%); }
+  50% { transform: translate(-50%, -50%) scale(1.2); }
+}
+
+.bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
 }
 
 .login-left__content {
   position: relative;
   z-index: 1;
-  max-width: 480px;
-  color: #334155;
+  max-width: 460px;
 }
 
 .login-left__brand {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 48px;
+  margin-bottom: 16px;
 }
 
-.login-left__logo {
+.brand-logo {
   width: 56px;
   height: 56px;
-  display: block;
-  flex-shrink: 0;
-}
-
-.login-left__title {
-  font-size: 36px;
-  font-weight: 700;
-  margin: 0;
-  letter-spacing: -0.5px;
-  color: #1e293b;
-}
-
-.login-left__hero {
-  margin-bottom: 48px;
-}
-
-.login-left__icon-row {
-  display: flex;
-  gap: 24px;
-}
-
-.login-left__icon-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.login-left__icon-item span {
-  font-size: 13px;
-  color: #475569;
-  font-weight: 500;
-}
-
-.icon-circle {
-  width: 64px;
-  height: 64px;
-  border-radius: 16px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.15);
 }
 
-.icon-circle svg {
-  width: 28px;
-  height: 28px;
+.brand-logo__img {
+  width: 36px;
+  height: 36px;
+  display: block;
 }
 
-.icon-circle--red {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
+.brand-title {
+  font-size: 36px;
+  font-weight: 700;
+  margin: 0;
+  color: #fff;
+  letter-spacing: -0.5px;
 }
 
-.icon-circle--blue {
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  color: #2563eb;
+.brand-tagline {
+  font-size: 16px;
+  color: rgba(255,255,255,0.6);
+  margin: 0 0 48px;
+  line-height: 1.6;
 }
 
-.icon-circle--green {
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  color: #16a34a;
-}
-
-.login-left__features {
+/* ── 特性卡片 ── */
+.feature-cards {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
-.feature-item {
+.feature-card {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: all 0.3s;
 }
 
-.feature-item svg {
-  width: 20px;
-  height: 20px;
+.feature-card:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.15);
+  transform: translateX(4px);
+}
+
+.feature-card__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  color: #6366f1;
 }
 
-.feature-item span {
+.feature-card__icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.card-red .feature-card__icon { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+.card-blue .feature-card__icon { background: rgba(99, 102, 241, 0.2); color: #818cf8; }
+.card-green .feature-card__icon { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+
+.feature-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.feature-card__title {
   font-size: 14px;
-  color: #475569;
-  line-height: 1.5;
+  font-weight: 600;
+  color: #fff;
 }
 
+.feature-card__desc {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.4;
+}
+
+/* ── 右侧登录区 ── */
 .login-right {
   width: 480px;
   display: flex;
@@ -371,7 +425,7 @@ async function doLogin(username, password, captchaId) {
   align-items: center;
   justify-content: center;
   padding: 60px;
-  background: var(--el-bg-color-overlay);
+  background: #ffffff;
   position: relative;
 }
 
@@ -389,23 +443,24 @@ async function doLogin(username, password, captchaId) {
   justify-content: center;
   width: 36px;
   height: 36px;
-  border: 1px solid var(--el-border-color-lighter);
-  background: var(--el-fill-color-blank);
-  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 10px;
   cursor: pointer;
   padding: 0;
   transition: all 0.2s;
+  color: #64748b;
 }
 
 .settings-btn:hover {
-  background: var(--el-fill-color);
-  border-color: var(--el-border-color);
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #6366f1;
 }
 
 .settings-btn svg {
   width: 18px;
   height: 18px;
-  color: var(--el-text-color-regular);
 }
 
 .settings-btn:active {
@@ -422,40 +477,170 @@ async function doLogin(username, password, captchaId) {
   max-width: 360px;
 }
 
+/* ── 移动端品牌 ── */
+.mobile-brand {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.mobile-brand__img {
+  width: 40px;
+  height: 40px;
+}
+
+.mobile-brand__name {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
 .login-form-header {
-  margin-bottom: 40px;
+  margin-bottom: 36px;
+  text-align: center;
 }
 
 .login-form-header h2 {
   font-size: 28px;
   font-weight: 700;
-  margin: 0 0 8px 0;
-  color: var(--el-text-color-primary);
+  margin: 0 0 8px;
+  color: #1e293b;
 }
 
 .login-form-header p {
   font-size: 14px;
   margin: 0;
-  color: var(--el-text-color-secondary);
+  color: #94a3b8;
 }
 
-.login-form {
-  width: 100%;
+/* ── 输入框 ── */
+.input-group {
+  margin-bottom: 20px;
 }
 
-.login-btn {
+.input-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 8px;
+}
+
+.input-wrapper {
+  display: flex;
+  align-items: center;
   height: 48px;
-  font-size: 16px;
-  margin-top: 8px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  transition: all 0.2s;
 }
 
-.login-form-footer {
-  margin-top: 32px;
-  text-align: center;
+.input-wrapper:focus-within {
+  border-color: #6366f1;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.input-icon {
+  width: 18px;
+  height: 18px;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.login-input {
+  flex: 1;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+  color: #1e293b;
+  padding: 0 12px;
+}
+
+.login-input::placeholder {
+  color: #cbd5e1;
+}
+
+.pwd-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 6px;
+  color: #94a3b8;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.pwd-toggle:hover {
+  color: #64748b;
+  background: #f1f5f9;
+}
+
+.input-error {
+  display: block;
   font-size: 12px;
-  color: var(--el-text-color-placeholder);
+  color: #ef4444;
+  margin-top: 6px;
 }
 
+/* ── 登录按钮 ── */
+.login-btn {
+  width: 100%;
+  height: 48px;
+  margin-top: 8px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.25s;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+}
+
+.login-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.4);
+}
+
+.login-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.login-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── 验证码 ── */
 .captcha-inline {
   padding: 20px 0;
 }
@@ -463,7 +648,7 @@ async function doLogin(username, password, captchaId) {
 .captcha-inline__header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 16px;
 }
 
@@ -471,32 +656,42 @@ async function doLogin(username, password, captchaId) {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: none;
-  background: var(--el-fill-color-light);
-  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 8px;
   cursor: pointer;
   padding: 0;
-  transition: background 0.2s;
+  transition: all 0.2s;
+  color: #64748b;
 }
 
 .captcha-inline__back:hover {
-  background: var(--el-fill-color);
+  border-color: #cbd5e1;
+  color: #6366f1;
 }
 
 .captcha-inline__back svg {
   width: 16px;
   height: 16px;
-  color: var(--el-text-color-regular);
 }
 
 .captcha-inline__title {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
-  color: var(--el-text-color-primary);
+  color: #1e293b;
 }
 
+/* ── 底部 ── */
+.login-form-footer {
+  margin-top: 32px;
+  text-align: center;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* ── 响应式 ── */
 @media (max-width: 900px) {
   .login-page {
     flex-direction: column;
@@ -511,26 +706,20 @@ async function doLogin(username, password, captchaId) {
     max-width: 100%;
   }
 
-  .login-left__title {
+  .brand-title {
     font-size: 28px;
   }
 
-  .login-left__icon-row {
-    gap: 16px;
+  .brand-tagline {
+    margin-bottom: 24px;
   }
 
-  .icon-circle {
-    width: 52px;
-    height: 52px;
+  .feature-cards {
+    gap: 10px;
   }
 
-  .icon-circle svg {
-    width: 24px;
-    height: 24px;
-  }
-
-  .login-left__features {
-    display: none;
+  .feature-card {
+    padding: 12px 16px;
   }
 
   .login-right {
@@ -538,59 +727,68 @@ async function doLogin(username, password, captchaId) {
     padding: 40px 24px;
   }
 
+  .mobile-brand {
+    display: flex;
+  }
+
   .login-settings {
     top: 16px;
     right: 16px;
   }
 }
-</style>
 
-<style>
-html.dark .login-left {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e1b4b 100%) !important;
+/* ── 暗色主题 ── */
+:deep(html.dark) .login-left {
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%) !important;
 }
 
-html.dark .login-left::before {
-  background: radial-gradient(circle, rgba(129,140,248,0.12) 0%, transparent 60%) !important;
+:deep(html.dark) .bg-orb-1 { background: #818cf8; }
+:deep(html.dark) .bg-orb-2 { background: #f472b6; }
+:deep(html.dark) .bg-orb-3 { background: #22d3ee; }
+
+:deep(html.dark) .login-right {
+  background: #1a1a2e !important;
 }
 
-html.dark .login-left__content {
-  color: #e2e8f0;
+:deep(html.dark) .login-form-header h2 { color: #f1f5f9 !important; }
+:deep(html.dark) .login-form-header p { color: #94a3b8 !important; }
+:deep(html.dark) .input-label { color: #e2e8f0 !important; }
+
+:deep(html.dark) .input-wrapper {
+  background: #16213e !important;
+  border-color: #2d3a5a !important;
 }
 
-html.dark .login-left__title {
-  color: #f1f5f9;
+:deep(html.dark) .input-wrapper:focus-within {
+  background: #16213e !important;
+  border-color: #818cf8 !important;
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.15) !important;
 }
 
-html.dark .login-left__icon-item span {
-  color: #94a3b8;
+:deep(html.dark) .login-input { color: #f1f5f9 !important; }
+:deep(html.dark) .login-input::placeholder { color: #64748b !important; }
+:deep(html.dark) .input-icon { color: #64748b !important; }
+:deep(html.dark) .pwd-toggle { color: #64748b !important; }
+:deep(html.dark) .pwd-toggle:hover { color: #94a3b8 !important; background: #1e293b !important; }
+
+:deep(html.dark) .settings-btn {
+  background: #16213e !important;
+  border-color: #2d3a5a !important;
+  color: #94a3b8 !important;
 }
 
-html.dark .icon-circle--red {
-  background: rgba(239, 68, 68, 0.15) !important;
-  border-color: rgba(239, 68, 68, 0.3) !important;
+:deep(html.dark) .settings-btn:hover {
+  background: #1e293b !important;
+  border-color: #475569 !important;
 }
 
-html.dark .icon-circle--blue {
-  background: rgba(59, 130, 246, 0.15) !important;
-  border-color: rgba(59, 130, 246, 0.3) !important;
+:deep(html.dark) .captcha-inline__back {
+  background: #16213e !important;
+  border-color: #2d3a5a !important;
+  color: #94a3b8 !important;
 }
 
-html.dark .icon-circle--green {
-  background: rgba(34, 197, 94, 0.15) !important;
-  border-color: rgba(34, 197, 94, 0.3) !important;
-}
-
-html.dark .feature-item {
-  background: rgba(30, 41, 59, 0.8) !important;
-  border-color: rgba(51, 65, 85, 0.8) !important;
-}
-
-html.dark .feature-item svg {
-  color: #818cf8;
-}
-
-html.dark .feature-item span {
-  color: #cbd5e1;
-}
+:deep(html.dark) .captcha-inline__title { color: #f1f5f9 !important; }
+:deep(html.dark) .login-form-footer { color: #64748b !important; }
+:deep(html.dark) .mobile-brand__name { color: #f1f5f9 !important; }
 </style>

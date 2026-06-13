@@ -166,6 +166,19 @@ def list_errors(project_id, **kwargs):
 
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
 
+    def _extract_user(ctx):
+        if not ctx:
+            return ''
+        try:
+            data = ctx if isinstance(ctx, dict) else {}
+            user = data.get('user', '')
+            user_name = data.get('userName', '')
+            if user and user_name and user != user_name:
+                return f'{user}（{user_name}）'
+            return user or user_name
+        except Exception:
+            return ''
+
     return jsonify({
         'items': [
             {
@@ -180,6 +193,7 @@ def list_errors(project_id, **kwargs):
                 'status': e.status,
                 'first_seen_at': e.first_seen_at.isoformat(),
                 'last_seen_at': e.last_seen_at.isoformat(),
+                'user': _extract_user(e.context),
             }
             for e in pagination.items
         ],

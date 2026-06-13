@@ -1,5 +1,17 @@
 <template>
   <div class="captcha-slider" :class="{ 'is-success': verified, 'is-loading': loading, 'is-blocked': blocked }">
+    <!-- 头部工具栏 -->
+    <div class="captcha-header">
+      <span class="captcha-header__title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        {{ t('captcha.title') }}
+      </span>
+      <button v-if="!verified && !blocked" class="captcha-refresh" @click="refresh" :disabled="loading">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" :class="{ spinning: loading }"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+      </button>
+    </div>
+
+    <!-- 图片区域 -->
     <div v-if="!verified && !blocked" class="captcha-slider__track" :style="{ width: imgWidth + 'px', height: imgHeight + 'px' }">
       <img
         v-if="bgImageSrc"
@@ -8,6 +20,9 @@
         :style="{ width: imgWidth + 'px', height: imgHeight + 'px' }"
         draggable="false"
       />
+      <div v-else class="captcha-loading">
+        <div class="captcha-loading__spinner"></div>
+      </div>
       <div
         v-if="slideImageSrc"
         class="captcha-slider__piece"
@@ -20,26 +35,44 @@
         }"
       />
     </div>
+
+    <!-- 滑动条 -->
     <div v-if="!verified && !blocked" class="captcha-slider__bar" :style="{ width: imgWidth + 'px' }">
+      <div class="captcha-slider__track-line"></div>
       <div
         class="captcha-slider__handle"
         :style="{ left: handleLeft + 'px', cursor: cooldown > 0 ? 'not-allowed' : 'grab' }"
         @mousedown="onDragStart"
         @touchstart.prevent="onDragStart"
-      />
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="captcha-slider__progress" :style="{ width: (handleLeft / (barWidth - handleSize) * 100) + '%' }"></div>
       <span v-if="cooldown > 0" class="captcha-slider__text captcha-slider__text--warning">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         {{ t('captcha.cooldown', { seconds: cooldown }) }}
       </span>
       <span v-else class="captcha-slider__text">{{ t('captcha.slideToVerify') }}</span>
     </div>
+
+    <!-- 被封锁 -->
     <div v-if="blocked" class="captcha-slider__blocked">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <div class="blocked-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </div>
       <span>{{ t('captcha.blocked') }}</span>
+      <button class="blocked-retry" @click="refresh">{{ t('captcha.retry') }}</button>
     </div>
+
+    <!-- 验证成功 -->
     <div v-if="verified" class="captcha-slider__success" :style="{ width: imgWidth + 'px' }">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
       {{ t('captcha.verified') }}
     </div>
+
+    <!-- 失败警告 -->
     <div v-if="!verified && !blocked && failCount > 0" class="captcha-slider__warning">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       {{ t('captcha.failCount', { count: failCount }) }}
     </div>
   </div>
@@ -93,8 +126,9 @@ async function loadCaptcha() {
     imgHeight.value = data.img_height || 160
     slideSize.value = data.slide_size || 48
     barWidth.value = data.img_width || 320
-    loading.value = false
   } catch {
+    // keep previous state
+  } finally {
     loading.value = false
   }
 }
@@ -216,21 +250,90 @@ onMounted(() => {
 <style scoped>
 .captcha-slider {
   width: 320px;
-  border: 1px solid var(--el-border-color);
-  border-radius: 6px;
-  background: var(--el-fill-color-light);
+  border-radius: 14px;
+  background: var(--el-bg-color);
+  border: 1px solid var(--el-border-color-lighter);
+  overflow: hidden;
   user-select: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
+/* ── 头部 ── */
+.captcha-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--el-border-color-lighter);
+}
+
+.captcha-header__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+}
+
+.captcha-refresh {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--el-border-color-lighter);
+  background: var(--el-fill-color-blank);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--el-text-color-secondary);
+  transition: all 0.2s;
+}
+
+.captcha-refresh:hover:not(:disabled) {
+  border-color: var(--el-color-primary);
+  color: var(--el-color-primary);
+  background: rgba(var(--el-color-primary-rgb), 0.04);
+}
+
+.captcha-refresh:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.captcha-refresh svg.spinning {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── 图片区域 ── */
 .captcha-slider__track {
   position: relative;
   overflow: hidden;
-  border-radius: 6px 6px 0 0;
+  background: var(--el-fill-color-light);
 }
 
 .captcha-slider__bg {
   display: block;
   pointer-events: none;
+}
+
+.captcha-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.captcha-loading__spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--el-border-color-lighter);
+  border-top-color: var(--el-color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
 .captcha-slider__piece {
@@ -239,49 +342,67 @@ onMounted(() => {
   background-repeat: no-repeat;
   pointer-events: none;
   z-index: 2;
-  filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.3));
+  border-radius: 4px;
 }
 
+/* ── 滑动条 ── */
 .captcha-slider__bar {
   position: relative;
-  height: 44px;
-  background: var(--el-fill-color-blank);
+  height: 48px;
+  background: var(--el-fill-color-light);
   border-top: 1px solid var(--el-border-color-lighter);
-  border-radius: 0 0 6px 6px;
+}
+
+.captcha-slider__track-line {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  right: 16px;
+  height: 2px;
+  background: var(--el-border-color-lighter);
+  border-radius: 1px;
+  transform: translateY(-50%);
+}
+
+.captcha-slider__progress {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  height: 2px;
+  background: var(--el-color-primary);
+  border-radius: 1px;
+  transform: translateY(-50%);
+  transition: width 0.05s;
+  opacity: 0.4;
 }
 
 .captcha-slider__handle {
   position: absolute;
-  top: 3px;
+  top: 50%;
   left: 0;
   width: 42px;
   height: 38px;
-  background: var(--el-color-primary);
-  border-radius: 4px;
+  margin-top: -19px;
+  background: linear-gradient(135deg, var(--el-color-primary), var(--el-color-primary-light-3));
+  border-radius: 10px;
   cursor: grab;
   z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(var(--el-color-primary-rgb), 0.3);
+  transition: box-shadow 0.2s, transform 0.1s;
 }
 
 .captcha-slider__handle:hover {
-  background: var(--el-color-primary-light-3);
+  box-shadow: 0 4px 16px rgba(var(--el-color-primary-rgb), 0.4);
 }
 
 .captcha-slider__handle:active {
   cursor: grabbing;
-}
-
-.captcha-slider__handle::after {
-  content: '';
-  width: 14px;
-  height: 14px;
-  border-right: 2px solid #fff;
-  border-bottom: 2px solid #fff;
-  transform: rotate(-45deg);
-  margin-left: -2px;
+  transform: scale(1.05);
 }
 
 .captcha-slider__text {
@@ -293,6 +414,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   color: var(--el-text-color-placeholder);
   font-size: 13px;
   pointer-events: none;
@@ -300,58 +422,89 @@ onMounted(() => {
 
 .captcha-slider__text--warning {
   color: var(--el-color-danger);
+  font-weight: 600;
+}
+
+/* ── 警告 ── */
+.captcha-slider__warning {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: rgba(239, 68, 68, 0.06);
+  border-top: 1px solid rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  font-size: 12px;
   font-weight: 500;
 }
 
-.captcha-slider__warning {
-  padding: 6px 12px;
-  background: #fef2f2;
-  border-top: 1px solid #fecaca;
-  color: #dc2626;
-  font-size: 12px;
-  border-radius: 0 0 6px 6px;
+/* ── 被封锁 ── */
+.captcha-slider__blocked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px 16px;
+  background: rgba(239, 68, 68, 0.04);
+  color: #ef4444;
+  font-size: 13px;
+  font-weight: 500;
 }
 
-.captcha-slider__blocked {
+.blocked-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.blocked-retry {
+  padding: 6px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.06);
+  color: #ef4444;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 4px;
+}
+
+.blocked-retry:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* ── 成功 ── */
+.captcha-slider__success {
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 88px;
-  background: #fef2f2;
-  color: #dc2626;
-  font-size: 13px;
-  font-weight: 500;
-  border-radius: 0 0 6px 6px;
+  color: #22c55e;
+  font-size: 14px;
+  font-weight: 600;
+  background: rgba(34, 197, 94, 0.06);
+  border-top: 1px solid rgba(34, 197, 94, 0.1);
 }
 
-.captcha-slider__blocked svg {
-  width: 20px;
-  height: 20px;
-}
-
-.captcha-slider__success {
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--el-color-success);
-  font-size: 13px;
-  font-weight: 500;
-  background: var(--el-color-success-light-9);
-  border-radius: 0 0 6px 6px;
-}
-
+/* ── 状态样式 ── */
 .captcha-slider.is-loading .captcha-slider__handle {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
 .captcha-slider.is-success {
-  border-color: var(--el-color-success);
+  border-color: rgba(34, 197, 94, 0.3);
 }
 
 .captcha-slider.is-blocked {
-  border-color: var(--el-color-danger);
+  border-color: rgba(239, 68, 68, 0.3);
 }
 </style>

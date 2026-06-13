@@ -20,6 +20,10 @@ SETTING_SCHEMA = {
         'max': 100,
         'description': '列表默认每页显示条数',
     },
+    'show_user_column': {
+        'type': bool,
+        'description': '异常列表是否显示用户列',
+    },
 }
 
 
@@ -29,8 +33,16 @@ def _get_all_settings():
     for key, schema in SETTING_SCHEMA.items():
         db_val = SystemSetting.get_value(key)
         default_val = current_app.config.get(key.upper())
+        schema_type = schema['type']
+        if db_val is not None:
+            if schema_type is bool:
+                value = db_val.lower() in ('true', '1', 'yes')
+            else:
+                value = schema_type(db_val)
+        else:
+            value = default_val
         result[key] = {
-            'value': int(db_val) if db_val is not None else default_val,
+            'value': value,
             'default': default_val,
             'description': schema['description'],
             'min': schema.get('min'),
@@ -67,12 +79,13 @@ def update_settings(**kwargs):
             errors.append(f'Invalid type for {key}')
             continue
 
-        if 'min' in schema and value < schema['min']:
-            errors.append(f'{key} must be >= {schema["min"]}')
-            continue
-        if 'max' in schema and value > schema['max']:
-            errors.append(f'{key} must be <= {schema["max"]}')
-            continue
+        if schema['type'] is not bool:
+            if 'min' in schema and value < schema['min']:
+                errors.append(f'{key} must be >= {schema["min"]}')
+                continue
+            if 'max' in schema and value > schema['max']:
+                errors.append(f'{key} must be <= {schema["max"]}')
+                continue
 
         SystemSetting.set_value(key, value, schema.get('description'))
         updated.append(key)

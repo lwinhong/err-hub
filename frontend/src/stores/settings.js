@@ -8,6 +8,7 @@ export const useSettingsStore = defineStore('settings', () => {
 
   const defaultPageSize = computed(() => data.value.default_page_size?.value ?? 20)
   const dataRetentionDays = computed(() => data.value.data_retention_days?.value ?? 90)
+  const showUserColumn = computed(() => data.value.show_user_column?.value ?? false)
 
   async function fetchSettings() {
     try {
@@ -19,5 +20,5 @@ export const useSettingsStore = defineStore('settings', () => {
     }
   }
 
-  return { data, loaded, defaultPageSize, dataRetentionDays, fetchSettings }
+  return { data, loaded, defaultPageSize, dataRetentionDays, showUserColumn, fetchSettings }
 })
