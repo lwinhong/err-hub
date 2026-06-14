@@ -407,6 +407,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  min-height: 0;
 }
 
 /* ── 标题区 ── */
@@ -453,7 +454,6 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
-  flex-shrink: 0;
 }
 
 .stat-card {
@@ -526,7 +526,6 @@ onMounted(() => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
-  flex-shrink: 0;
 }
 
 .chart-row-3 {
