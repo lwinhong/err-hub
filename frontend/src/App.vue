@@ -1,125 +1,90 @@
 <template>
   <el-config-provider :locale="elementLocale">
     <el-container v-if="authStore.isAuthenticated" class="h-full overflow-hidden">
-      <el-header class="app-header p-0 border-b z-10 overflow-hidden" :class="{ 'mobile-menu-open': mobileMenuOpen }"
-        style="border-color: var(--el-border-color-light); background-color: var(--el-fill-color-blank); box-shadow: 0 1px 4px rgba(0,0,0,0.08)">
-        <!-- 桌面端：菜单 + 控件 -->
-        <div class="flex items-center h-[58px] px-5 max-md:hidden">
-          <span class="flex items-center shrink-0 mr-4">
+      <el-header class="app-header" :class="{ 'mobile-menu-open': mobileMenuOpen }">
+        <!-- 桌面端 -->
+        <div class="header-inner">
+          <div class="header-brand" @click="router.push('/')">
             <img src="/favicon.svg" alt="ErrHub" class="logo-icon" />
             <span class="logo-text">ErrHub</span>
-          </span>
-          <el-menu mode="horizontal" :default-active="activeMenu" :ellipsis="false" class="flex-1 h-[60px] !border-b-0"
-            router>
-            <el-menu-item index="/">
-              <el-icon>
-                <DataAnalysis />
-              </el-icon>
+          </div>
+          <nav class="header-nav">
+            <router-link to="/" class="nav-item" :class="{ active: activeMenu === '/' }">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
               <span>{{ t('app.dashboard') }}</span>
-            </el-menu-item>
-            <el-menu-item index="/projects">
-              <el-icon>
-                <FolderOpened />
-              </el-icon>
+            </router-link>
+            <router-link to="/projects" class="nav-item" :class="{ active: activeMenu === '/projects' }">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
               <span>{{ t('app.projects') }}</span>
-            </el-menu-item>
-            <el-menu-item v-if="authStore.isAdmin" index="/admin">
-              <el-badge :value="t('app.adminBadge')" :offset="[0, 12]">
-                <div class="flex items-center gap-1">
-                  <el-icon><Setting /></el-icon>
-                  <span>{{ t('app.admin') }}</span>
-                </div>
-              </el-badge>
-            </el-menu-item>
-          </el-menu>
-          <div class="flex items-center h-[60px] shrink-0 gap-2">
+            </router-link>
+            <router-link v-if="authStore.isAdmin" to="/admin" class="nav-item" :class="{ active: activeMenu === '/admin' }">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              <span>{{ t('app.admin') }}</span>
+            </router-link>
+          </nav>
+          <div class="header-actions">
             <el-dropdown trigger="click" @command="handleLangChange">
-              <button class="settings-btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              <button class="action-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
               </button>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item v-for="lang in languages" :key="lang.code" :command="lang.code"
-                    :class="{ 'is-active': locale === lang.code }">{{ lang.label }}</el-dropdown-item>
+                  <el-dropdown-item v-for="lang in languages" :key="lang.code" :command="lang.code" :class="{ 'is-active': locale === lang.code }">{{ lang.label }}</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
-            <button class="settings-btn" @click="handleToggleDark">
-              <svg v-if="isDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-              <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <button class="action-btn" @click="handleToggleDark">
+              <svg v-if="isDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+              <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             </button>
             <el-tooltip :content="t('app.logout')" placement="bottom" :show-after="300">
-              <button class="settings-btn" @click="handleLogout">
-                <el-icon :size="18"><SwitchButton /></el-icon>
+              <button class="action-btn" @click="handleLogout">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
               </button>
             </el-tooltip>
           </div>
         </div>
-        <!-- 移动端：Logo + 汉堡按钮 -->
-        <div class="hidden md:hidden flex items-center justify-between h-14 px-4 max-md:flex">
-          <span class="flex items-center"><img src="/favicon.svg" alt="ErrHub" class="logo-icon" /><span class="logo-text">ErrHub</span></span>
-          <div class="flex items-center gap-1">
-            <el-dropdown trigger="click" @command="handleLangChange">
-              <button class="settings-btn settings-btn--sm">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-              </button>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item v-for="lang in languages" :key="lang.code" :command="lang.code"
-                    :class="{ 'is-active': locale === lang.code }">{{ lang.label }}</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-            <button class="settings-btn settings-btn--sm" @click="handleToggleDark">
-              <svg v-if="isDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-              <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <!-- 移动端 -->
+        <div class="header-mobile">
+          <div class="header-brand" @click="router.push('/')">
+            <img src="/favicon.svg" alt="ErrHub" class="logo-icon" />
+            <span class="logo-text">ErrHub</span>
+          </div>
+          <div class="header-actions">
+            <button class="action-btn" @click="handleToggleDark">
+              <svg v-if="isDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+              <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             </button>
-            <div
-              class="hamburger flex items-center justify-center w-9 h-9 cursor-pointer rounded-md transition-colors hover:bg-[var(--el-fill-color-light)]"
-              style="color: var(--el-text-color-regular)" @click="mobileMenuOpen = !mobileMenuOpen">
-              <el-icon :size="22">
-                <component :is="mobileMenuOpen ? Close : Expand" />
-              </el-icon>
-            </div>
+            <button class="hamburger" @click="mobileMenuOpen = !mobileMenuOpen">
+              <svg v-if="!mobileMenuOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
           </div>
         </div>
-        <!-- 移动端下拉菜单 -->
+        <!-- 移动端菜单 -->
         <transition name="slide-down">
-          <div v-if="mobileMenuOpen" class="mobile-menu flex flex-col border-t"
-            style="border-color: var(--el-border-color-lighter); background: var(--el-bg-color-overlay)">
-            <div
-              class="mobile-menu-item flex items-center gap-2.5 py-3.5 px-5 cursor-pointer text-sm transition-colors hover:bg-[var(--el-fill-color-light)] hover:text-[var(--el-color-primary)]"
-              style="color: var(--el-text-color-regular)" @click="navigateTo('/')">
-              <el-icon>
-                <DataAnalysis />
-              </el-icon><span>{{ t('app.dashboard') }}</span>
+          <div v-if="mobileMenuOpen" class="mobile-menu">
+            <div class="mobile-menu-item" @click="navigateTo('/')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              <span>{{ t('app.dashboard') }}</span>
             </div>
-            <div
-              class="mobile-menu-item flex items-center gap-2.5 py-3.5 px-5 cursor-pointer text-sm transition-colors hover:bg-[var(--el-fill-color-light)] hover:text-[var(--el-color-primary)]"
-              style="color: var(--el-text-color-regular)" @click="navigateTo('/projects')">
-              <el-icon>
-                <FolderOpened />
-              </el-icon><span>{{ t('app.projects') }}</span>
+            <div class="mobile-menu-item" @click="navigateTo('/projects')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+              <span>{{ t('app.projects') }}</span>
             </div>
-            <div v-if="authStore.isAdmin"
-              class="mobile-menu-item flex items-center gap-2.5 py-3.5 px-5 cursor-pointer text-sm transition-colors hover:bg-[var(--el-fill-color-light)] hover:text-[var(--el-color-primary)]"
-              style="color: var(--el-text-color-regular)" @click="navigateTo('/admin')">
-              <el-icon>
-                <Setting />
-              </el-icon><span>{{ t('app.admin') }}</span>
+            <div v-if="authStore.isAdmin" class="mobile-menu-item" @click="navigateTo('/admin')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              <span>{{ t('app.admin') }}</span>
             </div>
-            <div
-              class="mobile-menu-item flex items-center gap-2.5 py-3.5 px-5 cursor-pointer text-sm transition-colors hover:bg-[var(--el-fill-color-light)] hover:text-[var(--el-color-primary)]"
-              style="color: var(--el-text-color-regular)" @click="handleLogout">
-              <el-icon>
-                <SwitchButton />
-              </el-icon><span>{{ t('app.logout') }}</span>
+            <div class="mobile-menu-divider"></div>
+            <div class="mobile-menu-item" @click="handleLogout">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              <span>{{ t('app.logout') }}</span>
             </div>
           </div>
         </transition>
       </el-header>
-      <el-main class="app-main overflow-y-auto p-0"
-        style="background-color: var(--el-bg-color-page); height: calc(100vh - 60px)">
+      <el-main class="app-main overflow-y-auto p-0" style="background-color: var(--el-bg-color-page); height: calc(100vh - 60px)">
         <router-view />
       </el-main>
     </el-container>
@@ -132,9 +97,6 @@ import { computed, ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useDark, useToggle } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
-import {
-  DataAnalysis, FolderOpened, Setting, Close, Expand, SwitchButton
-} from '@element-plus/icons-vue'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import en from 'element-plus/es/locale/lang/en'
 import { useAuthStore } from './stores/auth'
@@ -152,10 +114,6 @@ const { t, locale } = useI18n()
 
 const elementLocale = computed(() => locale.value === 'zh-CN' ? zhCn : en)
 
-const currentLangLabel = computed(() => {
-  return languages.find(l => l.code === locale.value)?.label || locale.value
-})
-
 const handleLangChange = (lang) => {
   locale.value = lang
   localStorage.setItem(STORAGE_KEY, lang)
@@ -165,9 +123,7 @@ const handleToggleDark = () => {
   const root = document.documentElement
   root.classList.add('theme-transition')
   toggleDark()
-  setTimeout(() => {
-    root.classList.remove('theme-transition')
-  }, 350)
+  setTimeout(() => root.classList.remove('theme-transition'), 350)
 }
 
 watch(locale, () => {
@@ -206,96 +162,203 @@ const navigateTo = (path) => {
 </style>
 
 <style scoped lang="scss">
-:deep(.el-main) {
-  --el-main-padding: 0;
-}
-:deep(.el-header) {
-  --el-header-padding: 0;
-}
+:deep(.el-main) { --el-main-padding: 0; }
+:deep(.el-header) { --el-header-padding: 0; height: auto !important; }
 
 .app-header {
-  height: 60px !important;
+  background: var(--el-bg-color);
+  border-bottom: 1px solid var(--el-border-color-lighter);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  position: relative;
+  z-index: 100;
 
   &.mobile-menu-open {
-    height: auto !important;
+    .header-mobile { border-bottom-color: var(--el-border-color-lighter); }
   }
 }
 
+.header-inner {
+  display: flex;
+  align-items: center;
+  height: 56px;
+  padding: 0 20px;
+  gap: 8px;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+.header-mobile {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+  padding: 0 16px;
+
+  @media (max-width: 768px) {
+    display: flex;
+  }
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding-right: 16px;
+}
+
 .logo-icon {
-  width: 32px;
-  height: 32px;
-  margin-right: 8px;
+  width: 30px;
+  height: 30px;
 }
 
 .logo-text {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
-  color: var(--el-color-primary);
-  letter-spacing: 1px;
-  white-space: nowrap;
+  color: #6366f1;
+  letter-spacing: -0.3px;
 }
 
-.settings-btn {
+/* ── 导航项 ── */
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--el-text-color-regular);
+  text-decoration: none;
+  transition: all 0.2s;
+
+  &:hover {
+    background: var(--el-fill-color-light);
+    color: var(--el-color-primary);
+  }
+
+  &.active {
+    background: rgba(var(--el-color-primary-rgb), 0.08);
+    color: var(--el-color-primary);
+    font-weight: 600;
+  }
+}
+
+/* ── 操作按钮 ── */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.action-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border: 1px solid var(--el-border-color-lighter);
   background: var(--el-fill-color-blank);
   border-radius: 8px;
   cursor: pointer;
   padding: 0;
   transition: all 0.2s;
+  color: var(--el-text-color-secondary);
+
+  &:hover {
+    background: var(--el-fill-color-light);
+    border-color: var(--el-border-color);
+    color: var(--el-color-primary);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.hamburger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--el-border-color-lighter);
+  background: var(--el-fill-color-blank);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--el-text-color-secondary);
+  transition: all 0.2s;
+
+  @media (max-width: 768px) {
+    display: flex;
+  }
+
+  &:hover {
+    background: var(--el-fill-color-light);
+    color: var(--el-color-primary);
+  }
+}
+
+/* ── 移动端菜单 ── */
+.mobile-menu {
+  display: none;
+  flex-direction: column;
+  padding: 8px 12px 12px;
+  border-top: 1px solid var(--el-border-color-lighter);
+
+  @media (max-width: 768px) {
+    display: flex;
+  }
+}
+
+.mobile-menu-divider {
+  height: 1px;
+  background: var(--el-border-color-lighter);
+  margin: 6px 0;
+}
+
+.mobile-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--el-text-color-regular);
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    background: var(--el-fill-color-light);
+    color: var(--el-color-primary);
+  }
 }
 
-.settings-btn:hover {
-  background: var(--el-fill-color);
-  border-color: var(--el-border-color);
-  color: var(--el-color-primary);
-}
-
-.settings-btn svg {
-  width: 18px;
-  height: 18px;
-}
-
-.settings-btn:active {
-  transform: scale(0.95);
-}
-
-.settings-btn--sm {
-  width: 32px;
-  height: 32px;
-}
-
-.settings-btn--sm svg {
-  width: 16px;
-  height: 16px;
-}
-
+/* ── 下拉菜单 ── */
 :deep(.el-dropdown-menu__item.is-active) {
   color: var(--el-color-primary);
   font-weight: 600;
 }
 
-.admin-badge :deep(.el-badge__content) {
-  font-size: 10px;
-}
-
-.hamburger {
-  display: none;
-}
-
-.mobile-menu {
-  display: none;
-}
-
 /* ── 过渡动画 ── */
 .slide-down-enter-active,
 .slide-down-leave-active {
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
   overflow: hidden;
 }
 
@@ -309,20 +372,5 @@ const navigateTo = (path) => {
 .slide-down-leave-from {
   opacity: 1;
   max-height: 300px;
-}
-
-/* ── 移动端适配 ── */
-@media (max-width: 768px) {
-  .hamburger {
-    display: flex;
-  }
-
-  .mobile-menu {
-    display: flex;
-  }
-
-  .app-main {
-    height: calc(100vh - 56px) !important;
-  }
 }
 </style>
