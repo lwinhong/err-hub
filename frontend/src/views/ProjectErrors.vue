@@ -618,7 +618,7 @@ onMounted(() => {
 }
 
 .col-type {
-  flex: 0 0 130px;
+  flex: 0 0 200px;
   min-width: 0;
 }
 
@@ -644,7 +644,7 @@ onMounted(() => {
 }
 
 .col-count {
-  flex: 0 0 60px;
+  flex: 0 0 80px;
   text-align: center;
 }
 

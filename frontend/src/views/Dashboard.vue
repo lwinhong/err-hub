@@ -59,13 +59,17 @@
             <el-radio-button :value="30">{{ t('dashboard.days30') }}</el-radio-button>
           </el-radio-group>
         </div>
-        <v-chart :option="trendOption" style="height: 300px" autoresize />
+        <div class="chart-body">
+          <v-chart :option="trendOption" style="height: 300px" autoresize />
+        </div>
       </div>
       <div class="chart-card">
         <div class="chart-header">
           <h3 class="chart-title">{{ t('dashboard.environmentDistribution') }}</h3>
         </div>
-        <v-chart :option="environmentOption" style="height: 300px" autoresize />
+        <div class="chart-body">
+          <v-chart :option="environmentOption" style="height: 300px" autoresize />
+        </div>
       </div>
     </div>
 
@@ -75,19 +79,25 @@
         <div class="chart-header">
           <h3 class="chart-title">{{ t('dashboard.severityDistribution') }}</h3>
         </div>
-        <v-chart :option="severityOption" style="height: 260px" autoresize />
+        <div class="chart-body">
+          <v-chart :option="severityOption" style="height: 260px" autoresize />
+        </div>
       </div>
       <div class="chart-card">
         <div class="chart-header">
           <h3 class="chart-title">{{ t('dashboard.sourceDistribution') }}</h3>
         </div>
-        <v-chart :option="sourceOption" style="height: 260px" autoresize />
+        <div class="chart-body">
+          <v-chart :option="sourceOption" style="height: 260px" autoresize />
+        </div>
       </div>
       <div class="chart-card">
         <div class="chart-header">
           <h3 class="chart-title">{{ t('dashboard.statusDistribution') }}</h3>
         </div>
-        <v-chart :option="statusOption" style="height: 260px" autoresize />
+        <div class="chart-body">
+          <v-chart :option="statusOption" style="height: 260px" autoresize />
+        </div>
       </div>
     </div>
 
@@ -97,20 +107,24 @@
         <div class="chart-header">
           <h3 class="chart-title">{{ t('dashboard.topErrors') }}</h3>
         </div>
-        <v-chart :option="topErrorsOption" style="height: 280px" autoresize />
+        <div class="chart-body">
+          <v-chart :option="topErrorsOption" style="height: 280px" autoresize />
+        </div>
       </div>
       <div class="chart-card">
         <div class="chart-header">
           <h3 class="chart-title">{{ t('dashboard.projectRanking') }}</h3>
         </div>
-        <v-chart :option="projectRankOption" style="height: 280px" autoresize />
+        <div class="chart-body">
+          <v-chart :option="projectRankOption" style="height: 280px" autoresize />
+        </div>
       </div>
     </div>
 
     <!-- 最近异常 -->
     <div class="recent-section">
       <div class="recent-header">
-        <h3 class="chart-title">{{ t('dashboard.recentErrors') }}</h3>
+        <h3 class="chart-title">{{ t('dashboard.recentErrors') +' - TOP10'}}</h3>
         <div class="recent-filters">
           <el-switch v-model="hideResolved" :active-text="t('dashboard.hideResolved')" size="small" @change="refreshData" />
           <el-select v-model="recentProjectId" :placeholder="t('dashboard.allProjects')" clearable multiple collapse-tags collapse-tags-tooltip size="small" style="width: 260px" @change="refreshData">
@@ -536,6 +550,10 @@ onMounted(() => {
   overflow: hidden;
 }
 
+.chart-body {
+  padding: 16px;
+}
+
 .chart-header {
   display: flex;
   align-items: center;
@@ -604,9 +622,9 @@ onMounted(() => {
 .table-row:last-child { border-bottom: none; }
 .table-row:hover { background: var(--el-fill-color-lighter); }
 
-.col-type { flex: 0 0 140px; min-width: 0; }
+.col-type { flex: 0 0 200px; min-width: 0; }
 .col-msg { flex: 2; min-width: 0; }
-.col-count { flex: 0 0 60px; text-align: center; }
+.col-count { flex: 0 0 80px; text-align: center; }
 .col-project { flex: 0 0 120px; }
 .col-env { flex: 0 0 100px; }
 .col-source { flex: 0 0 80px; }
