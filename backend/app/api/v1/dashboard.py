@@ -67,6 +67,8 @@ def overview(**kwargs):
         recent_query = recent_query.filter(Error.status != 'resolved')
     if recent_project_ids:
         recent_query = recent_query.filter(Error.project_id.in_(recent_project_ids))
+    elif project_id:
+        recent_query = recent_query.filter(Error.project_id == project_id)
 
     recent_errors = (
         recent_query

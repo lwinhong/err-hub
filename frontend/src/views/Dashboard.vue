@@ -556,7 +556,6 @@ onMounted(() => {
   border-radius: 14px;
   background: var(--el-bg-color);
   border: 1px solid var(--el-border-color-lighter);
-  overflow: hidden;
 }
 
 .recent-header {
@@ -577,6 +576,7 @@ onMounted(() => {
 
 .recent-table-wrap {
   overflow-x: auto;
+  min-height: 120px;
 }
 
 .table-header {
