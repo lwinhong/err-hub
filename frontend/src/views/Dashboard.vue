@@ -401,13 +401,10 @@ onMounted(() => {
 
 <style scoped>
 .dashboard-page {
-  height: 100%;
-  overflow-y: auto;
   padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  min-height: 0;
 }
 
 /* ── 标题区 ── */
@@ -537,10 +534,6 @@ onMounted(() => {
   background: var(--el-bg-color);
   border: 1px solid var(--el-border-color-lighter);
   overflow: hidden;
-}
-
-.chart-wide {
-  grid-column: span 1;
 }
 
 .chart-header {
