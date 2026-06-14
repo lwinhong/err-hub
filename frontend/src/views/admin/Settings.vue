@@ -139,6 +139,171 @@
               </div>
             </div>
           </div>
+
+          <!-- 验证码最大失败次数 -->
+          <div class="setting-card">
+            <div class="card-accent accent-red"></div>
+            <div class="card-body">
+              <div class="card-header-row">
+                <div class="card-icon icon-red">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                  </svg>
+                </div>
+                <div class="card-label">{{ t('settings.captchaMaxFails') }}</div>
+                <div class="card-badge">{{ t('settings.unitTimes') }}</div>
+              </div>
+              <div class="card-value-row">
+                <el-input-number
+                  v-model="form.captcha_max_fails"
+                  :min="captchaMaxFailsMeta.min"
+                  :max="captchaMaxFailsMeta.max"
+                  :step="1"
+                  controls-position="right"
+                  @change="onFieldChange"
+                  class="card-input-number"
+                />
+                <span class="card-unit">{{ t('settings.unitTimes') }}</span>
+              </div>
+              <el-slider
+                v-model="form.captcha_max_fails"
+                :min="captchaMaxFailsMeta.min"
+                :max="captchaMaxFailsMeta.max"
+                :step="1"
+                :show-tooltip="false"
+                @change="onFieldChange"
+                class="card-slider"
+              />
+              <div class="card-footer">
+                <span class="card-hint">{{ t('settings.captchaMaxFailsHint', { default: captchaMaxFailsMeta.default }) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 验证码锁定时长 -->
+          <div class="setting-card">
+            <div class="card-accent accent-orange"></div>
+            <div class="card-body">
+              <div class="card-header-row">
+                <div class="card-icon icon-orange">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                </div>
+                <div class="card-label">{{ t('settings.captchaLockDuration') }}</div>
+                <div class="card-badge">{{ t('settings.unitSeconds') }}</div>
+              </div>
+              <div class="card-value-row">
+                <el-input-number
+                  v-model="form.captcha_lock_duration"
+                  :min="captchaLockDurationMeta.min"
+                  :max="captchaLockDurationMeta.max"
+                  :step="30"
+                  controls-position="right"
+                  @change="onFieldChange"
+                  class="card-input-number"
+                />
+                <span class="card-unit">{{ t('settings.unitSeconds') }}</span>
+              </div>
+              <el-slider
+                v-model="form.captcha_lock_duration"
+                :min="captchaLockDurationMeta.min"
+                :max="captchaLockDurationMeta.max"
+                :step="30"
+                :show-tooltip="false"
+                @change="onFieldChange"
+                class="card-slider"
+              />
+              <div class="card-footer">
+                <span class="card-hint">{{ t('settings.captchaLockDurationHint', { default: captchaLockDurationMeta.default }) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 登录最大失败次数 -->
+          <div class="setting-card">
+            <div class="card-accent accent-red"></div>
+            <div class="card-body">
+              <div class="card-header-row">
+                <div class="card-icon icon-red">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                </div>
+                <div class="card-label">{{ t('settings.loginMaxFails') }}</div>
+                <div class="card-badge">{{ t('settings.unitTimes') }}</div>
+              </div>
+              <div class="card-value-row">
+                <el-input-number
+                  v-model="form.login_max_fails"
+                  :min="loginMaxFailsMeta.min"
+                  :max="loginMaxFailsMeta.max"
+                  :step="1"
+                  controls-position="right"
+                  @change="onFieldChange"
+                  class="card-input-number"
+                />
+                <span class="card-unit">{{ t('settings.unitTimes') }}</span>
+              </div>
+              <el-slider
+                v-model="form.login_max_fails"
+                :min="loginMaxFailsMeta.min"
+                :max="loginMaxFailsMeta.max"
+                :step="1"
+                :show-tooltip="false"
+                @change="onFieldChange"
+                class="card-slider"
+              />
+              <div class="card-footer">
+                <span class="card-hint">{{ t('settings.loginMaxFailsHint', { default: loginMaxFailsMeta.default }) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 登录锁定时长 -->
+          <div class="setting-card">
+            <div class="card-accent accent-orange"></div>
+            <div class="card-body">
+              <div class="card-header-row">
+                <div class="card-icon icon-orange">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                </div>
+                <div class="card-label">{{ t('settings.loginLockDuration') }}</div>
+                <div class="card-badge">{{ t('settings.unitSeconds') }}</div>
+              </div>
+              <div class="card-value-row">
+                <el-input-number
+                  v-model="form.login_lock_duration"
+                  :min="loginLockDurationMeta.min"
+                  :max="loginLockDurationMeta.max"
+                  :step="30"
+                  controls-position="right"
+                  @change="onFieldChange"
+                  class="card-input-number"
+                />
+                <span class="card-unit">{{ t('settings.unitSeconds') }}</span>
+              </div>
+              <el-slider
+                v-model="form.login_lock_duration"
+                :min="loginLockDurationMeta.min"
+                :max="loginLockDurationMeta.max"
+                :step="30"
+                :show-tooltip="false"
+                @change="onFieldChange"
+                class="card-slider"
+              />
+              <div class="card-footer">
+                <span class="card-hint">{{ t('settings.loginLockDurationHint', { default: loginLockDurationMeta.default }) }}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </template>
     </el-skeleton>
@@ -182,14 +347,30 @@ const dirty = ref(false)
 
 const retentionMeta = reactive({ min: 1, max: 3650, default: 90 })
 const pageSizeMeta = reactive({ min: 10, max: 100, default: 20 })
+const captchaMaxFailsMeta = reactive({ min: 3, max: 100, default: 10 })
+const captchaLockDurationMeta = reactive({ min: 30, max: 86400, default: 300 })
+const loginMaxFailsMeta = reactive({ min: 3, max: 50, default: 5 })
+const loginLockDurationMeta = reactive({ min: 30, max: 86400, default: 600 })
 
 const form = reactive({
   data_retention_days: 90,
   default_page_size: 20,
   show_user_column: false,
+  captcha_max_fails: 10,
+  captcha_lock_duration: 300,
+  login_max_fails: 5,
+  login_lock_duration: 600,
 })
 
-let savedValue = { data_retention_days: 90, default_page_size: 20, show_user_column: false }
+let savedValue = {
+  data_retention_days: 90,
+  default_page_size: 20,
+  show_user_column: false,
+  captcha_max_fails: 10,
+  captcha_lock_duration: 300,
+  login_max_fails: 5,
+  login_lock_duration: 600,
+}
 
 const fetchSettings = async () => {
   loading.value = true
@@ -216,10 +397,42 @@ const fetchSettings = async () => {
       const s = data.show_user_column
       form.show_user_column = s.value ?? s.default ?? false
     }
+    if (data.captcha_max_fails) {
+      const s = data.captcha_max_fails
+      form.captcha_max_fails = s.value ?? s.default ?? 10
+      captchaMaxFailsMeta.min = s.min ?? 3
+      captchaMaxFailsMeta.max = s.max ?? 100
+      captchaMaxFailsMeta.default = s.default ?? 10
+    }
+    if (data.captcha_lock_duration) {
+      const s = data.captcha_lock_duration
+      form.captcha_lock_duration = s.value ?? s.default ?? 300
+      captchaLockDurationMeta.min = s.min ?? 30
+      captchaLockDurationMeta.max = s.max ?? 86400
+      captchaLockDurationMeta.default = s.default ?? 300
+    }
+    if (data.login_max_fails) {
+      const s = data.login_max_fails
+      form.login_max_fails = s.value ?? s.default ?? 5
+      loginMaxFailsMeta.min = s.min ?? 3
+      loginMaxFailsMeta.max = s.max ?? 50
+      loginMaxFailsMeta.default = s.default ?? 5
+    }
+    if (data.login_lock_duration) {
+      const s = data.login_lock_duration
+      form.login_lock_duration = s.value ?? s.default ?? 600
+      loginLockDurationMeta.min = s.min ?? 30
+      loginLockDurationMeta.max = s.max ?? 86400
+      loginLockDurationMeta.default = s.default ?? 600
+    }
     savedValue = {
       data_retention_days: form.data_retention_days,
       default_page_size: form.default_page_size,
       show_user_column: form.show_user_column,
+      captcha_max_fails: form.captcha_max_fails,
+      captcha_lock_duration: form.captcha_lock_duration,
+      login_max_fails: form.login_max_fails,
+      login_lock_duration: form.login_lock_duration,
     }
   } catch {
     ElMessage.error(t('settings.loadFailed'))
@@ -231,7 +444,11 @@ const fetchSettings = async () => {
 const onFieldChange = () => {
   dirty.value = form.data_retention_days !== savedValue.data_retention_days ||
     form.default_page_size !== savedValue.default_page_size ||
-    form.show_user_column !== savedValue.show_user_column
+    form.show_user_column !== savedValue.show_user_column ||
+    form.captcha_max_fails !== savedValue.captcha_max_fails ||
+    form.captcha_lock_duration !== savedValue.captcha_lock_duration ||
+    form.login_max_fails !== savedValue.login_max_fails ||
+    form.login_lock_duration !== savedValue.login_lock_duration
 }
 
 const doSave = async () => {
@@ -242,11 +459,19 @@ const doSave = async () => {
       data_retention_days: form.data_retention_days,
       default_page_size: form.default_page_size,
       show_user_column: form.show_user_column,
+      captcha_max_fails: form.captcha_max_fails,
+      captcha_lock_duration: form.captcha_lock_duration,
+      login_max_fails: form.login_max_fails,
+      login_lock_duration: form.login_lock_duration,
     })
     savedValue = {
       data_retention_days: form.data_retention_days,
       default_page_size: form.default_page_size,
       show_user_column: form.show_user_column,
+      captcha_max_fails: form.captcha_max_fails,
+      captcha_lock_duration: form.captcha_lock_duration,
+      login_max_fails: form.login_max_fails,
+      login_lock_duration: form.login_lock_duration,
     }
     dirty.value = false
     settingsStore.fetchSettings()
@@ -262,6 +487,10 @@ const handleReset = () => {
   form.data_retention_days = savedValue.data_retention_days
   form.default_page_size = savedValue.default_page_size
   form.show_user_column = savedValue.show_user_column
+  form.captcha_max_fails = savedValue.captcha_max_fails
+  form.captcha_lock_duration = savedValue.captcha_lock_duration
+  form.login_max_fails = savedValue.login_max_fails
+  form.login_lock_duration = savedValue.login_lock_duration
   dirty.value = false
 }
 
@@ -352,6 +581,8 @@ onMounted(() => {
 .accent-blue { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
 .accent-green { background: linear-gradient(90deg, #22c55e, #4ade80); }
 .accent-purple { background: linear-gradient(90deg, #a855f7, #c084fc); }
+.accent-red { background: linear-gradient(90deg, #ef4444, #f87171); }
+.accent-orange { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
 
 .card-body {
   padding: 20px 24px 24px;
@@ -384,6 +615,8 @@ onMounted(() => {
 .icon-blue { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
 .icon-green { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
 .icon-purple { background: rgba(168, 85, 247, 0.1); color: #a855f7; }
+.icon-red { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.icon-orange { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
 
 .card-label {
   flex: 1;

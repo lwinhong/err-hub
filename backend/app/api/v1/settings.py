@@ -24,6 +24,30 @@ SETTING_SCHEMA = {
         'type': bool,
         'description': '异常列表是否显示用户列',
     },
+    'captcha_max_fails': {
+        'type': int,
+        'min': 3,
+        'max': 100,
+        'description': '验证码最大失败次数，超出后IP被锁定',
+    },
+    'captcha_lock_duration': {
+        'type': int,
+        'min': 30,
+        'max': 86400,
+        'description': '验证码锁定时长（秒），超出失败次数后锁定该时长',
+    },
+    'login_max_fails': {
+        'type': int,
+        'min': 3,
+        'max': 50,
+        'description': '登录最大失败次数，超出后账号被锁定',
+    },
+    'login_lock_duration': {
+        'type': int,
+        'min': 30,
+        'max': 86400,
+        'description': '登录锁定时长（秒），超出失败次数后锁定该时长',
+    },
 }
 
 

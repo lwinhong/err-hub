@@ -12,9 +12,9 @@
     </div>
 
     <!-- 图片区域 -->
-    <div v-if="!verified && !blocked" class="captcha-slider__track" :style="{ width: imgWidth + 'px', height: imgHeight + 'px' }">
+    <div v-if="!blocked" class="captcha-slider__track" :style="{ width: imgWidth + 'px', height: imgHeight + 'px' }">
       <img
-        v-if="bgImageSrc"
+        v-if="bgImageSrc && !verified"
         :src="bgImageSrc"
         class="captcha-slider__bg"
         :style="{ width: imgWidth + 'px', height: imgHeight + 'px' }"
@@ -24,7 +24,7 @@
         <div class="captcha-loading__spinner"></div>
       </div>
       <div
-        v-if="slideImageSrc"
+        v-if="slideImageSrc && !verified"
         class="captcha-slider__piece"
         :style="{
           left: pieceLeft + 'px',
@@ -34,6 +34,11 @@
           backgroundSize: `${slideSize}px ${imgHeight}px`
         }"
       />
+      <!-- 成功提示覆盖层 -->
+      <div v-if="verified" class="captcha-slider__success-overlay">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="24" height="24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        {{ t('captcha.verified') }}
+      </div>
     </div>
 
     <!-- 滑动条 -->
@@ -58,16 +63,11 @@
     <!-- 被封锁 -->
     <div v-if="blocked" class="captcha-slider__blocked">
       <div class="blocked-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       </div>
-      <span>{{ t('captcha.blocked') }}</span>
+      <span class="blocked-msg">{{ blockedMessage || t('captcha.cooldown', { seconds: blockedCountdown }) }}</span>
+      <span v-if="blockedCountdown > 0" class="blocked-timer">{{ blockedCountdown }}s</span>
       <button class="blocked-retry" @click="refresh">{{ t('captcha.retry') }}</button>
-    </div>
-
-    <!-- 验证成功 -->
-    <div v-if="verified" class="captcha-slider__success" :style="{ width: imgWidth + 'px' }">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-      {{ t('captcha.verified') }}
     </div>
 
     <!-- 失败警告 -->
@@ -87,7 +87,6 @@ const { t } = useI18n()
 
 const MAX_FAIL_COUNT = 5
 const COOLDOWN_SECONDS = 10
-const BLOCK_AFTER_FAILS = 10
 
 const imgWidth = ref(320)
 const imgHeight = ref(160)
@@ -110,7 +109,10 @@ const handleLeft = ref(0)
 const failCount = ref(0)
 const cooldown = ref(0)
 const blocked = ref(false)
+const blockedMessage = ref('')
+const blockedCountdown = ref(0)
 let cooldownTimer = null
+let blockedCountdownTimer = null
 
 const emit = defineEmits(['verified'])
 
@@ -126,8 +128,15 @@ async function loadCaptcha() {
     imgHeight.value = data.img_height || 160
     slideSize.value = data.slide_size || 48
     barWidth.value = data.img_width || 320
-  } catch {
-    // keep previous state
+  } catch (err) {
+    const status = err.response?.status
+    if (status === 429) {
+      const cooldownSec = err.response?.data?.cooldown_seconds || 60
+      blocked.value = true
+      blockedMessage.value = t('captcha.cooldown', { seconds: cooldownSec })
+      blockedCountdown.value = cooldownSec
+      startBlockedCountdown()
+    }
   } finally {
     loading.value = false
   }
@@ -140,6 +149,22 @@ function startCooldown() {
     if (cooldown.value <= 0) {
       clearInterval(cooldownTimer)
       cooldownTimer = null
+    }
+  }, 1000)
+}
+
+function startBlockedCountdown() {
+  if (blockedCountdownTimer) clearInterval(blockedCountdownTimer)
+  blockedCountdownTimer = setInterval(() => {
+    blockedCountdown.value--
+    if (blockedCountdown.value <= 0) {
+      clearInterval(blockedCountdownTimer)
+      blockedCountdownTimer = null
+      blocked.value = false
+      blockedMessage.value = ''
+      refresh()
+    } else {
+      blockedMessage.value = t('captcha.blocked', { seconds: blockedCountdown.value })
     }
   }, 1000)
 }
@@ -185,30 +210,37 @@ async function doVerify(offset) {
     const res = await verifyCaptcha(captchaId.value, Math.round(offset))
     if (res.data.success) {
       verified.value = true
-      emit('verified', captchaId.value)
+      setTimeout(() => {
+        emit('verified', captchaId.value)
+      }, 500)
     } else {
       failCount.value++
       resetSlider()
 
-      if (failCount.value >= BLOCK_AFTER_FAILS) {
-        blocked.value = true
-      } else if (failCount.value >= MAX_FAIL_COUNT) {
+      if (failCount.value >= MAX_FAIL_COUNT) {
         startCooldown()
       }
 
       await loadCaptcha()
     }
-  } catch {
-    failCount.value++
-    resetSlider()
-
-    if (failCount.value >= BLOCK_AFTER_FAILS) {
+  } catch (err) {
+    const status = err.response?.status
+    const cooldownSec = err.response?.data?.cooldown_seconds
+    if (status === 429 && cooldownSec) {
       blocked.value = true
-    } else if (failCount.value >= MAX_FAIL_COUNT) {
-      startCooldown()
-    }
+      blockedMessage.value = t('captcha.cooldown', { seconds: cooldownSec })
+      blockedCountdown.value = cooldownSec
+      startBlockedCountdown()
+    } else {
+      failCount.value++
+      resetSlider()
 
-    await loadCaptcha()
+      if (failCount.value >= MAX_FAIL_COUNT) {
+        startCooldown()
+      }
+
+      await loadCaptcha()
+    }
   } finally {
     loading.value = false
   }
@@ -225,11 +257,17 @@ function refresh() {
   failCount.value = 0
   cooldown.value = 0
   blocked.value = false
+  blockedMessage.value = ''
+  blockedCountdown.value = 0
   bgImageSrc.value = ''
   slideImageSrc.value = ''
   if (cooldownTimer) {
     clearInterval(cooldownTimer)
     cooldownTimer = null
+  }
+  if (blockedCountdownTimer) {
+    clearInterval(blockedCountdownTimer)
+    blockedCountdownTimer = null
   }
   loadCaptcha()
 }
@@ -237,6 +275,9 @@ function refresh() {
 onUnmounted(() => {
   if (cooldownTimer) {
     clearInterval(cooldownTimer)
+  }
+  if (blockedCountdownTimer) {
+    clearInterval(blockedCountdownTimer)
   }
 })
 
@@ -452,14 +493,16 @@ onMounted(() => {
   font-weight: 500;
 }
 
-.blocked-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: rgba(239, 68, 68, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.blocked-msg {
+  text-align: center;
+  line-height: 1.4;
+}
+
+.blocked-timer {
+  font-size: 24px;
+  font-weight: 700;
+  color: #ef4444;
+  font-variant-numeric: tabular-nums;
 }
 
 .blocked-retry {
@@ -506,5 +549,28 @@ onMounted(() => {
 
 .captcha-slider.is-blocked {
   border-color: rgba(239, 68, 68, 0.3);
+}
+.captcha-slider__success-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(34, 197, 94, 0.9);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  z-index: 10;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 </style>

@@ -1,14 +1,30 @@
 from flask import Blueprint, request, jsonify, current_app
 
+from app.models.setting import SystemSetting
 from app.services.captcha import generate_captcha, verify_captcha, CAPTCHA_TTL
 
 bp = Blueprint('captcha_v1', __name__, url_prefix='/api/v1/captcha')
 
 CAPTCHA_STORE_PREFIX = 'captcha:'
 FAIL_COUNT_PREFIX = 'captcha_fails:'
-BLOCK_PREFIX = 'captcha_block:'
-MAX_FAILS = 10
-BLOCK_TTL = 300
+
+
+def _get_setting_int(key, default):
+    val = SystemSetting.get_value(key)
+    if val is not None:
+        try:
+            return int(val)
+        except (ValueError, TypeError):
+            pass
+    return default
+
+
+def _get_max_fails():
+    return _get_setting_int('captcha_max_fails', 10)
+
+
+def _get_lock_duration():
+    return _get_setting_int('captcha_lock_duration', 300)
 
 
 def _get_client_ip():
@@ -20,9 +36,6 @@ def _get_client_ip():
 @bp.route('/generate', methods=['GET'])
 def generate():
     ip = _get_client_ip()
-    if current_app.redis.get(f"{BLOCK_PREFIX}{ip}"):
-        return jsonify({"error": "Too many failed attempts, please try again later"}), 429
-
     captcha_data = generate_captcha()
     captcha_id = captcha_data["captcha_id"]
     current_app.redis.set(
@@ -44,8 +57,8 @@ def generate():
 @bp.route('/verify', methods=['POST'])
 def verify():
     ip = _get_client_ip()
-    if current_app.redis.get(f"{BLOCK_PREFIX}{ip}"):
-        return jsonify({"error": "Too many failed attempts, please try again later", "success": False}), 429
+    max_fails = _get_max_fails()
+    lock_duration = _get_lock_duration()
 
     data = request.get_json()
     if not data or not data.get("captcha_id") or data.get("offset") is None:
@@ -65,11 +78,15 @@ def verify():
     if not success:
         fail_key = f"{FAIL_COUNT_PREFIX}{ip}"
         fail_count = current_app.redis.incr(fail_key)
-        current_app.redis.expire(fail_key, BLOCK_TTL)
+        current_app.redis.expire(fail_key, lock_duration)
 
-        if fail_count >= MAX_FAILS:
-            current_app.redis.set(f"{BLOCK_PREFIX}{ip}", "1", ex=BLOCK_TTL)
-            return jsonify({"success": False, "error": "Too many failed attempts, blocked"}), 429
+        if fail_count >= max_fails:
+            cooldown_seconds = lock_duration
+            return jsonify({
+                "success": False,
+                "error": "Too many failed attempts, please try again later",
+                "cooldown_seconds": cooldown_seconds,
+            }), 429
 
         return jsonify({"success": False, "error": "Verification failed"}), 400
 
@@ -82,3 +99,16 @@ def verify():
     )
 
     return jsonify({"success": True, "captcha_id": captcha_id})
+
+
+@bp.route('/status', methods=['GET'])
+def status():
+    ip = _get_client_ip()
+    fail_count = 0
+    fail_val = current_app.redis.get(f"{FAIL_COUNT_PREFIX}{ip}")
+    if fail_val:
+        fail_count = int(fail_val)
+    return jsonify({
+        "fail_count": fail_count,
+        "max_fails": _get_max_fails(),
+    })

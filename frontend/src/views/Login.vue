@@ -209,7 +209,9 @@ function onCaptchaVerified(captchaId) {
   const data = pendingLoginData.value
   showCaptcha.value = false
   pendingLoginData.value = null
-  doLogin(data.username, data.password, captchaId)
+  if (data) {
+    doLogin(data.username, data.password, captchaId)
+  }
 }
 
 async function doLogin(username, password, captchaId) {
@@ -219,7 +221,18 @@ async function doLogin(username, password, captchaId) {
     ElMessage.success(t('login.success'))
     router.push('/')
   } catch (err) {
-    ElMessage.error(err.response?.data?.error || t('login.failed'))
+    const status = err.response?.status
+    const errorMsg = err.response?.data?.error || ''
+    if (status === 403 && errorMsg.includes('locked')) {
+      const remaining = err.response?.data?.remaining_seconds
+      if (remaining > 0) {
+        ElMessage.error(t('login.accountLocked', { seconds: remaining }))
+      } else {
+        ElMessage.error(t('login.accountLockedNoTime'))
+      }
+    } else {
+      ElMessage.error(errorMsg || t('login.failed'))
+    }
   } finally {
     loading.value = false
   }

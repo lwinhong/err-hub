@@ -5,9 +5,20 @@ from flask import Blueprint, request, jsonify, current_app
 
 from app.extensions import db
 from app.models.user import User
+from app.models.setting import SystemSetting
 from app.utils.decorators import jwt_required
 
 bp = Blueprint('auth_v1', __name__, url_prefix='/api/v1/auth')
+
+
+def _get_setting_int(key, default):
+    val = SystemSetting.get_value(key)
+    if val is not None:
+        try:
+            return int(val)
+        except (ValueError, TypeError):
+            pass
+    return default
 
 
 @bp.route('/login', methods=['POST'])
@@ -26,9 +37,28 @@ def login():
 
     user = User.query.filter_by(username=data['username']).first()
     if not user or not user.check_password(data['password']):
+        if user and user.is_active:
+            login_max_fails = _get_setting_int('login_max_fails', 5)
+            login_lock_duration = _get_setting_int('login_lock_duration', 600)
+            fail_key = f'login_fails:{user.id}'
+            fail_count = current_app.redis.incr(fail_key)
+            current_app.redis.expire(fail_key, login_lock_duration)
+
+            if fail_count >= login_max_fails:
+                user.lock(login_lock_duration)
+                db.session.commit()
         return jsonify({'error': 'Invalid username or password'}), 401
     if not user.is_active:
         return jsonify({'error': 'User account is disabled'}), 403
+    if user.is_locked:
+        remaining = int((user.locked_until - datetime.now(timezone.utc)).total_seconds())
+        return jsonify({
+            'error': f'Account is locked, try again in {remaining} seconds',
+            'remaining_seconds': remaining,
+        }), 403
+
+    current_app.redis.delete(f'login_fails:{user.id}')
+
     now = datetime.now(timezone.utc)
     access_payload = {
         'user_id': str(user.id),

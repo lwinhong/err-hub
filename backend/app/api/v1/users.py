@@ -13,6 +13,8 @@ def _user_to_dict(user):
         'username': user.username,
         'is_admin': user.is_admin,
         'is_active': user.is_active,
+        'locked_until': user.locked_until.isoformat() if user.locked_until else None,
+        'is_locked': user.is_locked,
         'created_at': user.created_at.isoformat(),
     }
 
@@ -114,3 +116,15 @@ def delete_user(user_id, **kwargs):
     db.session.delete(user)
     db.session.commit()
     return jsonify({'message': 'User deleted successfully'})
+
+
+@bp.route('/<user_id>/unlock', methods=['POST'])
+@admin_required
+def unlock_user(user_id, **kwargs):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    user.unlock()
+    db.session.commit()
+    return jsonify({'message': 'User unlocked successfully'})

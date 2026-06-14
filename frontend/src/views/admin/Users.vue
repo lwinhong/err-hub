@@ -55,6 +55,7 @@
         <span class="col-user">{{ t('users.username') }}</span>
         <span class="col-role">{{ t('users.role') }}</span>
         <span class="col-status">{{ t('users.status') }}</span>
+        <span class="col-lock">{{ t('users.lockStatus') }}</span>
         <span class="col-time">{{ t('users.createdAt') }}</span>
         <span class="col-actions">{{ t('users.actions') }}</span>
       </div>
@@ -74,6 +75,13 @@
         <div class="col-status">
           <div class="status-dot" :class="row.is_active ? 'dot-active' : 'dot-inactive'"></div>
           <span>{{ row.is_active ? t('users.active') : t('users.inactive') }}</span>
+        </div>
+        <div class="col-lock">
+          <span v-if="row.is_locked" class="lock-badge lock-active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            {{ t('users.locked') }}
+          </span>
+          <span v-else class="lock-badge lock-none">{{ t('users.unlocked') }}</span>
         </div>
         <div class="col-time">{{ formatTime(row.created_at) }}</div>
         <div class="col-actions">
@@ -96,6 +104,11 @@
           <el-tooltip :content="t('users.deleteUser')" placement="top" :show-after="300">
             <button class="action-btn action-delete" @click="handleDelete(row)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </el-tooltip>
+          <el-tooltip v-if="row.is_locked" :content="t('users.unlock')" placement="top" :show-after="300">
+            <button class="action-btn action-unlock" @click="handleUnlock(row)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
             </button>
           </el-tooltip>
         </div>
@@ -175,7 +188,7 @@ import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Plus, User } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getUsers, createUser, updateUser, resetUserPassword, deleteUser } from '../../api/users'
+import { getUsers, createUser, updateUser, resetUserPassword, deleteUser, unlockUser } from '../../api/users'
 import { useSettingsStore } from '../../stores/settings'
 
 const { t } = useI18n()
@@ -314,6 +327,23 @@ const handleDelete = (row) => {
       ElMessage.error(err.response?.data?.error || t('users.deleteFailed'))
     }
   }).catch(() => { })
+}
+
+const handleUnlock = async (row) => {
+  try {
+    await ElMessageBox.confirm(t('users.unlockConfirm', { username: row.username }), t('users.unlockTitle'), {
+      confirmButtonText: t('users.confirm'),
+      cancelButtonText: t('users.cancel'),
+      type: 'warning'
+    })
+    await unlockUser(row.id)
+    ElMessage.success(t('users.userUnlocked'))
+    fetchUsers()
+  } catch (err) {
+    if (err !== 'cancel') {
+      ElMessage.error(err.response?.data?.error || t('users.operationFailed'))
+    }
+  }
 }
 
 const fetchUsers = async () => {
@@ -547,6 +577,12 @@ watch(() => settingsStore.defaultPageSize, (val) => {
   gap: 8px;
 }
 
+.col-lock {
+  flex: 0 0 100px;
+  display: flex;
+  align-items: center;
+}
+
 .col-time {
   flex: 1.5;
   font-size: 13px;
@@ -623,6 +659,27 @@ watch(() => settingsStore.defaultPageSize, (val) => {
   background: var(--el-text-color-placeholder);
 }
 
+/* ── 锁定状态 ── */
+.lock-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 6px;
+}
+
+.lock-active {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.lock-none {
+  background: var(--el-fill-color);
+  color: var(--el-text-color-secondary);
+}
+
 /* ── 操作按钮 ── */
 .action-btn {
   width: 32px;
@@ -652,6 +709,7 @@ watch(() => settingsStore.defaultPageSize, (val) => {
 .action-enable:hover { color: #22c55e; }
 .action-disable:hover { color: #ef4444; }
 .action-delete:hover { color: #ef4444; background: rgba(239, 68, 68, 0.08); }
+.action-unlock:hover { color: #22c55e; background: rgba(34, 197, 94, 0.08); }
 
 /* ── 空状态 ── */
 .table-empty {

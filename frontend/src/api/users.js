@@ -19,3 +19,7 @@ export function resetUserPassword(userId, password) {
 export function deleteUser(userId) {
   return request.delete(`users/${userId}`)
 }
+
+export function unlockUser(userId) {
+  return request.post(`users/${userId}/unlock`)
+}
