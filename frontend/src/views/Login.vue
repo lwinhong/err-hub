@@ -94,6 +94,7 @@
                 v-model="form.username"
                 :placeholder="t('login.usernamePlaceholder')"
                 class="login-input"
+                autofocus
                 @keyup.enter="handleLogin"
               />
             </div>
