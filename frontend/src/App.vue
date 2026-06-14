@@ -37,11 +37,28 @@
               <svg v-if="isDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
               <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             </button>
-            <el-tooltip :content="t('app.logout')" placement="bottom" :show-after="300">
-              <button class="action-btn" @click="handleLogout">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-              </button>
-            </el-tooltip>
+            <el-dropdown trigger="click" @command="handleUserCommand">
+              <div class="user-badge">
+                <div class="user-avatar">{{ authStore.user?.username?.charAt(0)?.toUpperCase() || '?' }}</div>
+                <span class="user-name">{{ authStore.user?.username }}</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <div class="user-dropdown-info">
+                    <div class="user-dropdown-avatar">{{ authStore.user?.username?.charAt(0)?.toUpperCase() || '?' }}</div>
+                    <div class="user-dropdown-detail">
+                      <span class="user-dropdown-name">{{ authStore.user?.username }}</span>
+                      <span v-if="authStore.isAdmin" class="user-dropdown-role">{{ t('app.adminBadge') }}</span>
+                    </div>
+                  </div>
+                  <el-dropdown-item divided command="logout">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    {{ t('app.logout') }}
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </div>
         </div>
         <!-- 移动端 -->
@@ -51,19 +68,20 @@
             <span class="logo-text">ErrHub</span>
           </div>
           <div class="header-actions">
-            <button class="action-btn" @click="handleToggleDark">
-              <svg v-if="isDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-              <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-            </button>
-            <button class="hamburger" @click="mobileMenuOpen = !mobileMenuOpen">
-              <svg v-if="!mobileMenuOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-              <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
+            <div class="user-avatar mobile-avatar" @click="mobileMenuOpen = !mobileMenuOpen">{{ authStore.user?.username?.charAt(0)?.toUpperCase() || '?' }}</div>
           </div>
         </div>
         <!-- 移动端菜单 -->
         <transition name="slide-down">
           <div v-if="mobileMenuOpen" class="mobile-menu">
+            <div class="mobile-user-info">
+              <div class="mobile-user-avatar">{{ authStore.user?.username?.charAt(0)?.toUpperCase() || '?' }}</div>
+              <div class="mobile-user-detail">
+                <span class="mobile-user-name">{{ authStore.user?.username }}</span>
+                <span v-if="authStore.isAdmin" class="mobile-user-role">{{ t('app.adminBadge') }}</span>
+              </div>
+            </div>
+            <div class="mobile-menu-divider"></div>
             <div class="mobile-menu-item" @click="navigateTo('/')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
               <span>{{ t('app.dashboard') }}</span>
@@ -77,6 +95,11 @@
               <span>{{ t('app.admin') }}</span>
             </div>
             <div class="mobile-menu-divider"></div>
+            <div class="mobile-menu-item" @click="handleToggleDark">
+              <svg v-if="isDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+              <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+              <span>{{ isDark ? t('app.light') : t('app.dark') }}</span>
+            </div>
             <div class="mobile-menu-item" @click="handleLogout">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
               <span>{{ t('app.logout') }}</span>
@@ -149,6 +172,12 @@ const handleLogout = () => {
   mobileMenuOpen.value = false
   authStore.logout()
   router.push('/login')
+}
+
+const handleUserCommand = (command) => {
+  if (command === 'logout') {
+    handleLogout()
+  }
 }
 
 const navigateTo = (path) => {
@@ -265,6 +294,92 @@ const navigateTo = (path) => {
   gap: 6px;
 }
 
+.user-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 4px 4px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid var(--el-border-color-lighter);
+  background: var(--el-fill-color-blank);
+
+  &:hover {
+    background: var(--el-fill-color-light);
+    border-color: var(--el-border-color);
+  }
+}
+
+.user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+  flex-shrink: 0;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  @media (max-width: 900px) {
+    display: none;
+  }
+}
+
+.user-dropdown-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  min-width: 180px;
+}
+
+.user-dropdown-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+  flex-shrink: 0;
+}
+
+.user-dropdown-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.user-dropdown-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+}
+
+.user-dropdown-role {
+  font-size: 11px;
+  color: var(--el-color-primary);
+  font-weight: 500;
+}
+
 .action-btn {
   display: flex;
   align-items: center;
@@ -303,10 +418,6 @@ const navigateTo = (path) => {
   color: var(--el-text-color-secondary);
   transition: all 0.2s;
 
-  @media (max-width: 768px) {
-    display: flex;
-  }
-
   &:hover {
     background: var(--el-fill-color-light);
     color: var(--el-color-primary);
@@ -323,6 +434,53 @@ const navigateTo = (path) => {
   @media (max-width: 768px) {
     display: flex;
   }
+}
+
+.mobile-avatar {
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.mobile-user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+}
+
+.mobile-user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+  flex-shrink: 0;
+}
+
+.mobile-user-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mobile-user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+}
+
+.mobile-user-role {
+  font-size: 11px;
+  color: var(--el-color-primary);
+  font-weight: 500;
 }
 
 .mobile-menu-divider {

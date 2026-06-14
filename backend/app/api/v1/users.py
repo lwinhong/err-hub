@@ -25,7 +25,7 @@ def list_users(**kwargs):
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 20, type=int)
     per_page = min(per_page, 100)
-    pagination = User.query.order_by(User.created_at.desc()).paginate(
+    pagination = User.query.order_by(User.is_admin.desc(), User.created_at.desc()).paginate(
         page=page, per_page=per_page, error_out=False
     )
     return jsonify({
@@ -58,11 +58,11 @@ def create_user(**kwargs):
     return jsonify(_user_to_dict(user)), 201
 
 
-@bp.route('/<user_id>', methods=['PUT'])
+@bp.route('/<target_user_id>', methods=['PUT'])
 @admin_required
-def update_user(user_id, **kwargs):
+def update_user(target_user_id, **kwargs):
     current_user = kwargs['current_user']
-    user = User.query.get(user_id)
+    user = User.query.filter(User.id == target_user_id).first() 
     if not user:
         return jsonify({'error': 'User not found'}), 404
 
@@ -72,13 +72,13 @@ def update_user(user_id, **kwargs):
 
     if 'is_admin' in data:
         # 不允许取消自身 admin 权限
-        if str(user.id) == str(current_user.id) and not data['is_admin']:
+        if user.id == current_user.id and not data['is_admin']:
             return jsonify({'error': 'Cannot revoke your own admin privilege'}), 400
         user.is_admin = data['is_admin']
 
     if 'is_active' in data:
         # 不允许停用自己
-        if str(user.id) == str(current_user.id) and not data['is_active']:
+        if user.id == current_user.id and not data['is_active']:
             return jsonify({'error': 'Cannot disable your own account'}), 400
         user.is_active = data['is_active']
 
@@ -89,7 +89,7 @@ def update_user(user_id, **kwargs):
 @bp.route('/<user_id>/reset-password', methods=['PUT'])
 @admin_required
 def reset_password(user_id, **kwargs):
-    user = User.query.get(user_id)
+    user = User.query.filter(User.id == user_id).first()
     if not user:
         return jsonify({'error': 'User not found'}), 404
 
@@ -106,12 +106,12 @@ def reset_password(user_id, **kwargs):
 @admin_required
 def delete_user(user_id, **kwargs):
     current_user = kwargs['current_user']
-    if str(user_id) == str(current_user.id):
-        return jsonify({'error': 'Cannot delete yourself'}), 400
-
-    user = User.query.get(user_id)
+    user = User.query.filter(User.id == user_id).first()
     if not user:
         return jsonify({'error': 'User not found'}), 404
+
+    if user.id == current_user.id:
+        return jsonify({'error': 'Cannot delete yourself'}), 400
 
     db.session.delete(user)
     db.session.commit()
@@ -121,7 +121,7 @@ def delete_user(user_id, **kwargs):
 @bp.route('/<user_id>/unlock', methods=['POST'])
 @admin_required
 def unlock_user(user_id, **kwargs):
-    user = User.query.get(user_id)
+    user = User.query.filter(User.id == user_id).first()
     if not user:
         return jsonify({'error': 'User not found'}), 404
 

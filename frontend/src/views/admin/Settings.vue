@@ -550,7 +550,7 @@ onMounted(() => {
 /* ── 卡片网格 ── */
 .settings-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 20px;
   flex: 1;
   min-height: 0;
@@ -730,7 +730,7 @@ onMounted(() => {
 
 .page-size-btn {
   flex: 1;
-  height: 44px;
+  height: 32px;
   border-radius: 10px;
   border: 2px solid var(--el-border-color-lighter);
   background: var(--el-fill-color-blank);
@@ -885,7 +885,7 @@ onMounted(() => {
 /* ── 浮动操作栏 ── */
 .floating-bar {
   position: absolute;
-  bottom: 0;
+  bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
   width: fit-content;

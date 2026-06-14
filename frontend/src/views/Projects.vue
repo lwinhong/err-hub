@@ -147,7 +147,7 @@
     </el-dialog>
 
     <!-- 使用示例对话框 -->
-    <el-dialog v-model="exampleDialogVisible" :title="t('projects.exampleTitle', { name: exampleProjectName })" width="920px" destroy-on-close class="modern-dialog">
+    <el-dialog v-model="exampleDialogVisible" :title="t('projects.exampleTitle', { name: exampleProjectName })" width="920px" destroy-on-close class="modern-dialog example-dialog">
       <el-alert :title="t('projects.exampleAlert')" type="info" :closable="false" show-icon style="margin-bottom: 16px" />
       <el-tabs>
         <el-tab-pane label="cURL">
@@ -962,6 +962,18 @@ watch(() => settingsStore.defaultPageSize, (val) => {
   font-weight: 600;
 }
 
+.example-dialog :deep(.el-dialog) {
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.example-dialog :deep(.el-dialog__body) {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
 /* ── 响应式 ── */
 @media (max-width: 768px) {
   .projects-page {
@@ -982,6 +994,11 @@ watch(() => settingsStore.defaultPageSize, (val) => {
 
   .stats-row {
     grid-template-columns: 1fr;
+  }
+
+  .example-dialog :deep(.el-dialog) {
+    width: 95vw !important;
+    max-width: 95vw;
   }
 
   .col-desc,

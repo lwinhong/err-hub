@@ -114,9 +114,7 @@ def refresh():
 @bp.route('/me', methods=['GET'])
 @jwt_required
 def me(**kwargs):
-    user = User.query.get(kwargs['user_id'])
-    if not user:
-        return jsonify({'error': 'User not found'}), 404
+    user = kwargs['current_user']
     return jsonify({
         'id': str(user.id),
         'username': user.username,
@@ -129,9 +127,7 @@ def me(**kwargs):
 @bp.route('/me/password', methods=['PUT'])
 @jwt_required
 def change_password(**kwargs):
-    user = User.query.get(kwargs['user_id'])
-    if not user:
-        return jsonify({'error': 'User not found'}), 404
+    user = kwargs['current_user']
     data = request.get_json()
     if not data or not data.get('old_password') or not data.get('new_password'):
         return jsonify({'error': 'Old password and new password are required'}), 400
