@@ -51,6 +51,7 @@ def generate():
         "slide_size": captcha_data["slide_size"],
         "img_width": captcha_data["img_width"],
         "img_height": captcha_data["img_height"],
+        "target_y": captcha_data["target_y"],
     })
 
 

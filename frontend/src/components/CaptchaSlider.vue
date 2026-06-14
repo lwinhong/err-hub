@@ -28,10 +28,11 @@
         class="captcha-slider__piece"
         :style="{
           left: pieceLeft + 'px',
+          top: targetY + 'px',
           width: slideSize + 'px',
-          height: imgHeight + 'px',
+          height: slideSize + 'px',
           backgroundImage: `url(${slideImageSrc})`,
-          backgroundSize: `${slideSize}px ${imgHeight}px`
+          backgroundSize: `${slideSize}px ${slideSize}px`
         }"
       />
       <!-- 成功提示覆盖层 -->
@@ -96,6 +97,7 @@ const handleSize = 42
 
 const bgImageSrc = ref('')
 const slideImageSrc = ref('')
+const targetY = ref(0)
 
 const loading = ref(false)
 const verified = ref(false)
@@ -128,6 +130,7 @@ async function loadCaptcha() {
     imgHeight.value = data.img_height || 160
     slideSize.value = data.slide_size || 48
     barWidth.value = data.img_width || 320
+    targetY.value = data.target_y || 0
   } catch (err) {
     const status = err.response?.status
     if (status === 429) {
@@ -261,6 +264,7 @@ function refresh() {
   blockedCountdown.value = 0
   bgImageSrc.value = ''
   slideImageSrc.value = ''
+  targetY.value = 0
   if (cooldownTimer) {
     clearInterval(cooldownTimer)
     cooldownTimer = null
