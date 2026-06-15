@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { login as loginApi, getMe } from '../api/auth'
+import { login as loginApi, logout as logoutApi, getMe } from '../api/auth'
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref(localStorage.getItem('token') || '')
@@ -19,7 +19,12 @@ export const useAuthStore = defineStore('auth', () => {
     await fetchUser()
   }
 
-  function logout() {
+  async function logout() {
+    try {
+      await logoutApi()
+    } catch {
+      // 即使后端调用失败，也清理前端状态
+    }
     token.value = ''
     refreshToken.value = ''
     user.value = null

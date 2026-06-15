@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from uuid import uuid4
 
 import jwt
 from flask import Blueprint, request, jsonify, current_app
@@ -19,6 +20,10 @@ def _get_setting_int(key, default):
         except (ValueError, TypeError):
             pass
     return default
+
+
+def _session_key(user_id):
+    return f'user_session:{user_id}'
 
 
 @bp.route('/login', methods=['POST'])
@@ -59,16 +64,23 @@ def login():
 
     current_app.redis.delete(f'login_fails:{user.id}')
 
+    session_id = str(uuid4())
+    session_key = _session_key(user.id)
+    current_app.redis.set(session_key, session_id)
+    current_app.redis.expire(session_key, int(current_app.config['JWT_REFRESH_TOKEN_EXPIRES'].total_seconds()))
+
     now = datetime.now(timezone.utc)
     access_payload = {
         'user_id': str(user.id),
         'type': 'access',
+        'session_id': session_id,
         'exp': now + current_app.config['JWT_ACCESS_TOKEN_EXPIRES'],
         'iat': now,
     }
     refresh_payload = {
         'user_id': str(user.id),
         'type': 'refresh',
+        'session_id': session_id,
         'exp': now + current_app.config['JWT_REFRESH_TOKEN_EXPIRES'],
         'iat': now,
     }
@@ -100,15 +112,31 @@ def refresh():
     user = User.query.get(payload.get('user_id'))
     if not user or not user.is_active:
         return jsonify({'error': 'User not found or inactive'}), 401
+
+    session_key = _session_key(user.id)
+    stored_session = current_app.redis.get(session_key)
+    if not stored_session or stored_session.decode() != payload.get('session_id'):
+        return jsonify({'error': 'Session has been invalidated'}), 401
+
     now = datetime.now(timezone.utc)
     access_payload = {
         'user_id': str(user.id),
         'type': 'access',
+        'session_id': payload.get('session_id'),
         'exp': now + current_app.config['JWT_ACCESS_TOKEN_EXPIRES'],
         'iat': now,
     }
     access_token = jwt.encode(access_payload, current_app.config['JWT_SECRET_KEY'], algorithm='HS256')
     return jsonify({'access_token': access_token})
+
+
+@bp.route('/logout', methods=['POST'])
+@jwt_required
+def logout(**kwargs):
+    user = kwargs['current_user']
+    session_key = _session_key(user.id)
+    current_app.redis.delete(session_key)
+    return jsonify({'message': 'Logged out successfully'})
 
 
 @bp.route('/me', methods=['GET'])

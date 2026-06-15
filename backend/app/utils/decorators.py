@@ -43,6 +43,12 @@ def _decode_jwt():
     user = User.query.get(payload.get('user_id'))
     if not user or not user.is_active:
         return None, (jsonify({'error': 'User not found or inactive'}), 401)
+
+    session_key = f'user_session:{user.id}'
+    stored_session = current_app.redis.get(session_key)
+    if not stored_session or stored_session.decode() != payload.get('session_id'):
+        return None, (jsonify({'error': 'Session has been invalidated'}), 401)
+
     return user, None
 
 

@@ -4,6 +4,10 @@ export function login(username, password, captcha_id) {
   return request.post('auth/login', { username, password, captcha_id })
 }
 
+export function logout() {
+  return request.post('auth/logout')
+}
+
 export function refreshToken(refresh_token) {
   return request.post('auth/refresh', { refresh_token })
 }

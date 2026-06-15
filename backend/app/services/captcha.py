@@ -141,7 +141,7 @@ def generate_captcha():
     slide_draw = ImageDraw.Draw(slide)
     slide_cx = SLIDE_SIZE * SSAA // 2
     slide_cy = SLIDE_SIZE * SSAA // 2
-    _draw_shape(slide_draw, slide_cx, slide_cy, SLIDE_SIZE * SSAA, target_shape, (100, 100, 100, 200), (255, 255, 255, 255))
+    _draw_shape(slide_draw, slide_cx, slide_cy, SLIDE_SIZE * SSAA, target_shape, (100, 100, 100, 200), (255, 255, 255, 255), 4)
     slide = slide.resize((SLIDE_SIZE, SLIDE_SIZE), Image.LANCZOS)
     slide_buf = io.BytesIO()
     slide.save(slide_buf, format='PNG')
