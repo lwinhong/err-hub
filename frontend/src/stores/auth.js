@@ -25,11 +25,11 @@ export const useAuthStore = defineStore('auth', () => {
     } catch {
       // 即使后端调用失败，也清理前端状态
     }
+    localStorage.removeItem('token')
+    localStorage.removeItem('refreshToken')
     token.value = ''
     refreshToken.value = ''
     user.value = null
-    localStorage.removeItem('token')
-    localStorage.removeItem('refreshToken')
   }
 
   async function fetchUser() {

@@ -181,10 +181,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useDark, useDocumentVisibility } from '@vueuse/core'
+import { useDark } from '@vueuse/core'
 import { DataAnalysis, FolderOpened, DataLine, WarningFilled, CircleCloseFilled, AlarmClock, TrendCharts, Calendar, Aim } from '@element-plus/icons-vue'
 import VChart from 'vue-echarts'
 import { use } from 'echarts/core'
@@ -214,13 +214,11 @@ const recentProjectId = ref([])
 const hideResolved = ref(true)
 const trendDays = ref(7)
 
-const visibility = useDocumentVisibility()
 let eventSource = null
 let reconnectTimer = null
 let reconnectAttempts = 0
 const MAX_RECONNECT_ATTEMPTS = 10
 const BASE_RECONNECT_DELAY = 1000
-let paused = false
 
 const applySSEData = (data) => {
   if (data.overview) {
@@ -259,7 +257,6 @@ const connectSSE = () => {
   }
 
   eventSource.onmessage = (e) => {
-    if (paused) return
     try {
       const msg = JSON.parse(e.data)
       if (msg.type === 'snapshot' || msg.type === 'update') {
@@ -283,13 +280,17 @@ const scheduleReconnect = () => {
   reconnectTimer = setTimeout(connectSSE, delay)
 }
 
-watch(visibility, (val) => {
-  paused = val !== 'visible'
-  if (val === 'visible' && !eventSource) {
-    reconnectAttempts = 0
-    connectSSE()
+const disconnectSSE = () => {
+  if (eventSource) {
+    eventSource.close()
+    eventSource = null
   }
-})
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer)
+    reconnectTimer = null
+  }
+  reconnectAttempts = 0
+}
 
 const statCards = computed(() => {
   const o = overview.value
@@ -489,20 +490,10 @@ const fetchProjects = async () => {
 onMounted(() => {
   fetchProjects()
   refreshData()
-  if (visibility.value === 'visible') {
-    connectSSE()
-  }
 })
 
 onUnmounted(() => {
-  if (eventSource) {
-    eventSource.close()
-    eventSource = null
-  }
-  if (reconnectTimer) {
-    clearTimeout(reconnectTimer)
-    reconnectTimer = null
-  }
+  disconnectSSE()
 })
 </script>
 

@@ -1,7 +1,6 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import i18n from '../i18n'
-import { useAuthStore } from '../stores/auth'
 
 const instance = axios.create({
   baseURL: 'api/v1',
@@ -32,6 +31,11 @@ instance.interceptors.response.use(
     const originalRequest = error.config
 
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
+      if (originalRequest.url === 'auth/refresh' || originalRequest.url === 'auth/logout') {
+        clearAuth()
+        return Promise.reject(error)
+      }
+
       const refreshTokenValue = localStorage.getItem('refreshToken')
 
       if (!refreshTokenValue) {
@@ -78,8 +82,10 @@ instance.interceptors.response.use(
 )
 
 function clearAuth() {
-  const authStore = useAuthStore()
-  authStore.logout()
+  isRefreshing = false
+  pendingRequests = []
+  localStorage.removeItem('token')
+  localStorage.removeItem('refreshToken')
   if (window.location.hash !== '#/login') {
     ElMessage.error(i18n.global.t('api.sessionExpired'))
     window.location.hash = '#/login'
