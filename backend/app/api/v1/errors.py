@@ -11,6 +11,19 @@ from app.utils.decorators import jwt_required, admin_required
 bp = Blueprint('errors_v1', __name__, url_prefix='/api/v1')
 
 
+def _publish_update(redis_client, project_id):
+    try:
+        import json as _json
+        payload = _json.dumps({
+            'type': 'update',
+            'project_id': str(project_id),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
+        })
+        redis_client.publish('dashboard:update', payload)
+    except Exception:
+        pass
+
+
 @bp.route('/errors', methods=['POST'])
 def create_error():
     # 请求体大小检查
@@ -89,6 +102,7 @@ def create_error():
         if existing.status == 'resolved':
             existing.status = 'unresolved'
         db.session.commit()
+        _publish_update(redis, project.id)
         return jsonify({
             'id': str(existing.id),
             'fingerprint': existing.fingerprint,
@@ -110,6 +124,7 @@ def create_error():
     )
     db.session.add(error)
     db.session.commit()
+    _publish_update(redis, project.id)
     return jsonify({
         'id': str(error.id),
         'fingerprint': error.fingerprint,

@@ -181,10 +181,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useDark } from '@vueuse/core'
+import { useDark, useDocumentVisibility } from '@vueuse/core'
 import { DataAnalysis, FolderOpened, DataLine, WarningFilled, CircleCloseFilled, AlarmClock, TrendCharts, Calendar, Aim } from '@element-plus/icons-vue'
 import VChart from 'vue-echarts'
 import { use } from 'echarts/core'
@@ -213,6 +213,83 @@ const selectedProjectId = ref('')
 const recentProjectId = ref([])
 const hideResolved = ref(true)
 const trendDays = ref(7)
+
+const visibility = useDocumentVisibility()
+let eventSource = null
+let reconnectTimer = null
+let reconnectAttempts = 0
+const MAX_RECONNECT_ATTEMPTS = 10
+const BASE_RECONNECT_DELAY = 1000
+let paused = false
+
+const applySSEData = (data) => {
+  if (data.overview) {
+    overview.value = data.overview
+    recentErrors.value = data.overview.recent_errors || []
+  }
+  if (data.distributions) {
+    distributions.value = data.distributions
+  }
+}
+
+const buildSSEUrl = () => {
+  const token = localStorage.getItem('token')
+  if (!token) return null
+  const params = new URLSearchParams({ token })
+  if (selectedProjectId.value) params.set('project_id', selectedProjectId.value)
+  params.set('days', String(trendDays.value))
+  params.set('hide_resolved', hideResolved.value ? 'true' : 'false')
+  if (recentProjectId.value.length) params.set('recent_project_id', recentProjectId.value.join(','))
+  const base = import.meta.env.VITE_API_BASE_URL || ''
+  return `${base}api/v1/dashboard/stream?${params.toString()}`
+}
+
+const connectSSE = () => {
+  if (eventSource) {
+    eventSource.close()
+    eventSource = null
+  }
+  const url = buildSSEUrl()
+  if (!url) return
+
+  eventSource = new EventSource(url)
+
+  eventSource.onopen = () => {
+    reconnectAttempts = 0
+  }
+
+  eventSource.onmessage = (e) => {
+    if (paused) return
+    try {
+      const msg = JSON.parse(e.data)
+      if (msg.type === 'snapshot' || msg.type === 'update') {
+        applySSEData(msg)
+      }
+    } catch { }
+  }
+
+  eventSource.onerror = () => {
+    eventSource.close()
+    eventSource = null
+    scheduleReconnect()
+  }
+}
+
+const scheduleReconnect = () => {
+  if (reconnectTimer) clearTimeout(reconnectTimer)
+  if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) return
+  const delay = Math.min(BASE_RECONNECT_DELAY * Math.pow(2, reconnectAttempts), 30000)
+  reconnectAttempts++
+  reconnectTimer = setTimeout(connectSSE, delay)
+}
+
+watch(visibility, (val) => {
+  paused = val !== 'visible'
+  if (val === 'visible' && !eventSource) {
+    reconnectAttempts = 0
+    connectSSE()
+  }
+})
 
 const statCards = computed(() => {
   const o = overview.value
@@ -398,6 +475,8 @@ const refreshData = async () => {
   overview.value = overviewRes.data
   recentErrors.value = overviewRes.data.recent_errors || []
   distributions.value = distRes.data
+  reconnectAttempts = 0
+  connectSSE()
 }
 
 const fetchProjects = async () => {
@@ -410,6 +489,20 @@ const fetchProjects = async () => {
 onMounted(() => {
   fetchProjects()
   refreshData()
+  if (visibility.value === 'visible') {
+    connectSSE()
+  }
+})
+
+onUnmounted(() => {
+  if (eventSource) {
+    eventSource.close()
+    eventSource = null
+  }
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer)
+    reconnectTimer = null
+  }
 })
 </script>
 
