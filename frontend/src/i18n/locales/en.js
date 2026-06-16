@@ -65,6 +65,7 @@ export default {
     topErrors: 'Top 5 Error Types',
     projectRanking: 'Project Error Ranking',
     recentErrors: 'Recent Errors',
+    clickToProject: 'Click to view project errors',
     exceptionType: 'Exception Type',
     message: 'Message',
     project: 'Project',

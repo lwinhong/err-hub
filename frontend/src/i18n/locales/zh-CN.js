@@ -66,6 +66,7 @@ export default {
     topErrors: 'Top 5 异常类型',
     projectRanking: '项目异常排名',
     recentErrors: '最近异常',
+    clickToProject: '点击查看项目异常',
     exceptionType: '异常类型',
     message: '消息',
     project: '项目',

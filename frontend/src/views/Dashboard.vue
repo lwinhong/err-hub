@@ -144,7 +144,7 @@
           <span class="col-status">{{ t('dashboard.status') }}</span>
           <span class="col-time">{{ t('dashboard.lastSeen') }}</span>
         </div>
-        <div v-for="row in recentErrors" :key="row.id" class="table-row" @click="goToError(row)">
+        <div v-for="row in recentErrors" :key="row.id" class="table-row" @click="goToErrorDetail(row)">
           <div class="col-type">
             <span class="type-badge">{{ row.exception_type }}</span>
           </div>
@@ -154,7 +154,7 @@
           <div class="col-count">
             <span class="count-value">{{ row.count }}</span>
           </div>
-          <div class="col-project">
+          <div class="col-project" @click.stop="goToError(row)" :title="t('dashboard.clickToProject')">
             <span class="project-tag" :class="'pt-' + projectTagType(row.project_name)">{{ row.project_name }}</span>
           </div>
           <div class="col-env">
@@ -465,6 +465,10 @@ const goToError = (row) => {
   router.push(`/projects/${row.project_id}/errors`)
 }
 
+const goToErrorDetail = (row) => {
+  router.push(`/errors/${row.id}`)
+}
+
 const refreshData = async () => {
   const params = { days: trendDays.value, hide_resolved: hideResolved.value ? 'true' : 'false' }
   if (selectedProjectId.value) params.project_id = selectedProjectId.value
@@ -706,15 +710,19 @@ onUnmounted(() => {
 .table-row:last-child { border-bottom: none; }
 .table-row:hover { background: var(--el-fill-color-lighter); }
 
-.col-type { flex: 0 0 200px; min-width: 0; }
-.col-msg { flex: 2; min-width: 0; }
-.col-count { flex: 0 0 80px; text-align: center; }
-.col-project { flex: 0 0 120px; }
-.col-env { flex: 0 0 100px; }
-.col-source { flex: 0 0 80px; }
-.col-severity { flex: 0 0 80px; }
-.col-status { flex: 0 0 80px; }
-.col-time { flex: 1; min-width: 0; }
+.col-type { flex: 0 0 200px; min-width: 0; cursor: pointer; }
+.col-msg { flex: 2; min-width: 0; cursor: pointer; }
+.col-count { flex: 0 0 80px; text-align: center; cursor: pointer; }
+.col-project { flex: 0 0 120px; cursor: pointer; }
+.col-env { flex: 0 0 100px; cursor: pointer; }
+.col-source { flex: 0 0 80px; cursor: pointer; }
+.col-severity { flex: 0 0 80px; cursor: pointer; }
+.col-status { flex: 0 0 80px; cursor: pointer; }
+.col-time { flex: 1; min-width: 0; cursor: pointer; }
+
+.project-tag:hover {
+  background: rgba(var(--el-color-primary-rgb), 0.15);
+}
 
 .type-badge {
   font-family: 'SF Mono', 'Fira Code', monospace;

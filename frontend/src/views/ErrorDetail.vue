@@ -140,7 +140,9 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         </button>
       </div>
-      <pre class="code-block">{{ error.stack_trace || t('errorDetail.noStackTrace') }}</pre>
+      <div class="stack-scroll-wrap">
+        <pre class="code-block">{{ error.stack_trace || t('errorDetail.noStackTrace') }}</pre>
+      </div>
     </div>
 
     <!-- 上下文信息 -->
@@ -535,7 +537,11 @@ const fetchError = async () => {
   border-radius: 14px;
   background: var(--el-bg-color);
   border: 1px solid var(--el-border-color-lighter);
-  overflow: hidden;
+}
+
+.section-card > :last-child {
+  border-bottom-left-radius: 13px;
+  border-bottom-right-radius: 13px;
 }
 
 .section-header {
@@ -601,6 +607,9 @@ const fetchError = async () => {
   overflow-x: auto;
   white-space: pre-wrap;
   word-break: break-all;
+}
+
+.stack-scroll-wrap {
   max-height: 500px;
   overflow-y: auto;
 }
