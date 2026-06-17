@@ -7,3 +7,4 @@ docker/volumes/
 frontend/dist
 .trae
 .venv
+.mimocode
