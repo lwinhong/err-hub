@@ -7,6 +7,7 @@ import ErrorDetail from '../views/ErrorDetail.vue'
 import AdminLayout from '../views/admin/AdminLayout.vue'
 import Users from '../views/admin/Users.vue'
 import Settings from '../views/admin/Settings.vue'
+import PushManagement from '../views/admin/PushManagement.vue'
 
 const routes = [
   {
@@ -55,6 +56,12 @@ const routes = [
         path: 'settings',
         name: 'AdminSettings',
         component: Settings,
+        meta: { requiresAuth: true, requiresAdmin: true }
+      },
+      {
+        path: 'push',
+        name: 'AdminPush',
+        component: PushManagement,
         meta: { requiresAuth: true, requiresAdmin: true }
       }
     ]

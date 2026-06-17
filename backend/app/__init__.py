@@ -40,6 +40,9 @@ def create_app():
     from app.api.v1.users import bp as users_bp
     from app.api.v1.settings import bp as settings_bp
     from app.api.v1.captcha import bp as captcha_bp
+    from app.api.v1.push_providers import bp as push_providers_bp
+    from app.api.v1.push_templates import bp as push_templates_bp
+    from app.api.v1.push_schedules import bp as push_schedules_bp
 
     app.register_blueprint(api_v1_bp)
     app.register_blueprint(auth_bp)
@@ -49,8 +52,14 @@ def create_app():
     app.register_blueprint(users_bp)
     app.register_blueprint(settings_bp)
     app.register_blueprint(captcha_bp)
+    app.register_blueprint(push_providers_bp)
+    app.register_blueprint(push_templates_bp)
+    app.register_blueprint(push_schedules_bp)
 
     from app.cli import register_cli
     register_cli(app)
+
+    from app.tasks import init_celery
+    init_celery(app)
 
     return app
