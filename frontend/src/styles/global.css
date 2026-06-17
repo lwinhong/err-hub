@@ -42,3 +42,30 @@ html.theme-transition *::before,
 html.theme-transition *::after {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, fill 0.3s ease !important;
 }
+
+/* Chrome, Safari, and Opera */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  /* 设置滚动条宽度 */
+}
+
+::-webkit-scrollbar-track {
+  /* background: --var(--vscode-editor-background); */
+  /*#f1f1f1;*/
+  border-radius: 2px;
+  /* 滚动条轨道背景色 */
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--el-border-color);
+  /* 滚动条滑块背景色 */
+  border-radius: 3px;
+  /* 滑块圆角 */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+  /* 滑块悬停时的背景色 */
+  border-radius: 3px;
+}
