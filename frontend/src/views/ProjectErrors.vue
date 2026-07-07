@@ -618,7 +618,7 @@ onMounted(() => {
 }
 
 .col-type {
-  flex: 0 0 200px;
+  flex: 0 0 120px;
   min-width: 0;
 }
 
@@ -628,19 +628,19 @@ onMounted(() => {
 }
 
 .col-user {
-  flex: 0 0 100px;
+  flex: 1;
 }
 
 .col-severity {
-  flex: 0 0 80px;
+  flex: 0 0 60px;
 }
 
 .col-source {
-  flex: 0 0 80px;
+  flex: 0 0 58px;
 }
 
 .col-env {
-  flex: 0 0 90px;
+  flex: 0 0 70px;
 }
 
 .col-count {
@@ -653,7 +653,7 @@ onMounted(() => {
 }
 
 .col-time {
-  flex: 1;
+  flex: 0 0 120px;
   min-width: 0;
 }
 
