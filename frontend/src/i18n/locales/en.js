@@ -384,6 +384,8 @@ export default {
     sqlRequired: 'Please enter SQL query',
     loadFailed: 'Failed to load templates',
     previewFailed: 'Preview failed',
+    availableVars: 'Available Variables',
+    insertSample: 'Insert Sample Template',
   },
   pushSchedules: {
     title: 'Push Schedules',

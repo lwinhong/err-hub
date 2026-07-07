@@ -38,8 +38,10 @@ def create_schedule(**kwargs):
     if not template:
         return jsonify({'error': 'Template not found'}), 404
 
-    import croniter
-    if not croniter.is_valid(cron_expression):
+    from croniter import croniter
+    try:
+        croniter(cron_expression)
+    except (ValueError, KeyError):
         return jsonify({'error': 'Invalid cron expression'}), 400
 
     schedule = PushSchedule(
@@ -83,8 +85,10 @@ def update_schedule(schedule_id, **kwargs):
             return jsonify({'error': 'Template not found'}), 404
         schedule.template_id = data['template_id']
     if 'cron_expression' in data:
-        import croniter
-        if not croniter.is_valid(data['cron_expression']):
+        from croniter import croniter
+        try:
+            croniter(data['cron_expression'])
+        except (ValueError, KeyError):
             return jsonify({'error': 'Invalid cron expression'}), 400
         schedule.cron_expression = data['cron_expression']
     if 'is_active' in data:

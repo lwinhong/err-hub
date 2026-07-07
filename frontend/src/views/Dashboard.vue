@@ -711,14 +711,14 @@ onUnmounted(() => {
 .table-row:hover { background: var(--el-fill-color-lighter); }
 
 .col-type { flex: 0 0 200px; min-width: 0; cursor: pointer; }
-.col-msg { flex: 2; min-width: 0; cursor: pointer; }
+.col-msg { flex: 1; min-width: 0; cursor: pointer; }
 .col-count { flex: 0 0 80px; text-align: center; cursor: pointer; }
 .col-project { flex: 0 0 120px; cursor: pointer; }
 .col-env { flex: 0 0 100px; cursor: pointer; }
 .col-source { flex: 0 0 80px; cursor: pointer; }
 .col-severity { flex: 0 0 80px; cursor: pointer; }
 .col-status { flex: 0 0 80px; cursor: pointer; }
-.col-time { flex: 1; min-width: 0; cursor: pointer; }
+.col-time { flex: 0 0 132px; min-width: 0; cursor: pointer; }
 
 .project-tag:hover {
   background: rgba(var(--el-color-primary-rgb), 0.15);

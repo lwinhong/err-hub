@@ -385,6 +385,8 @@ export default {
     sqlRequired: '请输入 SQL 查询',
     loadFailed: '加载模板失败',
     previewFailed: '预览失败',
+    availableVars: '可用变量',
+    insertSample: '插入样例模板',
   },
   pushSchedules: {
     title: '推送调度',

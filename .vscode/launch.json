@@ -6,17 +6,12 @@
       "type": "debugpy",
       "request": "launch",
       "cwd": "${workspaceFolder}/backend",
+      "python": "${workspaceFolder}/backend/.venv/Scripts/python.exe",
       "program": "${workspaceFolder}/backend/run.py",
       "console": "internalConsole",
       "justMyCode": true,
       "env": {
-        "FLASK_ENV": "development",
-        "DATABASE_URL": "postgresql://errhub:errhub@localhost:5454/errhub",
-        "REDIS_URL": "redis://localhost:6363/0",
-        "SECRET_KEY": "sk-QXULMLThZ3kd4fmGr0Xm0gAPaqH7lekWgDEI7yLYaVulDUJ4RTN7k/Gj",
-        "JWT_SECRET_KEY": "sk-QXULMLThZ3kd4fmGr0Xm0gAPaqH7lekWgDEI7yLYaVulDUJ4RTN7k/Gj",
-        // "FLASK_APP": "run.py",
-        // "FLASK_DEBUG": "0",
+        "FLASK_ENV": "development"
       },
       "args": [
         "run",

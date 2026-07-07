@@ -1,6 +1,7 @@
 import os
 
 import redis
+from dotenv import load_dotenv
 from flask import Flask, send_from_directory
 from flask_cors import CORS
 
@@ -9,6 +10,8 @@ from app.extensions import db, migrate
 
 
 def create_app():
+    load_dotenv()
+
     app = Flask(__name__, static_folder='static')
 
     env = os.environ.get('FLASK_ENV', 'development')

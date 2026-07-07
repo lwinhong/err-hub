@@ -432,7 +432,7 @@ watch(() => props.refreshKey, () => {
 .content-header {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 20px;
+  margin: 16px 0;
 }
 
 .schedules-list {
@@ -513,7 +513,7 @@ watch(() => props.refreshKey, () => {
 
 .card-actions {
   display: flex;
-  gap: 8px;
+  gap: 0px;
 }
 
 /* Frequency Config */

@@ -253,7 +253,7 @@ onMounted(fetchProviders)
 .content-header {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 20px;
+  margin: 16px 0;
 }
 
 .providers-grid {
@@ -338,7 +338,7 @@ onMounted(fetchProviders)
 
 .card-actions {
   display: flex;
-  gap: 8px;
+  gap: 0px;
 }
 
 .empty-state {

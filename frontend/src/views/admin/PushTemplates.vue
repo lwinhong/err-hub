@@ -2,7 +2,9 @@
   <div class="push-templates-content">
     <div class="content-header">
       <el-button type="primary" @click="openDialog()">
-        <el-icon><Plus /></el-icon>
+        <el-icon>
+          <Plus />
+        </el-icon>
         {{ t('pushTemplates.add') }}
       </el-button>
     </div>
@@ -17,7 +19,8 @@
             <div class="card-body">
               <div class="card-left">
                 <div class="template-type-badge" :class="tpl.template_type">
-                  {{ tpl.template_type === 'error_report' ? t('pushTemplates.errorReport') : t('pushTemplates.customSql') }}
+                  {{ tpl.template_type === 'error_report' ? t('pushTemplates.errorReport') :
+                    t('pushTemplates.customSql') }}
                 </div>
                 <h3 class="template-name">{{ tpl.name }}</h3>
                 <p class="template-subject">{{ tpl.subject || '(no subject)' }}</p>
@@ -47,12 +50,8 @@
       </template>
     </el-skeleton>
 
-    <el-dialog
-      v-model="dialogVisible"
-      :title="editingTemplate ? t('pushTemplates.edit') : t('pushTemplates.add')"
-      width="700px"
-      destroy-on-close
-    >
+    <el-dialog v-model="dialogVisible" :title="editingTemplate ? t('pushTemplates.edit') : t('pushTemplates.add')"
+      width="700px" destroy-on-close>
       <el-form :model="form" label-width="120px">
         <el-form-item :label="t('pushTemplates.name')" required>
           <el-input v-model="form.name" />
@@ -66,7 +65,8 @@
 
         <template v-if="form.template_type === 'error_report'">
           <el-form-item :label="t('pushTemplates.project')">
-            <el-select v-model="form.project_id" clearable :placeholder="t('pushTemplates.allProjects')" style="width: 100%">
+            <el-select v-model="form.project_id" clearable :placeholder="t('pushTemplates.allProjects')"
+              style="width: 100%">
               <el-option v-for="p in projects" :key="p.id" :label="p.name" :value="p.id" />
             </el-select>
           </el-form-item>
@@ -84,7 +84,8 @@
             <el-input v-model="form.sql_query" type="textarea" :rows="4" placeholder="SELECT ..." />
           </el-form-item>
           <el-form-item :label="t('pushTemplates.columnMapping')">
-            <el-input v-model="columnMappingJson" type="textarea" :rows="3" placeholder='{"col1": "列名1", "col2": "列名2"}' />
+            <el-input v-model="columnMappingJson" type="textarea" :rows="3"
+              placeholder='{"col1": "列名1", "col2": "列名2"}' />
           </el-form-item>
         </template>
 
@@ -92,7 +93,23 @@
           <el-input v-model="form.subject" placeholder="{{project_name}} - Error Report" />
         </el-form-item>
         <el-form-item :label="t('pushTemplates.bodyTemplate')" required>
-          <el-input v-model="form.body_template" type="textarea" :rows="10" />
+          <div class="template-helpers">
+            <div class="helper-variables">
+              <span class="helper-label">{{ t('pushTemplates.availableVars') }}:</span>
+              <template v-if="form.template_type === 'error_report'">
+                <el-tag v-for="(item, key) in errorReportVars" :key="key" size="small" type="info" class="var-tag"
+                  :title="item.desc" @click="insertVar(key)" v-text="item.label" />
+              </template>
+              <template v-else>
+                <el-tag v-for="(item, key) in customSqlVars" :key="key" size="small" type="info" class="var-tag"
+                  :title="item.desc" @click="insertVar(key)" v-text="item.label" />
+              </template>
+            </div>
+            <el-input ref="bodyTemplateRef" v-model="form.body_template" type="textarea" :rows="10" />
+            <el-button size="small" type="primary" link @click="insertSample">
+              {{ t('pushTemplates.insertSample') }}
+            </el-button>
+          </div>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -103,11 +120,7 @@
       </template>
     </el-dialog>
 
-    <el-dialog
-      v-model="previewVisible"
-      :title="t('pushTemplates.previewTitle')"
-      width="700px"
-    >
+    <el-dialog v-model="previewVisible" :title="t('pushTemplates.previewTitle')" width="700px">
       <div class="preview-subject" v-if="previewData.subject">
         <strong>Subject:</strong> {{ previewData.subject }}
       </div>
@@ -117,7 +130,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Plus } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
@@ -134,6 +147,7 @@ const emit = defineEmits(['changed'])
 const { t } = useI18n()
 
 const loading = ref(false)
+const bodyTemplateRef = ref(null)
 const saving = ref(false)
 const templates = ref([])
 const projects = ref([])
@@ -161,9 +175,68 @@ const columnMappingJson = computed({
   set: (val) => {
     try {
       form.value.column_mapping = val.trim() ? JSON.parse(val) : null
-    } catch {}
+    } catch { }
   },
 })
+
+const ERROR_REPORT_SAMPLE = `<h2>{{project_name}} - 异常报告</h2>
+<p>报告时间: {{time_range}}</p>
+<table style="border-collapse:collapse;width:100%;margin:16px 0;">
+  <tr style="background:#f5f5f5;">
+    <td style="padding:12px;border:1px solid #eee;"><strong>异常总数</strong></td>
+    <td style="padding:12px;border:1px solid #eee;">{{error_count}}</td>
+    <td style="padding:12px;border:1px solid #eee;"><strong>新增异常</strong></td>
+    <td style="padding:12px;border:1px solid #eee;">{{new_errors}}</td>
+    <td style="padding:12px;border:1px solid #eee;"><strong>已解决</strong></td>
+    <td style="padding:12px;border:1px solid #eee;">{{resolved_errors}}</td>
+  </tr>
+</table>
+<h3>Top {{top_n}} 异常</h3>
+{{error_list}}`
+
+const CUSTOM_SQL_SAMPLE = `<h2>查询结果</h2>
+<p>共 {{row_count}} 条记录</p>
+{{table}}`
+
+const errorReportVars = {
+  project_name: { label: 'project_name', desc: '项目名称' },
+  error_count: { label: 'error_count', desc: '异常总数' },
+  new_errors: { label: 'new_errors', desc: '时间范围内新增的异常数' },
+  resolved_errors: { label: 'resolved_errors', desc: '已解决的异常数' },
+  error_list: { label: 'error_list', desc: 'Top N 异常列表（HTML表格）' },
+  time_range: { label: 'time_range', desc: '统计时间范围，如 2024-01-01 00:00 ~ 2024-01-02 00:00' },
+  top_n: { label: 'top_n', desc: '配置的 Top N 数量值' },
+}
+
+const customSqlVars = {
+  table: { label: 'table', desc: 'SQL查询结果（HTML表格）' },
+  row_count: { label: 'row_count', desc: '查询结果的行数' },
+}
+
+const insertVar = (varName) => {
+  const textarea = bodyTemplateRef.value?.textarea
+  if (!textarea) return
+
+  const start = textarea.selectionStart
+  const end = textarea.selectionEnd
+  const text = form.value.body_template
+  const insertion = `{{${varName}}}`
+
+  form.value.body_template = text.substring(0, start) + insertion + text.substring(end)
+
+  nextTick(() => {
+    textarea.focus()
+    textarea.setSelectionRange(start + insertion.length, start + insertion.length)
+  })
+}
+
+const insertSample = () => {
+  if (form.value.template_type === 'error_report') {
+    form.value.body_template = ERROR_REPORT_SAMPLE
+  } else {
+    form.value.body_template = CUSTOM_SQL_SAMPLE
+  }
+}
 
 const fetchTemplates = async () => {
   loading.value = true
@@ -179,9 +252,9 @@ const fetchTemplates = async () => {
 
 const fetchProjects = async () => {
   try {
-    const res = await getProjects()
-    projects.value = res.data
-  } catch {}
+    const res = await getProjects({ per_page: 100 })
+    projects.value = res.data.items || []
+  } catch { }
 }
 
 const openDialog = (tpl = null) => {
@@ -251,19 +324,18 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.push-templates-content {
-}
+.push-templates-content {}
 
 .content-header {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 20px;
+  margin: 16px 0;
 }
 
 .templates-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .template-card {
@@ -335,7 +407,7 @@ onMounted(() => {
 
 .card-actions {
   display: flex;
-  gap: 8px;
+  gap: 0px;
 }
 
 .preview-subject {
@@ -349,7 +421,47 @@ onMounted(() => {
   padding: 20px;
   border: 1px solid var(--el-border-color-lighter);
   border-radius: 8px;
-  max-height: 400px;
+  max-height: 600px;
   overflow-y: auto;
+}
+
+.template-helpers {
+  width: 100%;
+}
+
+.helper-variables {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 12px;
+  background: linear-gradient(135deg, var(--el-fill-color-lighter) 0%, var(--el-fill-color-light) 100%);
+  border: 1px dashed var(--el-border-color);
+  border-radius: 8px;
+}
+
+.helper-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--el-text-color-secondary);
+  margin-right: 4px;
+}
+
+.var-tag {
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-color: var(--el-color-primary-light-5);
+  background: var(--el-color-primary-light-9);
+  color: var(--el-color-primary);
+}
+
+.var-tag:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(var(--el-color-primary-rgb), 0.2);
+  background: var(--el-color-primary-light-7);
+  border-color: var(--el-color-primary);
 }
 </style>
