@@ -116,10 +116,11 @@ def query_distributions(project_id=None):
     )
     top_errors = (
         base_filter.with_entities(
-            Error.exception_type, Error.message,
+            Error.exception_type,
+            db.func.min(Error.message).label('message'),
             db.func.sum(Error.count).label('total_count'),
         )
-        .group_by(Error.exception_type, Error.message)
+        .group_by(Error.exception_type)
         .order_by(db.text('total_count DESC')).limit(5).all()
     )
     project_stats = (
