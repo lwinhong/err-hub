@@ -13,4 +13,4 @@ COPY . .
 
 EXPOSE 5000
 
-CMD ["sh", "-c", "uv run gunicorn --bind 0.0.0.0:5000 --workers ${GUNICORN_WORKERS:-4} --timeout 120 run:app"]
+CMD ["uv", "run", "gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--timeout", "120", "--threads", "8", "run:app"]
