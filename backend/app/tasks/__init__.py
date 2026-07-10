@@ -22,6 +22,7 @@ def init_celery(app):
         }
         celery.conf.timezone = 'UTC'
 
+        celery.flask_app = app
         celery_app = celery
         app.celery = celery
     except ImportError:
