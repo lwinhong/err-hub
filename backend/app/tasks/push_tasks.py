@@ -40,10 +40,12 @@ def _get_celery_task():
 
         for schedule in active_schedules:
             last_run = schedule.last_pushed_at or schedule.created_at
-            cron = croniter.croniter(schedule.cron_expression, last_run)
+            # Strip tzinfo for comparison — croniter returns naive datetimes
+            last_run_naive = last_run.replace(tzinfo=None) if last_run.tzinfo else last_run
+            cron = croniter.croniter(schedule.cron_expression, last_run_naive)
             next_run = cron.get_next(datetime)
 
-            if next_run <= now:
+            if next_run <= now.replace(tzinfo=None):
                 execute_push_task.delay(str(schedule.id))
 
     return execute_push_task, check_and_execute_pushes

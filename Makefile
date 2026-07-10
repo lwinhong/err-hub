@@ -78,6 +78,10 @@ logs: ## 实时查看所有服务日志
 logs-api: ## 仅查看 API 服务日志
 	$(COMPOSE) logs -f --tail=100 api
 
+.PHONY: logs-celery
+logs-celery: ## 查看 Celery worker + beat 日志
+	$(COMPOSE) logs -f --tail=100 celery-worker celery-beat
+
 .PHONY: logs-web
 logs-web: ## 仅查看前端服务日志
 	$(COMPOSE) logs -f --tail=100 web
