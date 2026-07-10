@@ -52,7 +52,7 @@ services:
       redis:
         condition: service_healthy
     command: >
-      sh -c "uv run flask init-db && uv run gunicorn --bind 0.0.0.0:5000 --worker-class gthread --workers $${GUNICORN_WORKERS:-4} --threads $${GUNICORN_THREADS:-8} --timeout 0 run:app"
+      sh -c "uv run flask init-db && uv run gunicorn --bind 0.0.0.0:5000 --worker-class gthread --workers $${GUNICORN_WORKERS:-4} --threads $${GUNICORN_THREADS:-8} --timeout $${GUNICORN_TIMEOUT:-300} run:app"
     restart: unless-stopped
 
   web:

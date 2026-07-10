@@ -174,8 +174,12 @@
     <div class="bottom-bar">
       <transition name="slide-up">
         <div v-if="authStore.isAdmin && selectedIds.length > 0" class="batch-bar">
-          <span class="batch-count">{{ t('projectErrors.batchDelete', { count: selectedIds.length }) }}</span>
-          <button class="batch-btn" @click="handleBatchDelete">
+          <span class="batch-count">{{ t('projectErrors.batchSelected', { count: selectedIds.length }) }}</span>
+          <button class="batch-btn batch-btn-resolve" @click="handleBatchResolve">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            {{ t('projectErrors.resolveBtn') }}
+          </button>
+          <button class="batch-btn batch-btn-delete" @click="handleBatchDelete">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             {{ t('projectErrors.deleteBtn') }}
           </button>
@@ -199,7 +203,7 @@ import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { Warning } from '@element-plus/icons-vue'
-import { getProjectErrors, deleteError, batchDeleteErrors } from '../api/errors'
+import { getProjectErrors, deleteError, batchDeleteErrors, batchUpdateErrors } from '../api/errors'
 import { getProject, getProjects } from '../api/projects'
 import { formatTime } from '../utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -302,6 +306,20 @@ const handleBatchDelete = async () => {
     )
     const res = await batchDeleteErrors(selectedIds.value)
     ElMessage.success(t('projectErrors.batchDeleteSuccess', { count: res.data.deleted }))
+    selectedIds.value = []
+    fetchErrors()
+  } catch {}
+}
+
+const handleBatchResolve = async () => {
+  try {
+    await ElMessageBox.confirm(
+      t('projectErrors.batchResolveConfirm', { count: selectedIds.value.length }),
+      t('projectErrors.batchResolveTitle'),
+      { confirmButtonText: t('projectErrors.resolveBtn'), cancelButtonText: t('projectErrors.cancel'), type: 'success' }
+    )
+    const res = await batchUpdateErrors(selectedIds.value, 'resolved')
+    ElMessage.success(t('projectErrors.batchResolveSuccess', { count: res.data.updated }))
     selectedIds.value = []
     fetchErrors()
   } catch {}
@@ -803,14 +821,14 @@ onMounted(() => {
   gap: 12px;
   padding: 8px 16px;
   border-radius: 10px;
-  background: rgba(239, 68, 68, 0.06);
-  border: 1px solid rgba(239, 68, 68, 0.15);
+  background: rgba(99, 102, 241, 0.06);
+  border: 1px solid rgba(99, 102, 241, 0.15);
 }
 
 .batch-count {
   font-size: 13px;
   font-weight: 600;
-  color: #ef4444;
+  color: #6366f1;
 }
 
 .batch-btn {
@@ -820,15 +838,28 @@ onMounted(() => {
   padding: 6px 14px;
   border-radius: 8px;
   border: none;
-  background: #ef4444;
-  color: #fff;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.batch-btn:hover {
+.batch-btn-resolve {
+  background: #22c55e;
+  color: #fff;
+}
+
+.batch-btn-resolve:hover {
+  background: #16a34a;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
+}
+
+.batch-btn-delete {
+  background: #ef4444;
+  color: #fff;
+}
+
+.batch-btn-delete:hover {
   background: #dc2626;
   box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
 }

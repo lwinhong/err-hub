@@ -20,6 +20,10 @@ export function batchDeleteErrors(ids) {
   return request.delete('errors/batch', { data: { ids } })
 }
 
+export function batchUpdateErrors(ids, status) {
+  return request.put('errors/batch', { ids, status })
+}
+
 export function getErrorStats(projectId) {
   return request.get(`projects/${projectId}/errors/stats`)
 }
