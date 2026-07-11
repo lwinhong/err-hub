@@ -49,6 +49,7 @@ def create_schedule(**kwargs):
         provider_id=provider_id,
         template_id=template_id,
         cron_expression=cron_expression,
+        timezone=data.get('timezone', 'UTC'),
         is_active=data.get('is_active', True),
     )
     db.session.add(schedule)
@@ -91,6 +92,8 @@ def update_schedule(schedule_id, **kwargs):
         except (ValueError, KeyError):
             return jsonify({'error': 'Invalid cron expression'}), 400
         schedule.cron_expression = data['cron_expression']
+    if 'timezone' in data:
+        schedule.timezone = data['timezone']
     if 'is_active' in data:
         schedule.is_active = data['is_active']
 

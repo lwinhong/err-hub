@@ -195,6 +195,7 @@ const defaultForm = () => ({
   provider_id: null,
   template_id: null,
   cron_expression: '0 9 * * *',
+  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   is_active: true,
 })
 
@@ -333,6 +334,7 @@ const openDialog = (schedule = null) => {
       provider_id: schedule.provider_id,
       template_id: schedule.template_id,
       cron_expression: schedule.cron_expression,
+      timezone: schedule.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
       is_active: schedule.is_active,
     }
     detectPreset(schedule.cron_expression)

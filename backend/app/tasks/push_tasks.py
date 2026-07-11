@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 import croniter
+import pytz
 
 from app.tasks import celery_app
 
@@ -39,17 +40,25 @@ def _get_celery_task():
         with flask_app.app_context():
             from app.models.push_schedule import PushSchedule
 
-            now = datetime.now(timezone.utc)
+            now_utc = datetime.now(timezone.utc)
             active_schedules = PushSchedule.query.filter_by(is_active=True).all()
 
             for schedule in active_schedules:
+                try:
+                    tz = pytz.timezone(schedule.timezone or 'UTC')
+                except pytz.exceptions.UnknownTimeZoneError:
+                    tz = pytz.utc
+
+                now_in_tz = now_utc.astimezone(tz)
                 last_run = schedule.last_pushed_at or schedule.created_at
-                # Strip tzinfo for comparison — croniter returns naive datetimes
-                last_run_naive = last_run.replace(tzinfo=None) if last_run.tzinfo else last_run
-                cron = croniter.croniter(schedule.cron_expression, last_run_naive)
+                if last_run.tzinfo is None:
+                    last_run = last_run.replace(tzinfo=timezone.utc)
+                last_run_in_tz = last_run.astimezone(tz).replace(tzinfo=None)
+
+                cron = croniter.croniter(schedule.cron_expression, last_run_in_tz)
                 next_run = cron.get_next(datetime)
 
-                if next_run <= now.replace(tzinfo=None):
+                if next_run <= now_in_tz.replace(tzinfo=None):
                     execute_push_task.delay(str(schedule.id))
 
     return execute_push_task, check_and_execute_pushes
